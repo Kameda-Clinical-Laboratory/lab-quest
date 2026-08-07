@@ -12,7 +12,8 @@ const buttonVariants = cva(
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         outline: 'border border-border bg-card/60 hover:bg-accent hover:text-accent-foreground',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
-        quest: 'bg-amber-600 text-white shadow-[0_0_20px_rgba(217,119,6,0.35)] hover:bg-amber-500',
+        quest:
+          'bg-amber-700 text-parchment shadow-[inset_0_1px_0_rgba(255,244,204,0.2),0_8px_22px_rgba(180,90,20,0.28)] hover:bg-amber-600',
         warn: 'bg-orange-700 text-white hover:bg-orange-600',
       },
       size: {

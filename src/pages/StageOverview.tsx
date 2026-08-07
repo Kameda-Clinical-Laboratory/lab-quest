@@ -55,26 +55,30 @@ export function StageOverview() {
             <div className="stage-list">
               {stage.units!.map((unit, i) => {
                 const done = isUnitCleared(unit, p)
-                const phases = unit.beats.map((b) => unitPhaseLabel(b)).filter((v, idx, arr) => arr.indexOf(v) === idx)
+                const phases = unit.beats
+                  .map((b) => unitPhaseLabel(b))
+                  .filter((v, idx, arr) => arr.indexOf(v) === idx)
                 return (
-                  <Link key={unit.id} className="stage-row" to={`/app/stage/${stage.id}/chapter/${unit.id}`}>
-                    <div>
+                  <Link
+                    key={unit.id}
+                    className="unit-quest-row"
+                    to={`/app/stage/${stage.id}/chapter/${unit.id}`}
+                  >
+                    <div className={`unit-quest-index ${done ? 'done' : ''}`}>{done ? '✓' : i + 1}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <strong>
-                        {i + 1}. {unit.title}
+                        {unit.title}
                       </strong>
-                      <div className="stage-meta">
-                        <span className="tag">{unit.requestLine}</span>
-                        {done ? (
-                          <span className="tag ok">{'\u5b8c\u4e86'}</span>
-                        ) : (
-                          <span className="tag">{'\u672a\u5b8c\u4e86'}</span>
-                        )}
+                      <div className="request-ticket-line" style={{ fontSize: '0.95rem', marginTop: 4 }}>
+                        {unit.requestLine}
                       </div>
-                      <div className="muted" style={{ marginTop: 4, fontSize: 12 }}>
-                        {phases.join(' / ')}
+                      <div className="muted" style={{ marginTop: 6, fontSize: 12 }}>
+                        {phases.join(' → ')}
                       </div>
                     </div>
-                    <span>{done ? '\u518d\u95b2\u89a7' : '\u958b\u59cb'} →</span>
+                    <span className="tag ok" style={{ alignSelf: 'center' }}>
+                      {done ? '\u518d\u95b2\u89a7' : '\u53d7\u4ed8'}
+                    </span>
                   </Link>
                 )
               })}

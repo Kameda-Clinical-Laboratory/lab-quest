@@ -7,17 +7,28 @@ type IconProps = {
 
 /** Thick-outline RPG menu icons (original, MH/DQ-inspired feel). */
 
-export function IconCompass({ className, title = 'コンパス' }: IconProps) {
+export function IconLabCrest({ className, title = 'ラボクエスト' }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={cn('quest-icon', className)} aria-hidden={title ? undefined : true} role="img">
       {title ? <title>{title}</title> : null}
-      <circle cx="24" cy="24" r="18" fill="#1a4a44" stroke="#d4a017" strokeWidth="3" />
-      <circle cx="24" cy="24" r="12" fill="#0f2c29" stroke="#7ec8b8" strokeWidth="2" />
-      <path d="M24 10 L27 24 L24 38 L21 24 Z" fill="#f0d78c" stroke="#8b6914" strokeWidth="1.5" />
-      <path d="M10 24 L24 21 L38 24 L24 27 Z" fill="#3dcfb8" stroke="#0f766e" strokeWidth="1.5" />
-      <circle cx="24" cy="24" r="3" fill="#fff4cc" stroke="#8b6914" strokeWidth="1.5" />
+      <path
+        d="M18 6 H30 V14 L39 33 A9 9 0 0 1 31 44 H17 A9 9 0 0 1 9 33 L18 14 Z"
+        fill="#1a4540"
+        stroke="#e6c56a"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <path d="M13 30 H35 L30 40 H18 Z" fill="#3dcfb8" opacity="0.88" />
+      <circle cx="21" cy="33" r="1.6" fill="#fff4cc" />
+      <circle cx="27" cy="35" r="1.2" fill="#7ec8b8" />
+      <rect x="17" y="4" width="14" height="5" rx="1.4" fill="#f0d78c" stroke="#8b6914" strokeWidth="1.5" />
+      <path d="M20 8 H28" stroke="#8b6914" strokeWidth="1.2" strokeLinecap="round" />
     </svg>
   )
+}
+
+export function IconCompass({ className, title = 'コンパス' }: IconProps) {
+  return <IconLabCrest className={className} title={title} />
 }
 
 export function IconSwordQuest({ className, title = 'クエスト' }: IconProps) {
@@ -25,15 +36,16 @@ export function IconSwordQuest({ className, title = 'クエスト' }: IconProps)
     <svg viewBox="0 0 48 48" className={cn('quest-icon', className)} aria-hidden={title ? undefined : true} role="img">
       {title ? <title>{title}</title> : null}
       <path
-        d="M34 8 L40 14 L22 32 L16 30 L14 24 Z"
-        fill="#cfd8e3"
-        stroke="#5a6470"
-        strokeWidth="2.5"
+        d="M33.5 7.5 L40.5 14.5 L23 32 L16.5 30 L14.5 23.5 Z"
+        fill="#e8eef4"
+        stroke="#6b7580"
+        strokeWidth="2"
         strokeLinejoin="round"
       />
-      <path d="M14 24 L16 30 L10 36 L8 34 Z" fill="#d4a017" stroke="#8b6914" strokeWidth="2" />
-      <rect x="18" y="28" width="10" height="4" rx="1" transform="rotate(45 23 30)" fill="#8b4513" stroke="#5c2e0a" strokeWidth="1.5" />
-      <circle cx="12" cy="36" r="3" fill="#f0d78c" stroke="#8b6914" strokeWidth="2" />
+      <path d="M30 11 L37 18" stroke="#9aa7b5" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M14.5 23.5 L16.5 30 L10 36.5 L7.5 34 Z" fill="#d4a017" stroke="#8b6914" strokeWidth="1.8" />
+      <rect x="18" y="28" width="10" height="3.5" rx="1" transform="rotate(45 23 30)" fill="#6b3a14" stroke="#3f210a" strokeWidth="1.4" />
+      <circle cx="11.5" cy="35.5" r="2.6" fill="#f0d78c" stroke="#8b6914" strokeWidth="1.6" />
     </svg>
   )
 }

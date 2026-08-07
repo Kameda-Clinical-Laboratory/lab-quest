@@ -1,55 +1,125 @@
-import { Link, Navigate, Outlet, useNavigate } from 'react-router-dom'
+import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAppState } from '@/context/AppState'
-import { formatDateJa } from '@/mocks/schedule'
-import { IconCompass, IconStamp, IconXpOrb } from '@/components/QuestIcons'
+import { IconScroll, IconStamp, IconXpOrb } from '@/components/QuestIcons'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { readCodexSeen, stampProgress, xpProgress } from '@/lib/playerHud'
 
 export function StudentShell() {
-  const { currentStudent, logoutStudent, mockToday, todayQueue } = useAppState()
+  const { currentStudent, logoutStudent, todayQueue, stages } = useAppState()
   const navigate = useNavigate()
+  const location = useLocation()
   if (!currentStudent) return <Navigate to="/" replace />
 
-  const visitIndex = currentStudent.visitDates.indexOf(mockToday)
+  const clueTotal = stages.reduce((n, s) => n + (s.clues?.length ?? 0), 0)
+  const clueOwned = currentStudent.progress.ownedClueIds.length
+  const onCodex = location.pathname.startsWith('/app/codex')
+  const initial = currentStudent.name.trim().slice(0, 1)
+  const xp = xpProgress(currentStudent.progress.xp)
+  const stamps = stampProgress(
+    currentStudent.progress.stamps,
+    currentStudent.visitDates.length,
+  )
+  const codexPct = clueTotal ? Math.round((clueOwned / clueTotal) * 100) : 0
+  const codexNew = clueOwned > readCodexSeen(currentStudent.id)
+  const carry = todayQueue?.carryIds.length ?? 0
 
   return (
     <div className="mx-auto min-h-screen max-w-6xl px-6 py-5">
-      <header className="quest-ticket mb-6 flex items-center justify-between gap-4 px-4 py-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-amber-500/50 bg-primary/15 quest-glow">
-            <IconCompass className="h-8 w-8" />
-          </div>
-          <div>
-            <div className="font-display text-2xl font-bold tracking-tight text-emerald-100">
-              生化学免疫ラボクエスト
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {currentStudent.name} ／ {formatDateJa(mockToday)}
-              {visitIndex >= 0 ? ` ／ 実習${visitIndex + 1}/${currentStudent.visitDates.length}日目` : ''}
-              {todayQueue && todayQueue.carryIds.length > 0 ? (
-                <Badge variant="quest" className="ml-2 text-amber-100">
-                  繰り越し {todayQueue.carryIds.length}
-                </Badge>
-              ) : null}
+      <header className="status-bar mb-6">
+        <div className="status-bar-left">
+          <Link to="/app" className="status-bar-brand" title="ホームへ">
+            <img
+              className="brand-logo brand-logo-header"
+              src="/art/quest-brand-title.png"
+              alt="LAB QUEST"
+            />
+          </Link>
+          <div className="status-player" title={`${currentStudent.name} / Lv.${xp.level}`}>
+            <span className="status-avatar" aria-hidden>
+              {initial}
+              <span className="status-level-badge">Lv{xp.level}</span>
+            </span>
+            <div className="status-player-meta">
+              <span className="status-player-name">{currentStudent.name}</span>
+              <span className="status-player-sub">冒険者</span>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="xp-orb">
-            <IconXpOrb className="h-4 w-4" /> XP {currentStudent.progress.xp}
-          </span>
-          <span className="xp-orb">
-            <IconStamp className="h-4 w-4" /> {currentStudent.progress.stamps}
-          </span>
+
+        <div className="status-bar-right">
+          <div className="status-tray" role="group" aria-label="ステータス">
+            <div
+              className="status-meter"
+              title={`経験値 ${xp.xp}（次のレベルまで ${xp.toNext}）`}
+            >
+              <div className="status-meter-head">
+                <IconXpOrb className="h-4 w-4" />
+                <span className="status-chip-label">XP</span>
+                <strong>{xp.xp}</strong>
+              </div>
+              <div className="status-meter-track" aria-hidden>
+                <div className="status-meter-fill xp" style={{ width: `${xp.pct}%` }} />
+              </div>
+            </div>
+
+            <div
+              className="status-meter"
+              title={`スタンプ ${stamps.stamps} / 目標 ${stamps.goal}`}
+            >
+              <div className="status-meter-head">
+                <IconStamp className="h-4 w-4" />
+                <span className="status-chip-label">Stamp</span>
+                <strong>
+                  {stamps.stamps}/{stamps.goal}
+                </strong>
+              </div>
+              <div className="status-meter-track" aria-hidden>
+                <div className="status-meter-fill stamp" style={{ width: `${stamps.pct}%` }} />
+              </div>
+            </div>
+
+            <Link
+              to="/app/codex"
+              className={`status-meter status-meter-link ${onCodex ? 'active' : ''}`}
+              title="手がかり図鑑"
+            >
+              <div className="status-meter-head">
+                <span className="status-icon-wrap">
+                  <IconScroll className="h-4 w-4" />
+                  {codexNew ? <span className="status-new-dot" aria-label="新規あり" /> : null}
+                </span>
+                <span className="status-chip-label">図鑑</span>
+                <strong>
+                  {clueOwned}/{clueTotal || 0}
+                </strong>
+              </div>
+              <div className="status-meter-track" aria-hidden>
+                <div className="status-meter-fill codex" style={{ width: `${codexPct}%` }} />
+              </div>
+            </Link>
+
+            {carry > 0 ? (
+              <div className="status-meter status-meter-warn" title="繰り越しクエスト">
+                <div className="status-meter-head">
+                  <span className="status-chip-label">繰越</span>
+                  <strong>{carry}</strong>
+                </div>
+                <div className="status-meter-track" aria-hidden>
+                  <div className="status-meter-fill warn" style={{ width: '100%' }} />
+                </div>
+              </div>
+            ) : null}
+          </div>
           <Button
             variant="outline"
             size="sm"
+            className="status-logout"
             onClick={() => {
               logoutStudent()
               navigate('/')
             }}
           >
-            ログアウト
+            退出
           </Button>
         </div>
       </header>
@@ -75,7 +145,7 @@ export function StaffShell() {
       <div className="mx-auto max-w-6xl px-6 py-5">
         <header className="mb-6 flex items-center justify-between gap-4">
           <div>
-            <div className="font-display text-2xl font-bold text-teal-900">生化学免疫ラボクエスト 管理</div>
+            <div className="font-display text-2xl font-bold text-teal-900">LAB QUEST 管理</div>
             <div className="text-sm text-muted-foreground">
               {currentStaff.name} ／ {currentStaff.role === 'full' ? 'フル権限' : '運用権限'}
             </div>

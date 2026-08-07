@@ -3,6 +3,7 @@ import { AppStateProvider } from './context/AppState'
 import { StaffShell, StudentShell } from './components/Shells'
 import { StaffLogin, StudentLogin } from './pages/Login'
 import { HomeMap } from './pages/HomeMap'
+import { Codex } from './pages/Codex'
 import { StageOverview } from './pages/StageOverview'
 import { ChapterLearn } from './pages/ChapterLearn'
 import { CaseWalkthrough } from './pages/CaseWalkthrough'
@@ -25,6 +26,7 @@ export default function App() {
 
           <Route path="/app" element={<StudentShell />}>
             <Route index element={<HomeMap />} />
+            <Route path="codex" element={<Codex />} />
             <Route path="stage/:stageId" element={<StageOverview />} />
             <Route path="stage/:stageId/chapter/:chapterId" element={<ChapterLearn />} />
             <Route path="stage/:stageId/case" element={<CaseWalkthrough />} />

@@ -32,7 +32,7 @@ interface AppStateValue {
   setMockToday: (date: string) => void
   currentStudentId: string | null
   currentStaff: StaffUser | null
-  loginStudent: (code: string, password: string) => string | null
+  loginStudent: (nameOrCode: string, password: string) => string | null
   logoutStudent: () => void
   loginStaff: (password: string) => string | null
   logoutStaff: () => void
@@ -84,12 +84,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const todayQueue = currentStudent ? getTodayQueue(currentStudent, mockToday) : null
 
   const loginStudent = useCallback(
-    (code: string, password: string) => {
+    (nameOrCode: string, password: string) => {
+      const key = nameOrCode.trim()
+      const keyUpper = key.toUpperCase()
       const found = students.find(
         (s) =>
-          s.code.toUpperCase() === code.trim().toUpperCase() && s.password === password.trim(),
+          s.password === password.trim() &&
+          (s.code.toUpperCase() === keyUpper ||
+            s.name === key ||
+            s.name.replace(/\s+/g, '') === key.replace(/\s+/g, '')),
       )
-      if (!found) return '受講コードまたはパスワードが違います'
+      if (!found) return '受講者コードまたはパスワードが違います'
       setCurrentStudentId(found.id)
       setCurrentStaff(null)
       return null

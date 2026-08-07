@@ -185,33 +185,51 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
         <Link to={`/app/stage/${stage.id}`}>{stage.title} {'\u3078\u623b\u308b'}</Link>
       </p>
 
-      <div
-        className="banner"
-        style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}
-      >
+      <div className="request-ticket">
         <div>
-          <div className="muted" style={{ fontSize: 12 }}>
-            {'\u4f9d\u983c\u7968'}
-          </div>
-          <strong>{unit.requestLine}</strong>
+          <div className="request-ticket-label">{'\u4f9d\u983c\u7968'}</div>
+          <div className="request-ticket-line">{unit.requestLine}</div>
         </div>
-        <details>
-          <summary>{'\u624b\u304c\u304b\u308a'} ({owned.size})</summary>
-          <ul style={{ margin: '8px 0 0', paddingLeft: 18 }}>
+        <details className="clue-book">
+          <summary>
+            {'\u624b\u304c\u304b\u308a\u624b\u5e33'} ({owned.size})
+          </summary>
+          <div style={{ marginTop: 8 }}>
             {clues
               .filter((c) => owned.has(c.id))
               .map((c) => (
-                <li key={c.id}>
-                  <strong>{c.name}</strong> — {c.summary}
-                </li>
+                <span key={c.id} className="clue-chip" title={c.summary}>
+                  {c.name}
+                </span>
               ))}
-            {owned.size === 0 && <li className="muted">{'\u307e\u3060\u3042\u308a\u307e\u305b\u3093'}</li>}
-          </ul>
+            {owned.size === 0 && <p className="muted">{'\u307e\u3060\u3042\u308a\u307e\u305b\u3093'}</p>}
+          </div>
         </details>
       </div>
 
+      <div className="phase-rail">
+        {unit.beats.map((b, i) => {
+          const done = currentStudent.progress.clearedBeatIds.includes(b.id)
+          const lockedResolve =
+            b.type === 'resolve' && b.requiredClueIds.some((id) => !owned.has(id))
+          return (
+            <button
+              key={b.id}
+              type="button"
+              className={`phase-pill ${i === beatIndex ? 'active' : ''} ${done ? 'done' : ''} ${
+                lockedResolve && !done ? 'locked' : ''
+              }`}
+              onClick={() => goTo(i)}
+            >
+              {unitPhaseLabel(b)}
+              {done ? ' ✓' : lockedResolve ? ` (${'\u30ed\u30c3\u30af'})` : ''}
+            </button>
+          )
+        })}
+      </div>
+
       <div className="chapter-layout" style={{ marginTop: 16 }}>
-        <aside className="side-nav">
+        <aside className="side-nav unit-side">
           <p className="muted">{unit.title}</p>
           {unit.beats.map((b, i) => {
             const done = currentStudent.progress.clearedBeatIds.includes(b.id)
@@ -223,9 +241,12 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
                 type="button"
                 className={i === beatIndex ? 'active' : ''}
                 onClick={() => goTo(i)}
-                style={{ opacity: lockedResolve && !done ? 0.7 : 1 }}
               >
-                {unitPhaseLabel(b)} {done ? '✓' : lockedResolve ? '🔒' : ''}
+                <span>
+                  {unitPhaseLabel(b)}
+                  {lockedResolve && !done ? ` · ${'\u30ed\u30c3\u30af'}` : ''}
+                </span>
+                <span>{done ? '✓' : `${i + 1}`}</span>
               </button>
             )
           })}
@@ -273,9 +294,9 @@ function BeatView({
     return (
       <div className="stack">
         {beat.lines.map((line, i) => (
-          <div key={i} style={{ borderLeft: '3px solid #0f766e', paddingLeft: 12, marginBottom: 10 }}>
-            <strong>{line.speaker}</strong>
-            <div>{line.text}</div>
+          <div key={i} className="dialogue-line">
+            <div className="dialogue-speaker">{line.speaker}</div>
+            <div className="dialogue-bubble">{line.text}</div>
           </div>
         ))}
         <button type="button" className="btn" onClick={() => onComplete()}>
@@ -307,17 +328,21 @@ function BeatView({
     const missing = beat.requiredClueIds.filter((id) => !owned.has(id))
     if (missing.length > 0) {
       return (
-        <div className="banner warn">
-          <p>
+        <div className="lock-panel">
+          <p style={{ marginTop: 0 }}>
             {'\u75c7\u4f8b\u89e3\u6c7a\u306b\u5fc5\u8981\u306a\u624b\u304c\u304b\u308a\u304c\u8db3\u308a\u307e\u305b\u3093\u3002'}
           </p>
-          <ul>
+          <div>
             {missing.map((id) => {
               const c = clues.find((x) => x.id === id)
-              return <li key={id}>{c?.name ?? id}</li>
+              return (
+                <span key={id} className="clue-chip">
+                  {c?.name ?? id}
+                </span>
+              )
             })}
-          </ul>
-          <button type="button" className="btn" onClick={onJumpToInvestigate}>
+          </div>
+          <button type="button" className="btn" style={{ marginTop: 12 }} onClick={onJumpToInvestigate}>
             {'\u8abf\u67fb\u3078\u623b\u308b'}
           </button>
         </div>
@@ -366,13 +391,17 @@ function InvestigateBeat({
 
   return (
     <div className="stack">
-      <div className="banner">
-        <div>
-          <strong>{'\u3053\u306e\u75c7\u4f8b\u306e\u305f\u3081\u306b\u78ba\u304b\u3081\u308b\u3053\u3068'}</strong>
-        </div>
-        <p>{beat.purpose}</p>
-        <p className="muted">{beat.howTo}</p>
-        {beat.manners && <p className="muted">{'\u30de\u30ca\u30fc'}: {beat.manners}</p>}
+      <div className="investigate-card">
+        <h4>{'\u3053\u306e\u75c7\u4f8b\u306e\u305f\u3081\u306b\u78ba\u304b\u3081\u308b\u3053\u3068'}</h4>
+        <p style={{ margin: '0 0 0.5rem' }}>{beat.purpose}</p>
+        <p className="muted" style={{ margin: 0 }}>
+          {beat.howTo}
+        </p>
+        {beat.manners && (
+          <p className="muted" style={{ marginTop: 8 }}>
+            {'\u30de\u30ca\u30fc'}: {beat.manners}
+          </p>
+        )}
       </div>
       <label className="field">
         {beat.inputPrompt}
@@ -397,7 +426,9 @@ function InvestigateBeat({
         )}
       </div>
       {fails >= 3 && beat.demoHint && !already && (
-        <p className="muted">{'\u30d2\u30f3\u30c8'}: {beat.demoHint}</p>
+        <p className="muted">
+          {'\u30d2\u30f3\u30c8'}: {beat.demoHint}
+        </p>
       )}
     </div>
   )
