@@ -204,20 +204,26 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
               </div>
               <details className="clue-book">
                 <summary>
-                  {'\u624b\u304c\u304b\u308a\u624b\u5e33'} ({owned.size})
+                  <span className="clue-book-spine" aria-hidden />
+                  <span className="clue-book-title">
+                    <span className="clue-book-kicker">{'\u30d5\u30a3\u30fc\u30eb\u30c9\u30ce\u30fc\u30c8'}</span>
+                    <span className="clue-book-name">
+                      {'\u624b\u304c\u304b\u308a\u624b\u5e33'}
+                      <em>{owned.size}</em>
+                    </span>
+                  </span>
                 </summary>
-                <div style={{ marginTop: 8 }}>
+                <div className="clue-book-pages">
                   {clues
                     .filter((c) => owned.has(c.id))
                     .map((c) => (
-                      <span key={c.id} className="clue-chip" title={c.summary}>
-                        {c.name}
-                      </span>
+                      <div key={c.id} className="clue-entry" title={c.summary}>
+                        <strong>{c.name}</strong>
+                        <p>{c.summary}</p>
+                      </div>
                     ))}
                   {owned.size === 0 && (
-                    <p className="muted" style={{ color: '#6b4f12', margin: 0 }}>
-                      {'\u307e\u3060\u3042\u308a\u307e\u305b\u3093'}
-                    </p>
+                    <p className="clue-book-empty">{'\u307e\u3060\u9805\u76ee\u304c\u3042\u308a\u307e\u305b\u3093\u3002\u8abf\u67fb\u3067\u8a18\u5165\u3055\u308c\u307e\u3059\u3002'}</p>
                   )}
                 </div>
               </details>
