@@ -138,9 +138,6 @@ export function HomeMap() {
 
       <div className="grid gap-5 lg:grid-cols-[1.35fr_0.85fr]">
         <div className="map-board">
-          <div className="map-board-art">
-            <img src="/art/quest-map-bg.png" alt="" />
-          </div>
           <div className="map-board-body p-5">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
@@ -188,7 +185,9 @@ export function HomeMap() {
                         <Badge variant="outline">{seriesProgressLabel(currentStudent, id)}</Badge>
                       </div>
                     </div>
-                    <IconSwordQuest className="h-5 w-5 opacity-80" />
+                    <span className="map-node-go" aria-hidden>
+                      <IconSwordQuest className="h-6 w-6" />
+                    </span>
                   </Link>
                 )
               })}

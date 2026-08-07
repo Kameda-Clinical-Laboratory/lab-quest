@@ -9,7 +9,7 @@ type IconProps = {
 
 export function IconLabCrest({ className, title = 'ラボクエスト' }: IconProps) {
   return (
-    <svg viewBox="0 0 48 48" className={cn('quest-icon', className)} aria-hidden={title ? undefined : true} role="img">
+    <svg viewBox="0 0 48 48" className={cn('quest-icon h-5 w-5', className)} aria-hidden={title ? undefined : true} role="img">
       {title ? <title>{title}</title> : null}
       <path
         d="M18 6 H30 V14 L39 33 A9 9 0 0 1 31 44 H17 A9 9 0 0 1 9 33 L18 14 Z"
@@ -33,26 +33,28 @@ export function IconCompass({ className, title = 'コンパス' }: IconProps) {
 
 export function IconSwordQuest({ className, title = 'クエスト' }: IconProps) {
   return (
-    <svg viewBox="0 0 48 48" className={cn('quest-icon', className)} aria-hidden={title ? undefined : true} role="img">
+    <svg viewBox="0 0 48 48" className={cn('quest-icon h-5 w-5', className)} aria-hidden={title ? undefined : true} role="img">
       {title ? <title>{title}</title> : null}
+      {/* Upright sword — clear at menu sizes (DQ/MH-style) */}
       <path
-        d="M33.5 7.5 L40.5 14.5 L23 32 L16.5 30 L14.5 23.5 Z"
-        fill="#e8eef4"
-        stroke="#6b7580"
-        strokeWidth="2"
+        d="M24 3.5 L31 14 V29 H17 V14 Z"
+        fill="#eef3f8"
+        stroke="#3d4650"
+        strokeWidth="2.5"
         strokeLinejoin="round"
       />
-      <path d="M30 11 L37 18" stroke="#9aa7b5" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M14.5 23.5 L16.5 30 L10 36.5 L7.5 34 Z" fill="#d4a017" stroke="#8b6914" strokeWidth="1.8" />
-      <rect x="18" y="28" width="10" height="3.5" rx="1" transform="rotate(45 23 30)" fill="#6b3a14" stroke="#3f210a" strokeWidth="1.4" />
-      <circle cx="11.5" cy="35.5" r="2.6" fill="#f0d78c" stroke="#8b6914" strokeWidth="1.6" />
+      <path d="M24 8 V26" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" opacity="0.85" />
+      <rect x="11" y="27.5" width="26" height="5.5" rx="1.8" fill="#d4a017" stroke="#8b6914" strokeWidth="2.2" />
+      <rect x="19.5" y="33" width="9" height="8.5" rx="1.6" fill="#6b3a14" stroke="#3f210a" strokeWidth="1.8" />
+      <circle cx="24" cy="43.5" r="3.6" fill="#f0d78c" stroke="#8b6914" strokeWidth="2.2" />
+      <circle cx="24" cy="43.5" r="1.4" fill="#fff8dc" />
     </svg>
   )
 }
 
 export function IconFlask({ className, title = '実験' }: IconProps) {
   return (
-    <svg viewBox="0 0 48 48" className={cn('quest-icon', className)} aria-hidden={title ? undefined : true} role="img">
+    <svg viewBox="0 0 48 48" className={cn('quest-icon h-5 w-5', className)} aria-hidden={title ? undefined : true} role="img">
       {title ? <title>{title}</title> : null}
       <path
         d="M18 8 H30 V16 L38 34 A8 8 0 0 1 30 44 H18 A8 8 0 0 1 10 34 L18 16 Z"
@@ -71,7 +73,7 @@ export function IconFlask({ className, title = '実験' }: IconProps) {
 
 export function IconShield({ className, title = '守護' }: IconProps) {
   return (
-    <svg viewBox="0 0 48 48" className={cn('quest-icon', className)} aria-hidden={title ? undefined : true} role="img">
+    <svg viewBox="0 0 48 48" className={cn('quest-icon h-5 w-5', className)} aria-hidden={title ? undefined : true} role="img">
       {title ? <title>{title}</title> : null}
       <path
         d="M24 6 L40 12 V24 C40 34 32 40 24 44 C16 40 8 34 8 24 V12 Z"
@@ -88,7 +90,7 @@ export function IconShield({ className, title = '守護' }: IconProps) {
 
 export function IconFlag({ className, title = '旗' }: IconProps) {
   return (
-    <svg viewBox="0 0 48 48" className={cn('quest-icon', className)} aria-hidden={title ? undefined : true} role="img">
+    <svg viewBox="0 0 48 48" className={cn('quest-icon h-5 w-5', className)} aria-hidden={title ? undefined : true} role="img">
       {title ? <title>{title}</title> : null}
       <rect x="10" y="6" width="4" height="36" rx="1" fill="#8b6914" stroke="#5c4a0a" strokeWidth="1.5" />
       <path
@@ -105,7 +107,7 @@ export function IconFlag({ className, title = '旗' }: IconProps) {
 
 export function IconStamp({ className, title = 'スタンプ' }: IconProps) {
   return (
-    <svg viewBox="0 0 48 48" className={cn('quest-icon', className)} aria-hidden={title ? undefined : true} role="img">
+    <svg viewBox="0 0 48 48" className={cn('quest-icon h-5 w-5', className)} aria-hidden={title ? undefined : true} role="img">
       {title ? <title>{title}</title> : null}
       <circle cx="24" cy="22" r="14" fill="#7a1f1f" stroke="#d4a017" strokeWidth="3" />
       <circle cx="24" cy="22" r="10" fill="none" stroke="#f0d78c" strokeWidth="2" strokeDasharray="3 2" />
@@ -117,7 +119,7 @@ export function IconStamp({ className, title = 'スタンプ' }: IconProps) {
 
 export function IconXpOrb({ className, title = '経験値' }: IconProps) {
   return (
-    <svg viewBox="0 0 48 48" className={cn('quest-icon', className)} aria-hidden={title ? undefined : true} role="img">
+    <svg viewBox="0 0 48 48" className={cn('quest-icon h-5 w-5', className)} aria-hidden={title ? undefined : true} role="img">
       {title ? <title>{title}</title> : null}
       <circle cx="24" cy="24" r="16" fill="#b8860b" stroke="#f0d78c" strokeWidth="3" />
       <circle cx="24" cy="24" r="10" fill="#f5d76e" />
@@ -128,7 +130,7 @@ export function IconXpOrb({ className, title = '経験値' }: IconProps) {
 
 export function IconBoss({ className, title = 'ボス戦' }: IconProps) {
   return (
-    <svg viewBox="0 0 48 48" className={cn('quest-icon', className)} aria-hidden={title ? undefined : true} role="img">
+    <svg viewBox="0 0 48 48" className={cn('quest-icon h-5 w-5', className)} aria-hidden={title ? undefined : true} role="img">
       {title ? <title>{title}</title> : null}
       <path
         d="M24 6 L42 14 L38 34 L24 44 L10 34 L6 14 Z"
@@ -146,7 +148,7 @@ export function IconBoss({ className, title = 'ボス戦' }: IconProps) {
 
 export function IconScroll({ className, title = '巻物' }: IconProps) {
   return (
-    <svg viewBox="0 0 48 48" className={cn('quest-icon', className)} aria-hidden={title ? undefined : true} role="img">
+    <svg viewBox="0 0 48 48" className={cn('quest-icon h-5 w-5', className)} aria-hidden={title ? undefined : true} role="img">
       {title ? <title>{title}</title> : null}
       <path
         d="M12 12 H36 A4 4 0 0 1 36 20 V36 A4 4 0 0 1 32 40 H12 A4 4 0 0 1 12 32 V12 Z"
@@ -162,7 +164,7 @@ export function IconScroll({ className, title = '巻物' }: IconProps) {
 
 export function IconCase({ className, title = '症例' }: IconProps) {
   return (
-    <svg viewBox="0 0 48 48" className={cn('quest-icon', className)} aria-hidden={title ? undefined : true} role="img">
+    <svg viewBox="0 0 48 48" className={cn('quest-icon h-5 w-5', className)} aria-hidden={title ? undefined : true} role="img">
       {title ? <title>{title}</title> : null}
       <rect x="10" y="8" width="28" height="34" rx="3" fill="#f3e6c4" stroke="#8b6914" strokeWidth="2.5" />
       <rect x="14" y="12" width="20" height="8" rx="1" fill="#1a4a44" />
@@ -174,7 +176,7 @@ export function IconCase({ className, title = '症例' }: IconProps) {
 
 export function IconProcedure({ className, title = '手技' }: IconProps) {
   return (
-    <svg viewBox="0 0 48 48" className={cn('quest-icon', className)} aria-hidden={title ? undefined : true} role="img">
+    <svg viewBox="0 0 48 48" className={cn('quest-icon h-5 w-5', className)} aria-hidden={title ? undefined : true} role="img">
       {title ? <title>{title}</title> : null}
       <rect x="8" y="18" width="32" height="18" rx="3" fill="#cfd8e3" stroke="#5a6470" strokeWidth="2.5" />
       <rect x="12" y="12" width="10" height="8" rx="2" fill="#7ec8b8" stroke="#0f766e" strokeWidth="2" />
@@ -186,7 +188,7 @@ export function IconProcedure({ className, title = '手技' }: IconProps) {
 
 export function IconCheck({ className, title = 'クリア' }: IconProps) {
   return (
-    <svg viewBox="0 0 48 48" className={cn('quest-icon', className)} aria-hidden={title ? undefined : true} role="img">
+    <svg viewBox="0 0 48 48" className={cn('quest-icon h-5 w-5', className)} aria-hidden={title ? undefined : true} role="img">
       {title ? <title>{title}</title> : null}
       <circle cx="24" cy="24" r="16" fill="#0f766e" stroke="#d4a017" strokeWidth="3" />
       <path d="M16 24 L22 30 L34 16" fill="none" stroke="#f0d78c" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />

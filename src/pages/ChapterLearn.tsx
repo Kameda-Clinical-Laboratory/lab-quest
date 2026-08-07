@@ -150,8 +150,12 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
 
   if (!currentStudent || !stage || !unit) {
     return (
-      <div className="learn-panel">
-        <Link to="/app">{'\u30de\u30c3\u30d7\u3078'}</Link>
+      <div className="map-board">
+        <div className="map-board-body space-y-3 p-5">
+          <Link to="/app" className="text-amber-200 underline-offset-2 hover:underline">
+            {'\u30de\u30c3\u30d7\u3078'}
+          </Link>
+        </div>
       </div>
     )
   }
@@ -180,95 +184,111 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
   }
 
   return (
-    <div className="learn-panel">
-      <p className="muted" style={{ marginTop: 0 }}>
-        <Link to={`/app/stage/${stage.id}`}>{stage.title} {'\u3078\u623b\u308b'}</Link>
-      </p>
+    <div className="space-y-4">
+      <Link
+        to={`/app/stage/${stage.id}`}
+        className="inline-flex items-center gap-1 text-sm text-amber-200/90 hover:text-amber-100"
+      >
+        {'\u2190 '}
+        {stage.title}
+        {' \u3078\u623b\u308b'}
+      </Link>
 
-      <div className="request-ticket">
-        <div>
-          <div className="request-ticket-label">{'\u4f9d\u983c\u7968'}</div>
-          <div className="request-ticket-line">{unit.requestLine}</div>
-        </div>
-        <details className="clue-book">
-          <summary>
-            {'\u624b\u304c\u304b\u308a\u624b\u5e33'} ({owned.size})
-          </summary>
-          <div style={{ marginTop: 8 }}>
-            {clues
-              .filter((c) => owned.has(c.id))
-              .map((c) => (
-                <span key={c.id} className="clue-chip" title={c.summary}>
-                  {c.name}
-                </span>
-              ))}
-            {owned.size === 0 && <p className="muted">{'\u307e\u3060\u3042\u308a\u307e\u305b\u3093'}</p>}
+      <div className="map-board map-board--stage">
+        <div className="map-board-body space-y-4 p-4 sm:p-5">
+          <div className="quest-paper-board">
+            <div className="quest-scroll">
+              <div className="min-w-0 flex-1">
+                <div className="quest-scroll-label">{'\u4f9d\u983c\u7968'}</div>
+                <div className="quest-scroll-line">{unit.requestLine}</div>
+              </div>
+              <details className="clue-book">
+                <summary>
+                  {'\u624b\u304c\u304b\u308a\u624b\u5e33'} ({owned.size})
+                </summary>
+                <div style={{ marginTop: 8 }}>
+                  {clues
+                    .filter((c) => owned.has(c.id))
+                    .map((c) => (
+                      <span key={c.id} className="clue-chip" title={c.summary}>
+                        {c.name}
+                      </span>
+                    ))}
+                  {owned.size === 0 && (
+                    <p className="muted" style={{ color: '#6b4f12', margin: 0 }}>
+                      {'\u307e\u3060\u3042\u308a\u307e\u305b\u3093'}
+                    </p>
+                  )}
+                </div>
+              </details>
+            </div>
           </div>
-        </details>
-      </div>
 
-      <div className="phase-rail">
-        {unit.beats.map((b, i) => {
-          const done = currentStudent.progress.clearedBeatIds.includes(b.id)
-          const lockedResolve =
-            b.type === 'resolve' && b.requiredClueIds.some((id) => !owned.has(id))
-          return (
-            <button
-              key={b.id}
-              type="button"
-              className={`phase-pill ${i === beatIndex ? 'active' : ''} ${done ? 'done' : ''} ${
-                lockedResolve && !done ? 'locked' : ''
-              }`}
-              onClick={() => goTo(i)}
-            >
-              {unitPhaseLabel(b)}
-              {done ? ' ✓' : lockedResolve ? ` (${'\u30ed\u30c3\u30af'})` : ''}
-            </button>
-          )
-        })}
-      </div>
-
-      <div className="chapter-layout" style={{ marginTop: 16 }}>
-        <aside className="side-nav unit-side">
-          <p className="muted">{unit.title}</p>
-          {unit.beats.map((b, i) => {
-            const done = currentStudent.progress.clearedBeatIds.includes(b.id)
-            const lockedResolve =
-              b.type === 'resolve' && b.requiredClueIds.some((id) => !owned.has(id))
-            return (
-              <button
-                key={b.id}
-                type="button"
-                className={i === beatIndex ? 'active' : ''}
-                onClick={() => goTo(i)}
-              >
-                <span>
-                  {unitPhaseLabel(b)}
-                  {lockedResolve && !done ? ` · ${'\u30ed\u30c3\u30af'}` : ''}
-                </span>
-                <span>{done ? '✓' : `${i + 1}`}</span>
-              </button>
-            )
-          })}
-        </aside>
-
-        <div>
-          <h2 style={{ marginTop: 0 }}>
-            {unitPhaseLabel(beat)} · {unit.title}
-          </h2>
-          <BeatView
-            beat={beat}
-            owned={owned}
-            clues={clues}
-            already={currentStudent.progress.clearedBeatIds.includes(beat.id)}
-            onComplete={(clueId) => finishBeat(beat, clueId)}
-            onJumpToInvestigate={() => {
-              const idx = unit.beats.findIndex(
-                (b) => b.type === 'investigate' && b.required && !owned.has(b.clueId),
+          <div className="quest-phase-rail">
+            {unit.beats.map((b, i) => {
+              const done = currentStudent.progress.clearedBeatIds.includes(b.id)
+              const lockedResolve =
+                b.type === 'resolve' && b.requiredClueIds.some((id) => !owned.has(id))
+              return (
+                <button
+                  key={b.id}
+                  type="button"
+                  className={`quest-phase-pill ${i === beatIndex ? 'active' : ''} ${done ? 'done' : ''} ${
+                    lockedResolve && !done ? 'locked' : ''
+                  }`}
+                  onClick={() => goTo(i)}
+                >
+                  {i + 1}. {unitPhaseLabel(b)}
+                  {done ? ' \u2713' : lockedResolve ? ` (${'\u30ed\u30c3\u30af'})` : ''}
+                </button>
               )
-              if (idx >= 0) goTo(idx)
-            }}
-          />
+            })}
+          </div>
+
+          <div className="chapter-layout" style={{ marginTop: 4 }}>
+            <aside className="quest-side">
+              <p className="quest-side-title">{unit.title}</p>
+              {unit.beats.map((b, i) => {
+                const done = currentStudent.progress.clearedBeatIds.includes(b.id)
+                const lockedResolve =
+                  b.type === 'resolve' && b.requiredClueIds.some((id) => !owned.has(id))
+                return (
+                  <button
+                    key={b.id}
+                    type="button"
+                    className={i === beatIndex ? 'active' : ''}
+                    onClick={() => goTo(i)}
+                  >
+                    <span>
+                      {i + 1}. {unitPhaseLabel(b)}
+                      {lockedResolve && !done ? ` \u00b7 ${'\u30ed\u30c3\u30af'}` : ''}
+                    </span>
+                    <span>{done ? '\u2713' : ''}</span>
+                  </button>
+                )
+              })}
+            </aside>
+
+            <div className="quest-content learn-panel">
+              <h2 style={{ marginTop: 0 }}>
+                {beatIndex + 1}. {unitPhaseLabel(beat)}
+                <span style={{ opacity: 0.7, fontSize: '0.85em' }}> · {unit.title}</span>
+              </h2>
+              <BeatView
+                beat={beat}
+                owned={owned}
+                clues={clues}
+                already={currentStudent.progress.clearedBeatIds.includes(beat.id)}
+                onComplete={(clueId) => finishBeat(beat, clueId)}
+                onJumpToInvestigate={() => {
+                  const idx = unit.beats.findIndex(
+                    (b) => b.type === 'investigate' && b.required && !owned.has(b.clueId),
+                  )
+                  if (idx >= 0) goTo(idx)
+                }}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
