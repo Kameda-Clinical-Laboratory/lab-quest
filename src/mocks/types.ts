@@ -41,6 +41,9 @@ export interface Stage {
   caseSteps: CaseStep[]
   procedureSteps?: ProcedureStep[]
   procedureImageNote?: string
+  /** Present = new conversation→investigate→resolve loop (see learning.ts) */
+  units?: import('./learning').LearningUnit[]
+  clues?: import('./learning').ClueDef[]
 }
 
 export interface CbtQuestion {
@@ -64,6 +67,12 @@ export interface StudentProgress {
   clearedCaseStageIds: string[]
   clearedProcedureStageIds: string[]
   clearedStageIds: string[]
+  /** New-loop beat completion */
+  clearedBeatIds: string[]
+  /** Clues earned via investigate */
+  ownedClueIds: string[]
+  /** Mid-unit resume cursor (beat index per unit) */
+  unitCursors: Record<string, number>
   xp: number
   stamps: number
   cbtSubmitted: boolean

@@ -341,6 +341,52 @@
 
 ---
 
+## 12. 実装スキーマ対応表（編集担当向け）
+
+原稿をアプリに落とすときのフィールド名。正本コード: `src/mocks/learning.ts` / 例: `src/mocks/bioBasicsUnits.ts`。
+
+### LearningUnit
+
+| フィールド | 必須 | 意味 |
+|------------|------|------|
+| id | yes | ユニットID（例: bio-basics-u1） |
+| title | yes | ユニット名 |
+| requestLine | yes | 依頼票に常時表示する一文 |
+| beats | yes | Beat の配列（会話→講義→調査→解決→発展の順） |
+
+### ClueDef（図鑑）
+
+| フィールド | 必須 | 意味 |
+|------------|------|------|
+| id | yes | 手がかりID（investigate.clueId / resolve.requiredClueIds と一致） |
+| name | yes | 表示名 |
+| summary | yes | 1文の定義 |
+
+### Beat.type
+
+| type | 役割 | 主なフィールド |
+|------|------|----------------|
+| dialogue | 症例オープン | lines[{ speaker, text }], xp? |
+| lecture | 短い講義 | body, bridge?, xp? |
+| investigate | 調査（手がかり集め） | mode: textbook\\|doc\\|observe, purpose, howTo, inputPrompt, acceptedAnswers[], clueId, required, manners?, demoHint?, xp? |
+| resolve | 症例解決 | requiredClueIds[], steps（分岐 CaseStep）, xp? |
+| drill | 発展（MVPは mcq） | questions[{ id, format:'mcq', prompt, choices, correctIndex, explanation }], xp? |
+
+### ゲート・救済（実装済み）
+
+- resolve は requiredClueIds がすべて所持手がかりに含まれるまでロック
+- investigate.required=false はスキップ可（ボーナス放棄）
+- キーワード不一致: 3回で demoHint、5回で正答開示＋手がかり付与
+- 解決・発展の不正解は減点なし・再選択可
+
+### 旧シリーズ互換
+
+- Stage.units がある → 新UI
+- 無い → 従来の chapters + case + procedure
+
+---
+
 ## 改定履歴
 
 - 2026-08-07: 初版。目盛り2、現実世界調査、会話→講義→調査→症例解決→発展問題を正本化。
+- 2026-08-07: 実装スキーマ対応表・ゲート／救済ルールを追記。

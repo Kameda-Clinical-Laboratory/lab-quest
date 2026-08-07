@@ -42,6 +42,16 @@ interface AppStateValue {
   completeCase: (stageId: string) => void
   completeProcedure: (stageId: string) => void
   maybeClearStage: (stageId: string) => void
+  /** Clear a learning-loop beat; grants clue and XP once */
+  completeBeat: (opts: {
+    beatId: string
+    xp?: number
+    clueId?: string
+    unitId?: string
+    nextBeatIndex?: number
+    stageId?: string
+  }) => void
+  setUnitCursor: (unitId: string, beatIndex: number) => void
   startCbt: () => CbtQuestion[]
   getActiveCbtQuestions: () => CbtQuestion[]
   submitCbt: (answers: Record<string, number>) => number
@@ -189,6 +199,56 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       refreshStageClear(currentStudentId, stageId)
     },
     [currentStudentId, refreshStageClear],
+  )
+
+  const completeBeat = useCallback(
+    (opts: {
+      beatId: string
+      xp?: number
+      clueId?: string
+      unitId?: string
+      nextBeatIndex?: number
+      stageId?: string
+    }) => {
+      if (!currentStudentId) return
+      patchStudent(currentStudentId, (s) => {
+        const already = s.progress.clearedBeatIds.includes(opts.beatId)
+        const owned = new Set(s.progress.ownedClueIds)
+        if (opts.clueId) owned.add(opts.clueId)
+        const unitCursors = { ...s.progress.unitCursors }
+        if (opts.unitId != null && opts.nextBeatIndex != null) {
+          unitCursors[opts.unitId] = opts.nextBeatIndex
+        }
+        return {
+          ...s,
+          progress: {
+            ...s.progress,
+            clearedBeatIds: already
+              ? s.progress.clearedBeatIds
+              : [...s.progress.clearedBeatIds, opts.beatId],
+            ownedClueIds: Array.from(owned),
+            unitCursors,
+            xp: already ? s.progress.xp : s.progress.xp + (opts.xp ?? 0),
+          },
+        }
+      })
+      if (opts.stageId) refreshStageClear(currentStudentId, opts.stageId)
+    },
+    [currentStudentId, patchStudent, refreshStageClear],
+  )
+
+  const setUnitCursor = useCallback(
+    (unitId: string, beatIndex: number) => {
+      if (!currentStudentId) return
+      patchStudent(currentStudentId, (s) => ({
+        ...s,
+        progress: {
+          ...s.progress,
+          unitCursors: { ...s.progress.unitCursors, [unitId]: beatIndex },
+        },
+      }))
+    },
+    [currentStudentId, patchStudent],
   )
 
   const startCbt = useCallback(() => {
@@ -356,6 +416,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       completeCase,
       completeProcedure,
       maybeClearStage,
+      completeBeat,
+      setUnitCursor,
       startCbt,
       getActiveCbtQuestions,
       submitCbt,
@@ -383,6 +445,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       completeCase,
       completeProcedure,
       maybeClearStage,
+      completeBeat,
+      setUnitCursor,
       startCbt,
       getActiveCbtQuestions,
       submitCbt,

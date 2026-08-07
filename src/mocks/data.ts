@@ -1,4 +1,11 @@
 import type { CbtQuestion, Stage, StaffUser, Student } from './types'
+import { BIO_BASICS_CLUES, BIO_BASICS_UNITS } from './bioBasicsUnits'
+import { isUnitCleared, validateStagesUnits } from './learning'
+
+const _unitErrors = validateStagesUnits([{ id: 'bio-basics', units: BIO_BASICS_UNITS }])
+if (_unitErrors.length && typeof console !== 'undefined') {
+  console.warn('[lab-quest] unit validation', _unitErrors)
+}
 
 export const AREAS = [
   { id: 'biochem' as const, name: '生化学', blurb: '検体・測定・精度の基礎エリア' },
@@ -12,6 +19,8 @@ export const STAGES: Stage[] = [
     title: '基礎知識',
     required: true,
     hasProcedure: false,
+    units: BIO_BASICS_UNITS,
+    clues: BIO_BASICS_CLUES,
     chapters: [
       {
         id: 'bio-basics-c1',
@@ -383,6 +392,9 @@ export function emptyProgress(): Student['progress'] {
     clearedCaseStageIds: [],
     clearedProcedureStageIds: [],
     clearedStageIds: [],
+    clearedBeatIds: [],
+    ownedClueIds: [],
+    unitCursors: {},
     xp: 0,
     stamps: 0,
     cbtSubmitted: false,
@@ -470,9 +482,8 @@ export const INITIAL_STUDENTS: Student[] = [
     ],
     progress: {
       ...emptyProgress(),
-      clearedChapterIds: ['bio-basics-c1', 'bio-basics-c2'],
-      xp: 40,
-      stamps: 2,
+      xp: 0,
+      stamps: 0,
     },
   },
   {
@@ -496,8 +507,19 @@ export const INITIAL_STUDENTS: Student[] = [
     ],
     progress: {
       ...emptyProgress(),
-      clearedChapterIds: ['bio-basics-c1', 'bio-basics-c2', 'bio-basics-c3'],
-      clearedCaseStageIds: ['bio-basics'],
+      clearedBeatIds: [
+        'bio-basics-u1-d0',
+        'bio-basics-u1-lec',
+        'bio-basics-u1-inv',
+        'bio-basics-u1-res',
+        'bio-basics-u1-drill',
+        'bio-basics-u2-d0',
+        'bio-basics-u2-lec',
+        'bio-basics-u2-inv',
+        'bio-basics-u2-res',
+        'bio-basics-u2-drill',
+      ],
+      ownedClueIds: ['clue-priority-flow', 'clue-panic-def'],
       clearedStageIds: ['bio-basics'],
       xp: 85,
       stamps: 4,
@@ -515,8 +537,12 @@ export function getStage(id: string) {
 }
 
 export function isStageCleared(stage: Stage, progress: Student['progress']) {
+  const procDone = !stage.hasProcedure || progress.clearedProcedureStageIds.includes(stage.id)
+  if (stage.units && stage.units.length > 0) {
+    const unitsDone = stage.units.every((u) => isUnitCleared(u, progress))
+    return unitsDone && procDone
+  }
   const chaptersDone = stage.chapters.every((c) => progress.clearedChapterIds.includes(c.id))
   const caseDone = progress.clearedCaseStageIds.includes(stage.id)
-  const procDone = !stage.hasProcedure || progress.clearedProcedureStageIds.includes(stage.id)
   return chaptersDone && caseDone && procDone
 }

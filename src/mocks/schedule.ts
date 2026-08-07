@@ -1,4 +1,5 @@
 import { getStage, isStageCleared } from './data'
+import { isUnitCleared } from './learning'
 import type { CbtQuestion, DayPlan, Student } from './types'
 
 export const CBT_TARGET = 30
@@ -118,6 +119,14 @@ export function seriesProgressLabel(student: Student, seriesId: string) {
   if (!stage) return '不明'
   if (student.progress.clearedStageIds.includes(seriesId) || isStageCleared(stage, student.progress)) {
     return 'クリア'
+  }
+  if (stage.units && stage.units.length > 0) {
+    const done = stage.units.filter((u) => isUnitCleared(u, student.progress)).length
+    if (done > 0) return '途中'
+    if (student.progress.clearedBeatIds.some((id) => stage.units!.some((u) => u.beats.some((b) => b.id === id)))) {
+      return '途中'
+    }
+    return '未着手'
   }
   const ch = stage.chapters.filter((c) => student.progress.clearedChapterIds.includes(c.id)).length
   if (ch > 0 || student.progress.clearedCaseStageIds.includes(seriesId)) return '途中'
