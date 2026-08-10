@@ -5,8 +5,8 @@ import { useAppState } from '@/context/AppState'
 
 export function ProcedureSim() {
   const { stageId = '' } = useParams()
-  const { currentStudent, completeProcedure } = useAppState()
-  const stage = getStage(stageId)
+  const { currentStudent, completeProcedure, stages } = useAppState()
+  const stage = getStage(stages, stageId)
 
   const initial = useMemo(() => {
     const steps = [...(stage?.procedureSteps ?? [])]

@@ -117,7 +117,7 @@ export function ProgressDashboard() {
         <tbody>
           {students.map((s) => {
             const reqTotal = stages.filter((st) => st.required).length
-            const reqDone = s.progress.clearedStageIds.filter((id) => getStage(id)?.required).length
+            const reqDone = s.progress.clearedStageIds.filter((id) => getStage(stages, id)?.required).length
             const q = getTodayQueue(s, mockToday)
             return (
               <tr key={s.id}>
@@ -130,7 +130,7 @@ export function ProgressDashboard() {
                   {reqDone}/{reqTotal}
                 </td>
                 <td>{reqTotal - reqDone}</td>
-                <td>{q.queueIds.map((id) => getStage(id)?.title).join(JP.comma) || JP.dash}</td>
+                <td>{q.queueIds.map((id) => getStage(stages, id)?.title).join(JP.comma) || JP.dash}</td>
                 <td>{q.carryIds.length}</td>
                 <td>
                   {s.progress.cbtScore === null
@@ -263,7 +263,7 @@ export function StudentAdmin() {
     const missing = requiredUnassignedWarning(draftPlans, requiredIds)
     if (missing.length > 0) {
       const ok = confirm(
-        `${JP.missingRequiredPrefix}${missing.map((id) => getStage(id)?.title).join(JP.comma)}\n${JP.saveConfirm}`,
+        `${JP.missingRequiredPrefix}${missing.map((id) => getStage(stages, id)?.title).join(JP.comma)}\n${JP.saveConfirm}`,
       )
       if (!ok) return
     }
@@ -440,7 +440,7 @@ export function StudentAdmin() {
           {carryPreview.length > 0 && (
             <p className="muted">
               {JP.carryPreviewPrefix}
-              {carryPreview.map((id) => getStage(id)?.title).join(JP.comma)}
+              {carryPreview.map((id) => getStage(stages, id)?.title).join(JP.comma)}
             </p>
           )}
         </div>
@@ -581,7 +581,7 @@ export function ContentAdmin() {
 }
 
 export function CbtResultsAdmin() {
-  const { students, cbtQuestionBank } = useAppState()
+  const { students, cbtQuestionBank, stages } = useAppState()
   const [focusId, setFocusId] = useState<string | null>(null)
   const focus = students.find((s) => s.id === focusId)
 
@@ -601,7 +601,7 @@ export function CbtResultsAdmin() {
           s.code,
           String(s.progress.cbtScore),
           String(paper.length),
-          s.progress.cbtScopeStageIds.map((id) => getStage(id)?.title).join('|'),
+          s.progress.cbtScopeStageIds.map((id) => getStage(stages, id)?.title).join('|'),
           detail,
         ].join(','),
       )
@@ -643,7 +643,7 @@ export function CbtResultsAdmin() {
                   : `${s.progress.cbtScore} / ${s.progress.cbtDrawnIds.length}`}
               </td>
               <td className="muted">
-                {s.progress.cbtScopeStageIds.map((id) => getStage(id)?.title).join(JP.comma) || JP.dash}
+                {s.progress.cbtScopeStageIds.map((id) => getStage(stages, id)?.title).join(JP.comma) || JP.dash}
               </td>
               <td>
                 <button

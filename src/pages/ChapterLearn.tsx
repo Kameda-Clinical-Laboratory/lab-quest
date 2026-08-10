@@ -6,7 +6,8 @@ import { useAppState } from '@/context/AppState'
 
 export function ChapterLearn() {
   const { stageId = '', chapterId = '' } = useParams()
-  const stage = getStage(stageId)
+  const { stages } = useAppState()
+  const stage = getStage(stages, stageId)
   if (stage?.units?.length) {
     return <UnitLearn stageId={stageId} unitId={chapterId} />
   }
@@ -15,8 +16,8 @@ export function ChapterLearn() {
 
 function LegacyChapterLearn() {
   const { stageId = '', chapterId = '' } = useParams()
-  const { currentStudent, completeChapter, maybeClearStage } = useAppState()
-  const stage = getStage(stageId)
+  const { currentStudent, completeChapter, maybeClearStage, stages } = useAppState()
+  const stage = getStage(stages, stageId)
   const chapter = stage?.chapters.find((c) => c.id === chapterId)
   const [phase, setPhase] = useState<'lecture' | 'quiz' | 'done'>('lecture')
   const [selected, setSelected] = useState<number | null>(null)
@@ -130,8 +131,8 @@ function LegacyChapterLearn() {
 }
 
 function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
-  const { currentStudent, completeBeat, setUnitCursor, maybeClearStage } = useAppState()
-  const stage = getStage(stageId)
+  const { currentStudent, completeBeat, setUnitCursor, maybeClearStage, stages } = useAppState()
+  const stage = getStage(stages, stageId)
   const unit = stage?.units?.find((u) => u.id === unitId)
 
   const initialIndex = useMemo(() => {

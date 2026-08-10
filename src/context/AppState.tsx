@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   CBT_QUESTIONS,
   INITIAL_STUDENTS,
@@ -22,11 +23,15 @@ import {
   getTodayQueue,
   sortDates,
 } from '../mocks/schedule'
-import type { CbtQuestion, DayPlan, StaffRole, StaffUser, Student } from '../mocks/types'
+import type { CbtQuestion, DayPlan, Stage, StaffRole, StaffUser, Student } from '../mocks/types'
+import { backendMode } from '../lib/backendMode'
+import { fetchCurriculum } from '../lib/curriculumApi'
 
 interface AppStateValue {
   students: Student[]
-  stages: typeof STAGES
+  stages: Stage[]
+  /** Supabaseモード時、カリキュラム取得が完了しているか(初回ロード判定用) */
+  stagesLoaded: boolean
   cbtQuestionBank: typeof CBT_QUESTIONS
   mockToday: string
   setMockToday: (date: string) => void
@@ -73,12 +78,33 @@ interface AppStateValue {
 
 const AppStateContext = createContext<AppStateValue | null>(null)
 
+/** stages の空配列フォールバック用。毎レンダー新しい配列を作って参照を揺らさないための定数。 */
+const EMPTY_STAGES: Stage[] = []
+
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [students, setStudents] = useState<Student[]>(INITIAL_STUDENTS)
   const [currentStudentId, setCurrentStudentId] = useState<string | null>(null)
   const [currentStaff, setCurrentStaff] = useState<StaffUser | null>(null)
   const [publishedStageIds, setPublishedStageIds] = useState<string[]>(STAGES.map((s) => s.id))
   const [mockToday, setMockToday] = useState(MOCK_TODAY_DEFAULT)
+
+  // Phase 1: バックエンドモードが 'supabase' のときだけ、学生向け(公開分のみ)の
+  // カリキュラムをRPC(get_curriculum)経由で取得する。'mock' のときは従来どおり
+  // 静的な STAGES を使う(認証/進捗はまだPhase 2/3までモックのまま)。
+  const curriculumQuery = useQuery({
+    queryKey: ['curriculum', 'student'],
+    queryFn: () => fetchCurriculum(true),
+    enabled: backendMode === 'supabase',
+    staleTime: 60_000,
+  })
+  const curriculumData = curriculumQuery.data
+  // stages の参照を安定させる(毎レンダー新しい [] を作らない)。
+  // STAGES自体は常に同じ参照なので、mockモード側は元々安定している。
+  const stages: Stage[] = useMemo(
+    () => (backendMode === 'supabase' ? (curriculumData ?? EMPTY_STAGES) : STAGES),
+    [curriculumData],
+  )
+  const stagesLoaded = backendMode === 'supabase' ? curriculumQuery.isSuccess : true
 
   const currentStudent = students.find((s) => s.id === currentStudentId) ?? null
   const todayQueue = currentStudent ? getTodayQueue(currentStudent, mockToday) : null
@@ -121,7 +147,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const refreshStageClear = useCallback(
     (studentId: string, stageId: string) => {
       patchStudent(studentId, (s) => {
-        const stage = getStage(stageId)
+        const stage = getStage(stages, stageId)
         if (!stage) return s
         if (!isStageCleared(stage, s.progress)) return s
         if (s.progress.clearedStageIds.includes(stageId)) return s
@@ -136,7 +162,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         }
       })
     },
-    [patchStudent],
+    [patchStudent, stages],
   )
 
   const completeChapter = useCallback(
@@ -405,7 +431,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AppStateValue>(
     () => ({
       students,
-      stages: STAGES,
+      stages,
+      stagesLoaded,
       cbtQuestionBank: CBT_QUESTIONS,
       mockToday,
       setMockToday,
@@ -437,6 +464,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }),
     [
       students,
+      stages,
+      stagesLoaded,
       mockToday,
       currentStudentId,
       currentStaff,

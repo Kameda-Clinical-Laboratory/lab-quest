@@ -8,8 +8,8 @@ import { Badge } from '@/components/ui/badge'
 
 export function StageOverview() {
   const { stageId = '' } = useParams()
-  const { currentStudent, maybeClearStage } = useAppState()
-  const stage = getStage(stageId)
+  const { currentStudent, maybeClearStage, stages } = useAppState()
+  const stage = getStage(stages, stageId)
 
   useEffect(() => {
     if (!currentStudent || !stage) return
@@ -123,8 +123,8 @@ export function StageOverview() {
 }
 
 function LegacyStageBody({ stageId }: { stageId: string }) {
-  const { currentStudent } = useAppState()
-  const stage = getStage(stageId)!
+  const { currentStudent, stages } = useAppState()
+  const stage = getStage(stages, stageId)!
   const p = currentStudent!.progress
   const chaptersDone = stage.chapters.filter((c) => p.clearedChapterIds.includes(c.id)).length
   const caseDone = p.clearedCaseStageIds.includes(stage.id)

@@ -8,7 +8,7 @@ import type { CbtQuestion } from '@/mocks/types'
 const DURATION_SEC = 45 * 60
 
 export function FinalCbt() {
-  const { currentStudent, startCbt, getActiveCbtQuestions, submitCbt } = useAppState()
+  const { currentStudent, startCbt, getActiveCbtQuestions, submitCbt, stages } = useAppState()
   const navigate = useNavigate()
   const [ready, setReady] = useState(false)
   const [paper, setPaper] = useState<CbtQuestion[]>([])
@@ -71,7 +71,7 @@ export function FinalCbt() {
           範囲:{' '}
           {cleared.length === 0
             ? 'まだクリア済みシリーズがありません'
-            : cleared.map((id) => getStage(id)?.title).join('、')}
+            : cleared.map((id) => getStage(stages, id)?.title).join('、')}
         </p>
         <button
           type="button"
@@ -114,7 +114,7 @@ export function FinalCbt() {
           <h2 style={{ margin: 0 }}>最終確認テスト（CBT）</h2>
           <p className="muted" style={{ margin: '4px 0 0' }}>
             出題 {questions.length} 問（目標 {CBT_TARGET}）／範囲{' '}
-            {currentStudent.progress.cbtScopeStageIds.map((id) => getStage(id)?.title).join('、')}
+            {currentStudent.progress.cbtScopeStageIds.map((id) => getStage(stages, id)?.title).join('、')}
           </p>
         </div>
         <div className="timer">
@@ -210,7 +210,7 @@ export function FinalCbt() {
 }
 
 export function CbtResult() {
-  const { currentStudent, getActiveCbtQuestions } = useAppState()
+  const { currentStudent, getActiveCbtQuestions, stages } = useAppState()
   if (!currentStudent) return null
 
   const questions = getActiveCbtQuestions()
@@ -234,7 +234,7 @@ export function CbtResult() {
         {score} / {questions.length} 点
       </p>
       <p className="muted">
-        受験範囲: {currentStudent.progress.cbtScopeStageIds.map((id) => getStage(id)?.title).join('、')}
+        受験範囲: {currentStudent.progress.cbtScopeStageIds.map((id) => getStage(stages, id)?.title).join('、')}
       </p>
       <p className="muted">合否判定はありません。指導者が評価表の理解度に換算します。</p>
 
