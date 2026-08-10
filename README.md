@@ -2,12 +2,26 @@
 
 院内PC向けのクリック可能モック。バックエンドなし。
 
+> Supabaseへの本実装移行を進行中。移行計画は `.claude/plans/fizzy-greeting-castle.md`
+> (このリポジトリの外、Claude Codeのプラン保存先)を参照。
+
 ## 起動
 
 ```bash
 npm install
 npm run dev
 ```
+
+## Supabaseセットアップ(移行作業用、Phase 0)
+
+1. `.env.local.example` を `.env.local` にコピーし、Supabaseダッシュボード
+   (Project Settings > API)の値を設定する
+   - `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`: フロントエンドで使用
+   - `SUPABASE_SERVICE_ROLE_KEY`: シードスクリプト専用。**フロントに絶対含めない**
+2. `supabase/migrations/` のSQLをSupabaseプロジェクトに適用する
+   (SQL Editorに貼り付けて実行、または `supabase db push` 等)
+3. `npm run db:seed` で既存モックデータ(9シリーズ・学生・スタッフ・CBT問題)を投入する
+   - 既存データをtruncateしてから入れ直すため、検証用プロジェクト以外では実行しないこと
 
 ## モックログイン
 
