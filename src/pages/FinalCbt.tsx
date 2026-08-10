@@ -17,6 +17,8 @@ export function FinalCbt() {
   const [flags, setFlags] = useState<Record<string, boolean>>({})
   const [left, setLeft] = useState(DURATION_SEC)
   const [confirm, setConfirm] = useState(false)
+  const [starting, setStarting] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   const questions = paper.length > 0 ? paper : getActiveCbtQuestions()
 
@@ -28,8 +30,7 @@ export function FinalCbt() {
 
   useEffect(() => {
     if (ready && left === 0 && currentStudent && !currentStudent.progress.cbtSubmitted) {
-      submitCbt(answers)
-      navigate('/app/cbt/result')
+      submitCbt(answers).finally(() => navigate('/app/cbt/result'))
     }
   }, [left, ready, answers, currentStudent, submitCbt, navigate])
 
@@ -76,18 +77,23 @@ export function FinalCbt() {
         <button
           type="button"
           className="btn"
-          disabled={cleared.length === 0}
-          onClick={() => {
-            const qs = startCbt()
-            setPaper(qs)
-            setReady(true)
-            setIndex(0)
-            setAnswers({})
-            setFlags({})
-            setLeft(DURATION_SEC)
+          disabled={cleared.length === 0 || starting}
+          onClick={async () => {
+            setStarting(true)
+            try {
+              const qs = await startCbt()
+              setPaper(qs)
+              setReady(true)
+              setIndex(0)
+              setAnswers({})
+              setFlags({})
+              setLeft(DURATION_SEC)
+            } finally {
+              setStarting(false)
+            }
           }}
         >
-          出題を確定して開始
+          {starting ? '出題準備中…' : '出題を確定して開始'}
         </button>
       </div>
     )
@@ -192,12 +198,18 @@ export function FinalCbt() {
             <button
               type="button"
               className="btn warn"
-              onClick={() => {
-                submitCbt(answers)
-                navigate('/app/cbt/result')
+              disabled={submitting}
+              onClick={async () => {
+                setSubmitting(true)
+                try {
+                  await submitCbt(answers)
+                  navigate('/app/cbt/result')
+                } finally {
+                  setSubmitting(false)
+                }
               }}
             >
-              提出を確定
+              {submitting ? '提出中…' : '提出を確定'}
             </button>
             <button type="button" className="btn ghost" onClick={() => setConfirm(false)}>
               戻る
