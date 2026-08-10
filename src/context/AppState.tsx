@@ -26,6 +26,15 @@ import {
 import type { CbtQuestion, DayPlan, Stage, StaffRole, StaffUser, Student } from '../mocks/types'
 import { backendMode } from '../lib/backendMode'
 import { fetchCurriculum } from '../lib/curriculumApi'
+import { loginStaffApi, loginStudentApi } from '../lib/authApi'
+import {
+  clearStaffSession,
+  clearStudentSession,
+  loadStaffSession,
+  loadStudentSession,
+  saveStaffSession,
+  saveStudentSession,
+} from '../lib/session'
 
 interface AppStateValue {
   students: Student[]
@@ -37,9 +46,9 @@ interface AppStateValue {
   setMockToday: (date: string) => void
   currentStudentId: string | null
   currentStaff: StaffUser | null
-  loginStudent: (nameOrCode: string, password: string) => string | null
+  loginStudent: (nameOrCode: string, password: string) => Promise<string | null>
   logoutStudent: () => void
-  loginStaff: (password: string) => string | null
+  loginStaff: (password: string) => Promise<string | null>
   logoutStaff: () => void
   currentStudent: Student | null
   todayQueue: ReturnType<typeof getTodayQueue> | null
@@ -83,8 +92,24 @@ const EMPTY_STAGES: Stage[] = []
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [students, setStudents] = useState<Student[]>(INITIAL_STUDENTS)
-  const [currentStudentId, setCurrentStudentId] = useState<string | null>(null)
-  const [currentStaff, setCurrentStaff] = useState<StaffUser | null>(null)
+  // Phase 2: supabaseモードでは、リロード後も sessionStorage のJWTからログイン状態を
+  // 復元する。実データはDBのstudentsテーブル由来だが、進捗管理はまだPhase 3まで
+  // モック配列(INITIAL_STUDENTS)側で行うため、code が一致するモック学生に橋渡しする。
+  const [currentStudentId, setCurrentStudentId] = useState<string | null>(() => {
+    if (backendMode !== 'supabase') return null
+    const session = loadStudentSession()
+    if (!session) return null
+    const matched = INITIAL_STUDENTS.find(
+      (s) => s.code.toUpperCase() === session.student.code.toUpperCase(),
+    )
+    return matched?.id ?? null
+  })
+  const [currentStaff, setCurrentStaff] = useState<StaffUser | null>(() => {
+    if (backendMode !== 'supabase') return null
+    const session = loadStaffSession()
+    if (!session) return null
+    return { id: session.staff.id, name: session.staff.name, role: session.staff.role, password: '' }
+  })
   const [publishedStageIds, setPublishedStageIds] = useState<string[]>(STAGES.map((s) => s.id))
   const [mockToday, setMockToday] = useState(MOCK_TODAY_DEFAULT)
 
@@ -110,7 +135,29 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const todayQueue = currentStudent ? getTodayQueue(currentStudent, mockToday) : null
 
   const loginStudent = useCallback(
-    (nameOrCode: string, password: string) => {
+    async (nameOrCode: string, password: string): Promise<string | null> => {
+      if (backendMode === 'supabase') {
+        let session
+        try {
+          session = await loginStudentApi(nameOrCode.trim(), password)
+        } catch (err) {
+          return err instanceof Error ? err.message : '受講者コードまたはパスワードが違います'
+        }
+        // Phase 2時点では進捗はまだモック配列側にあるため、認証で確認できたcodeを
+        // 手がかりにモック学生へ橋渡しする(Phase 3で本物のstudent_progressに置き換わる)。
+        const matched = students.find(
+          (s) => s.code.toUpperCase() === session.student.code.toUpperCase(),
+        )
+        if (!matched) {
+          return 'ログインは成功しましたが、対応する進捗データが見つかりません(開発中)'
+        }
+        saveStudentSession(session)
+        clearStaffSession()
+        setCurrentStudentId(matched.id)
+        setCurrentStaff(null)
+        return null
+      }
+
       const key = nameOrCode.trim()
       const keyUpper = key.toUpperCase()
       const found = students.find(
@@ -128,9 +175,31 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [students],
   )
 
-  const logoutStudent = useCallback(() => setCurrentStudentId(null), [])
+  const logoutStudent = useCallback(() => {
+    setCurrentStudentId(null)
+    clearStudentSession()
+  }, [])
 
-  const loginStaff = useCallback((password: string) => {
+  const loginStaff = useCallback(async (password: string): Promise<string | null> => {
+    if (backendMode === 'supabase') {
+      let session
+      try {
+        session = await loginStaffApi(password)
+      } catch (err) {
+        return err instanceof Error ? err.message : 'パスワードが違います'
+      }
+      saveStaffSession(session)
+      clearStudentSession()
+      setCurrentStaff({
+        id: session.staff.id,
+        name: session.staff.name,
+        role: session.staff.role,
+        password: '',
+      })
+      setCurrentStudentId(null)
+      return null
+    }
+
     const found = STAFF_USERS.find((s) => s.password === password.trim())
     if (!found) return 'パスワードが違います（モック: full / ops）'
     setCurrentStaff(found)
@@ -138,7 +207,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return null
   }, [])
 
-  const logoutStaff = useCallback(() => setCurrentStaff(null), [])
+  const logoutStaff = useCallback(() => {
+    setCurrentStaff(null)
+    clearStaffSession()
+  }, [])
 
   const patchStudent = useCallback((id: string, fn: (s: Student) => Student) => {
     setStudents((prev) => prev.map((s) => (s.id === id ? fn(s) : s)))
