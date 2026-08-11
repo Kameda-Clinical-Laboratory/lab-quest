@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { getStage } from '@/mocks/data'
-import { answersMatch, unitPhaseLabel, type Beat } from '@/mocks/learning'
+import { unitPhaseLabel, type Beat } from '@/mocks/learning'
 import { useAppState } from '@/context/AppState'
+import { BeatView } from '@/components/learn/BeatView'
 
 export function ChapterLearn() {
   const { stageId = '', chapterId = '' } = useParams()
@@ -26,7 +27,7 @@ function LegacyChapterLearn() {
   if (!currentStudent || !stage || !chapter) {
     return (
       <div className="learn-panel">
-        <Link to="/app">{'\u30de\u30c3\u30d7\u3078'}</Link>
+        <Link to="/app">{'マップへ'}</Link>
       </div>
     )
   }
@@ -47,11 +48,11 @@ function LegacyChapterLearn() {
   return (
     <div className="learn-panel">
       <p className="muted" style={{ marginTop: 0 }}>
-        <Link to={`/app/stage/${stage.id}`}>{stage.title} {'\u3078\u623b\u308b'}</Link>
+        <Link to={`/app/stage/${stage.id}`}>{stage.title} {'へ戻る'}</Link>
       </p>
       <div className="chapter-layout">
         <aside className="side-nav">
-          <p className="muted">{'\u30c1\u30e3\u30d7\u30bf\u30fc'}</p>
+          <p className="muted">{'チャプター'}</p>
           {stage.chapters.map((ch, i) => (
             <Link key={ch.id} to={`/app/stage/${stage.id}/chapter/${ch.id}`}>
               <button type="button" className={ch.id === chapter.id ? 'active' : ''}>
@@ -69,13 +70,13 @@ function LegacyChapterLearn() {
             <>
               <div className="lecture">{chapter.lecture}</div>
               <button type="button" className="btn" style={{ marginTop: 20 }} onClick={() => setPhase('quiz')}>
-                {'\u78ba\u8a8d\u554f\u984c\u3078'}
+                {'確認問題へ'}
               </button>
             </>
           )}
           {(phase === 'quiz' || phase === 'done') && (
             <>
-              <h3>{'\u78ba\u8a8d\u554f\u984c'}</h3>
+              <h3>{'確認問題'}</h3>
               <p>{chapter.quiz.prompt}</p>
               <div className="choices">
                 {chapter.quiz.choices.map((c, i) => (
@@ -93,12 +94,12 @@ function LegacyChapterLearn() {
               </div>
               {!checked && (
                 <button type="button" className="btn" style={{ marginTop: 12 }} onClick={submitQuiz}>
-                  {'\u56de\u7b54\u3059\u308b'}
+                  {'回答する'}
                 </button>
               )}
               {checked && (
                 <div className="feedback">
-                  {selected === chapter.quiz.correctIndex ? '\u6b63\u89e3' : '\u4e0d\u6b63\u89e3'} — {chapter.quiz.explanation}
+                  {selected === chapter.quiz.correctIndex ? '正解' : '不正解'} — {chapter.quiz.explanation}
                   {selected !== chapter.quiz.correctIndex && (
                     <div style={{ marginTop: 8 }}>
                       <button
@@ -109,7 +110,7 @@ function LegacyChapterLearn() {
                           setSelected(null)
                         }}
                       >
-                        {'\u3084\u308a\u76f4\u3059'}
+                        {'やり直す'}
                       </button>
                     </div>
                   )}
@@ -118,7 +119,7 @@ function LegacyChapterLearn() {
               {phase === 'done' && (
                 <p style={{ marginTop: 16 }}>
                   <Link className="btn" to={`/app/stage/${stage.id}`}>
-                    {'\u30b9\u30c6\u30fc\u30b8\u3078\u623b\u308b'}
+                    {'ステージへ戻る'}
                   </Link>
                 </p>
               )}
@@ -154,7 +155,7 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
       <div className="map-board">
         <div className="map-board-body space-y-3 p-5">
           <Link to="/app" className="text-amber-200 underline-offset-2 hover:underline">
-            {'\u30de\u30c3\u30d7\u3078'}
+            {'マップへ'}
           </Link>
         </div>
       </div>
@@ -190,9 +191,9 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
         to={`/app/stage/${stage.id}`}
         className="inline-flex items-center gap-1 text-sm text-amber-200/90 hover:text-amber-100"
       >
-        {'\u2190 '}
+        {'← '}
         {stage.title}
-        {' \u3078\u623b\u308b'}
+        {' へ戻る'}
       </Link>
 
       <div className="map-board map-board--stage">
@@ -200,16 +201,16 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
           <div className="quest-paper-board">
             <div className="quest-scroll">
               <div className="min-w-0 flex-1">
-                <div className="quest-scroll-label">{'\u4f9d\u983c\u7968'}</div>
+                <div className="quest-scroll-label">{'依頼票'}</div>
                 <div className="quest-scroll-line">{unit.requestLine}</div>
               </div>
               <details className="clue-book">
                 <summary>
                   <span className="clue-book-spine" aria-hidden />
                   <span className="clue-book-title">
-                    <span className="clue-book-kicker">{'\u30d5\u30a3\u30fc\u30eb\u30c9\u30ce\u30fc\u30c8'}</span>
+                    <span className="clue-book-kicker">{'フィールドノート'}</span>
                     <span className="clue-book-name">
-                      {'\u624b\u304c\u304b\u308a\u624b\u5e33'}
+                      {'手がかり手帳'}
                       <em>{owned.size}</em>
                     </span>
                   </span>
@@ -224,7 +225,7 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
                       </div>
                     ))}
                   {owned.size === 0 && (
-                    <p className="clue-book-empty">{'\u307e\u3060\u9805\u76ee\u304c\u3042\u308a\u307e\u305b\u3093\u3002\u8abf\u67fb\u3067\u8a18\u5165\u3055\u308c\u307e\u3059\u3002'}</p>
+                    <p className="clue-book-empty">{'まだ項目がありません。調査で記入されます。'}</p>
                   )}
                 </div>
               </details>
@@ -246,7 +247,7 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
                   onClick={() => goTo(i)}
                 >
                   {i + 1}. {unitPhaseLabel(b)}
-                  {done ? ' \u2713' : lockedResolve ? ` (${'\u30ed\u30c3\u30af'})` : ''}
+                  {done ? ' ✓' : lockedResolve ? ` (${'ロック'})` : ''}
                 </button>
               )
             })}
@@ -268,9 +269,9 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
                   >
                     <span>
                       {i + 1}. {unitPhaseLabel(b)}
-                      {lockedResolve && !done ? ` \u00b7 ${'\u30ed\u30c3\u30af'}` : ''}
+                      {lockedResolve && !done ? ` · ${'ロック'}` : ''}
                     </span>
-                    <span>{done ? '\u2713' : ''}</span>
+                    <span>{done ? '✓' : ''}</span>
                   </button>
                 )
               })}
@@ -298,323 +299,6 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
           </div>
         </div>
       </div>
-    </div>
-  )
-}
-
-function BeatView({
-  beat,
-  owned,
-  clues,
-  already,
-  onComplete,
-  onJumpToInvestigate,
-}: {
-  beat: Beat
-  owned: Set<string>
-  clues: { id: string; name: string; summary: string }[]
-  already: boolean
-  onComplete: (clueId?: string) => void
-  onJumpToInvestigate: () => void
-}) {
-  if (beat.type === 'dialogue') {
-    return (
-      <div className="stack">
-        {beat.lines.map((line, i) => (
-          <div key={i} className="dialogue-line">
-            <div className="dialogue-speaker">{line.speaker}</div>
-            <div className="dialogue-bubble">{line.text}</div>
-          </div>
-        ))}
-        <button type="button" className="btn" onClick={() => onComplete()}>
-          {already ? '\u6b21\u3078\uff08\u518d\u95b2\u89a7\uff09' : '\u8b1b\u7fa9\u3078\u9032\u3080'}
-        </button>
-      </div>
-    )
-  }
-
-  if (beat.type === 'lecture') {
-    return (
-      <div>
-        <div className="lecture">{beat.body}</div>
-        {beat.bridge && <p className="muted" style={{ marginTop: 12 }}>{beat.bridge}</p>}
-        <button type="button" className="btn" style={{ marginTop: 16 }} onClick={() => onComplete()}>
-          {already ? '\u6b21\u3078' : '\u8abf\u67fb\u3078\u9032\u3080'}
-        </button>
-      </div>
-    )
-  }
-
-  if (beat.type === 'investigate') {
-    return (
-      <InvestigateBeat beat={beat} already={already} onComplete={onComplete} />
-    )
-  }
-
-  if (beat.type === 'resolve') {
-    const missing = beat.requiredClueIds.filter((id) => !owned.has(id))
-    if (missing.length > 0) {
-      return (
-        <div className="lock-panel">
-          <p style={{ marginTop: 0 }}>
-            {'\u75c7\u4f8b\u89e3\u6c7a\u306b\u5fc5\u8981\u306a\u624b\u304c\u304b\u308a\u304c\u8db3\u308a\u307e\u305b\u3093\u3002'}
-          </p>
-          <div>
-            {missing.map((id) => {
-              const c = clues.find((x) => x.id === id)
-              return (
-                <span key={id} className="clue-chip">
-                  {c?.name ?? id}
-                </span>
-              )
-            })}
-          </div>
-          <button type="button" className="btn" style={{ marginTop: 12 }} onClick={onJumpToInvestigate}>
-            {'\u8abf\u67fb\u3078\u623b\u308b'}
-          </button>
-        </div>
-      )
-    }
-    return <ResolveBeat beat={beat} already={already} onComplete={onComplete} />
-  }
-
-  if (beat.type === 'drill') {
-    return <DrillBeat beat={beat} already={already} onComplete={onComplete} />
-  }
-
-  return null
-}
-
-function InvestigateBeat({
-  beat,
-  already,
-  onComplete,
-}: {
-  beat: Extract<Beat, { type: 'investigate' }>
-  already: boolean
-  onComplete: (clueId?: string) => void
-}) {
-  const [value, setValue] = useState('')
-  const [fails, setFails] = useState(0)
-  const [msg, setMsg] = useState<string | null>(null)
-
-  function submit() {
-    if (answersMatch(value, beat.acceptedAnswers) || fails >= 5) {
-      setMsg('\u624b\u304c\u304b\u308a\u3092\u5165\u624b\u3057\u307e\u3057\u305f')
-      onComplete(beat.clueId)
-      return
-    }
-    const next = fails + 1
-    setFails(next)
-    if (next >= 5) {
-      setMsg(`\u6b63\u89e3: ${beat.acceptedAnswers[0]} \u2014 \u624b\u304c\u304b\u308a\u3092\u4ed8\u4e0e\u3057\u307e\u3059`)
-      onComplete(beat.clueId)
-    } else if (next >= 3 && beat.demoHint) {
-      setMsg(`\u30d2\u30f3\u30c8: ${beat.demoHint}`)
-    } else {
-      setMsg('\u4e00\u81f4\u3057\u307e\u305b\u3093\u3002\u3084\u308a\u76f4\u3057\u3066\u304f\u3060\u3055\u3044')
-    }
-  }
-
-  return (
-    <div className="stack">
-      <div className="investigate-card">
-        <h4>{'\u3053\u306e\u75c7\u4f8b\u306e\u305f\u3081\u306b\u78ba\u304b\u3081\u308b\u3053\u3068'}</h4>
-        <p style={{ margin: '0 0 0.5rem' }}>{beat.purpose}</p>
-        <p className="muted" style={{ margin: 0 }}>
-          {beat.howTo}
-        </p>
-        {beat.manners && (
-          <p className="muted" style={{ marginTop: 8 }}>
-            {'\u30de\u30ca\u30fc'}: {beat.manners}
-          </p>
-        )}
-      </div>
-      <label className="field">
-        {beat.inputPrompt}
-        <input value={value} onChange={(e) => setValue(e.target.value)} disabled={already} />
-      </label>
-      {msg && <div className="feedback">{msg}</div>}
-      <div className="inline">
-        {!already && (
-          <button type="button" className="btn" onClick={submit}>
-            {'\u56de\u7b54\u3059\u308b'}
-          </button>
-        )}
-        {!beat.required && !already && (
-          <button type="button" className="btn secondary" onClick={() => onComplete()}>
-            {'\u30b9\u30ad\u30c3\u30d7\uff08\u30dc\u30fc\u30ca\u30b9\u653e\u68c4\uff09'}
-          </button>
-        )}
-        {already && (
-          <button type="button" className="btn" onClick={() => onComplete(beat.clueId)}>
-            {'\u6b21\u3078'}
-          </button>
-        )}
-      </div>
-      {fails >= 3 && beat.demoHint && !already && (
-        <p className="muted">
-          {'\u30d2\u30f3\u30c8'}: {beat.demoHint}
-        </p>
-      )}
-    </div>
-  )
-}
-
-function ResolveBeat({
-  beat,
-  already,
-  onComplete,
-}: {
-  beat: Extract<Beat, { type: 'resolve' }>
-  already: boolean
-  onComplete: () => void
-}) {
-  const [step, setStep] = useState(0)
-  const [selected, setSelected] = useState<number | null>(null)
-  const [checked, setChecked] = useState(false)
-  const current = beat.steps[step]
-
-  function submit() {
-    if (selected === null) return
-    setChecked(true)
-    const choice = current.choices[selected]
-    if (!choice.correct) return
-    if (step < beat.steps.length - 1) {
-      setTimeout(() => {
-        setStep(step + 1)
-        setSelected(null)
-        setChecked(false)
-      }, 400)
-    } else {
-      onComplete()
-    }
-  }
-
-  return (
-    <div>
-      <p>{current.prompt}</p>
-      <div className="choices">
-        {current.choices.map((c, i) => (
-          <button
-            key={c.label}
-            type="button"
-            className={`choice ${selected === i ? 'selected' : ''} ${
-              checked ? (c.correct ? 'correct' : selected === i ? 'wrong' : '') : ''
-            }`}
-            onClick={() => !checked && setSelected(i)}
-          >
-            {c.label}
-          </button>
-        ))}
-      </div>
-      {!checked && (
-        <button type="button" className="btn" style={{ marginTop: 12 }} onClick={submit}>
-          {'\u56de\u7b54\u3059\u308b'}
-        </button>
-      )}
-      {checked && selected !== null && (
-        <div className="feedback">
-          {current.choices[selected].feedback}
-          {!current.choices[selected].correct && (
-            <div style={{ marginTop: 8 }}>
-              <button
-                type="button"
-                className="btn secondary"
-                onClick={() => {
-                  setChecked(false)
-                  setSelected(null)
-                }}
-              >
-                {'\u3084\u308a\u76f4\u3059'}
-              </button>
-            </div>
-          )}
-          {current.choices[selected].correct && step >= beat.steps.length - 1 && already && (
-            <p style={{ marginTop: 8 }}>{'\u89e3\u6c7a\u6e08\u307f\uff08\u518d\u95b2\u89a7\uff09'}</p>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
-
-function DrillBeat({
-  beat,
-  already,
-  onComplete,
-}: {
-  beat: Extract<Beat, { type: 'drill' }>
-  already: boolean
-  onComplete: () => void
-}) {
-  const [qi, setQi] = useState(0)
-  const [selected, setSelected] = useState<number | null>(null)
-  const [checked, setChecked] = useState(false)
-  const q = beat.questions[qi]
-
-  function submit() {
-    if (selected === null) return
-    setChecked(true)
-    if (selected !== q.correctIndex) return
-    if (qi < beat.questions.length - 1) {
-      setTimeout(() => {
-        setQi(qi + 1)
-        setSelected(null)
-        setChecked(false)
-      }, 400)
-    } else {
-      onComplete()
-    }
-  }
-
-  return (
-    <div>
-      <p className="muted">
-        {'\u767a\u5c55'} {qi + 1} / {beat.questions.length}
-      </p>
-      <p>{q.prompt}</p>
-      <div className="choices">
-        {q.choices.map((c, i) => (
-          <button
-            key={c}
-            type="button"
-            className={`choice ${selected === i ? 'selected' : ''} ${
-              checked ? (i === q.correctIndex ? 'correct' : selected === i ? 'wrong' : '') : ''
-            }`}
-            onClick={() => !checked && setSelected(i)}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-      {!checked && (
-        <button type="button" className="btn" style={{ marginTop: 12 }} onClick={submit}>
-          {'\u56de\u7b54\u3059\u308b'}
-        </button>
-      )}
-      {checked && (
-        <div className="feedback">
-          {selected === q.correctIndex ? '\u6b63\u89e3' : '\u4e0d\u6b63\u89e3'} — {q.explanation}
-          {selected !== q.correctIndex && (
-            <div style={{ marginTop: 8 }}>
-              <button
-                type="button"
-                className="btn secondary"
-                onClick={() => {
-                  setChecked(false)
-                  setSelected(null)
-                }}
-              >
-                {'\u3084\u308a\u76f4\u3059'}
-              </button>
-            </div>
-          )}
-          {selected === q.correctIndex && qi >= beat.questions.length - 1 && already && (
-            <p style={{ marginTop: 8 }}>{'\u767a\u5c55\u5b8c\u4e86\uff08\u518d\u95b2\u89a7\uff09'}</p>
-          )}
-        </div>
-      )}
     </div>
   )
 }

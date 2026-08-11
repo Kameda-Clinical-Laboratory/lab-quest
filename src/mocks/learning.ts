@@ -70,6 +70,12 @@ export type LearningUnit = {
   title: string
   requestLine: string
   beats: Beat[]
+  /**
+   * Supabaseモードでのみ埋まる(get_curriculum RPCが返す)。管理画面の
+   * ユニット一覧/エディタで公開中・非公開を出し分けるために使う。
+   * モックモードのSTAGES定義には無いため常にoptional。
+   */
+  published?: boolean
 }
 
 export function normalizeAnswer(raw: string): string {

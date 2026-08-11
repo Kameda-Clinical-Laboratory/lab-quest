@@ -14,6 +14,8 @@ import {
   CbtResultsAdmin,
   ProgressDashboard,
   StudentAdmin,
+  UnitListPage,
+  UnitEditor,
 } from './pages/Admin'
 
 export default function App() {
@@ -40,6 +42,8 @@ export default function App() {
             <Route path="progress" element={<ProgressDashboard />} />
             <Route path="students" element={<StudentAdmin />} />
             <Route path="content" element={<ContentAdmin />} />
+            <Route path="content/:stageId" element={<UnitListPage />} />
+            <Route path="content/:stageId/unit/:unitId" element={<UnitEditor />} />
             <Route path="cbt" element={<CbtResultsAdmin />} />
           </Route>
 
