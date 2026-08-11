@@ -93,6 +93,12 @@ export interface Student {
   visitDates: string[]
   dayPlans: DayPlan[]
   progress: StudentProgress
+  /**
+   * 同意日時(ISO)。Supabaseモードのみ意味を持つ(fn_get_student_stateから同期)。
+   * nullなら未同意 = /consent へゲートされる(src/components/Shells.tsx StudentShell)。
+   * モックモードは同意ゲート対象外のため常にnullのまま。
+   */
+  consentAt: string | null
 }
 
 export interface StaffUser {

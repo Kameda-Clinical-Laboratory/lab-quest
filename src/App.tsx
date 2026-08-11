@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppStateProvider } from './context/AppState'
 import { StaffShell, StudentShell } from './components/Shells'
 import { StaffLogin, StudentLogin } from './pages/Login'
+import { Consent } from './pages/Consent'
 import { HomeMap } from './pages/HomeMap'
 import { Codex } from './pages/Codex'
 import { StageOverview } from './pages/StageOverview'
@@ -13,6 +14,7 @@ import {
   ContentAdmin,
   CbtResultsAdmin,
   ProgressDashboard,
+  Settings,
   StudentAdmin,
   UnitListPage,
   UnitEditor,
@@ -24,6 +26,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<StudentLogin />} />
+          <Route path="/consent" element={<Consent />} />
           <Route path="/staff/login" element={<StaffLogin />} />
 
           <Route path="/app" element={<StudentShell />}>
@@ -45,6 +48,7 @@ export default function App() {
             <Route path="content/:stageId" element={<UnitListPage />} />
             <Route path="content/:stageId/unit/:unitId" element={<UnitEditor />} />
             <Route path="cbt" element={<CbtResultsAdmin />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

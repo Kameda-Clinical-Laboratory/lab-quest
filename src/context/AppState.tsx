@@ -44,6 +44,7 @@ import {
   completeProcedureApi,
   getActiveCbtQuestionsApi,
   getStudentState,
+  recordConsentApi,
   setUnitCursorApi,
   startCbtApi,
   submitCbtApi,
@@ -55,6 +56,12 @@ interface AppStateValue {
   stages: Stage[]
   /** Supabaseモード時、カリキュラム取得が完了しているか(初回ロード判定用) */
   stagesLoaded: boolean
+  /**
+   * Supabaseモード時、ログイン中学生の本物の状態(get_state)取得が完了しているか。
+   * 同意ゲート(StudentShell)がこれを見て、非同期フェッチ中の一瞬だけ
+   * currentStudent.consentAt が未確定のまま誤って/consentへ弾かないようにする。
+   */
+  studentStateLoaded: boolean
   cbtQuestionBank: typeof CBT_QUESTIONS
   mockToday: string
   setMockToday: (date: string) => void
@@ -83,6 +90,7 @@ interface AppStateValue {
   startCbt: () => Promise<CbtQuestion[]>
   getActiveCbtQuestions: () => CbtQuestion[]
   submitCbt: (answers: Record<string, number>) => Promise<number>
+  recordConsent: (consentVersion: string) => Promise<void>
   allowCbtRetake: (studentId: string) => void
   resetStudentPassword: (studentId: string, password: string) => void
   upsertStudent: (input: {
@@ -164,6 +172,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         ...s,
         name: server.name,
         code: server.code,
+        consentAt: server.consentAt,
         visitDates: server.visitDates,
         dayPlans: server.dayPlans,
         progress: server.progress,
@@ -545,6 +554,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     ],
   )
 
+  // Phase 5: 同意記録。supabaseモードのみ意味を持つ(モックモードは同意ゲート対象外で
+  // そもそも呼ばれない想定だが、念のためno-opにしておく)。
+  const recordConsent = useCallback(
+    async (consentVersion: string): Promise<void> => {
+      if (backendMode !== 'supabase' || !studentSession) return
+      const { student } = await recordConsentApi(studentSession.token, consentVersion)
+      syncServerStudent(student)
+    },
+    [studentSession, syncServerStudent],
+  )
+
   // 以下はスタッフ側の学生管理操作。Phase 3のスコープは「学生自身の進捗」の書き込み経路のみで、
   // スタッフ管理画面(実習生名簿・日割り計画・CBT再受験許可等)の実データ化は別フェーズで扱うため、
   // supabaseモードでもここは引き続きモック配列のみを操作する(既知の制限)。
@@ -604,6 +624,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           visitDates,
           dayPlans,
           progress: emptyProgress(),
+          consentAt: null,
         },
       ])
     },
@@ -636,11 +657,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     )
   }, [])
 
+  const studentStateLoaded = backendMode === 'supabase' ? studentStateQuery.isSuccess : true
+
   const value = useMemo<AppStateValue>(
     () => ({
       students,
       stages,
       stagesLoaded,
+      studentStateLoaded,
       cbtQuestionBank: CBT_QUESTIONS,
       mockToday,
       setMockToday,
@@ -661,6 +685,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       startCbt,
       getActiveCbtQuestions,
       submitCbt,
+      recordConsent,
       allowCbtRetake,
       resetStudentPassword,
       upsertStudent,
@@ -674,6 +699,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       students,
       stages,
       stagesLoaded,
+      studentStateLoaded,
       mockToday,
       currentStudentId,
       currentStaff,
@@ -692,6 +718,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       startCbt,
       getActiveCbtQuestions,
       submitCbt,
+      recordConsent,
       allowCbtRetake,
       resetStudentPassword,
       upsertStudent,

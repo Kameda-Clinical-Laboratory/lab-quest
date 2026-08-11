@@ -6,6 +6,7 @@ export interface ServerStudentState {
   id: string
   name: string
   code: string
+  consentAt: string | null
   visitDates: string[]
   dayPlans: DayPlan[]
   progress: StudentProgress
@@ -109,4 +110,10 @@ export function submitCbtApi(token: string, answers: Record<string, number>) {
 
 export function getActiveCbtQuestionsApi(token: string) {
   return callStudentProgress<{ questions: ServerQuestion[] }>(token, 'get_active_cbt_questions')
+}
+
+export function recordConsentApi(token: string, consentVersion: string) {
+  return callStudentProgress<{ student: ServerStudentState }>(token, 'record_consent', {
+    consentVersion,
+  })
 }

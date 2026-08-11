@@ -267,6 +267,15 @@ async function handle(req: Request): Promise<Response> {
         return json({ score, student: await getState() })
       }
 
+      case 'record_consent': {
+        const { error } = await admin.rpc('fn_record_consent', {
+          p_student_id: studentId,
+          p_consent_version: p.consentVersion,
+        })
+        if (error) throw new Error(error.message)
+        return json({ student: await getState() })
+      }
+
       case 'get_active_cbt_questions': {
         const { data: progressRow } = await admin
           .from('student_progress')

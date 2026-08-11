@@ -69,6 +69,7 @@ const MUTATING_ACTIONS = new Set([
   'create_clue',
   'upsert_student',
   'reset_student_password',
+  'set_retention_days',
 ])
 
 async function handle(req: Request): Promise<Response> {
@@ -217,6 +218,25 @@ async function handle(req: Request): Promise<Response> {
         const { error } = await admin.rpc('fn_admin_reset_student_password', {
           p_student_id: p.studentId,
           p_password_hash: passwordHash,
+          p_actor_staff_id: staffId,
+        })
+        if (error) throw new Error(error.message)
+        return json({ ok: true })
+      }
+
+      case 'get_settings': {
+        const { data, error } = await admin.rpc('fn_get_retention_days')
+        if (error) throw new Error(error.message)
+        return json({ retentionDays: data })
+      }
+
+      case 'set_retention_days': {
+        const days = Number(p.days)
+        if (!Number.isFinite(days) || days < 1) {
+          return json({ error: '保持日数は1以上の整数を指定してください' }, 400)
+        }
+        const { error } = await admin.rpc('fn_set_retention_days', {
+          p_days: Math.trunc(days),
           p_actor_staff_id: staffId,
         })
         if (error) throw new Error(error.message)

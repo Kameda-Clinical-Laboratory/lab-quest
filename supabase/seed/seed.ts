@@ -197,6 +197,9 @@ async function seedStudents() {
         code: s.code,
         name: s.name,
         password_hash: await bcrypt.hash(s.password, BCRYPT_ROUNDS),
+        // デモ用の初期学生は同意済みとして投入する(Phase 5の同意ゲートで
+        // まっさらな環境をseedするたびに毎回同意画面を踏ませないため)。
+        consent_at: new Date().toISOString(),
       })
       .select('id')
       .single()

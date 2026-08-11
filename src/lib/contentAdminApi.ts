@@ -94,3 +94,11 @@ export function resetStudentPasswordApi(
 ) {
   return callAdminContent<{ ok: true }>(token, 'reset_student_password', opts)
 }
+
+export function getSettingsApi(token: string) {
+  return callAdminContent<{ retentionDays: number }>(token, 'get_settings')
+}
+
+export function setRetentionDaysApi(token: string, days: number) {
+  return callAdminContent<{ ok: true }>(token, 'set_retention_days', { days })
+}
