@@ -99,15 +99,15 @@ export function HomeMap() {
             })}
           </div>
           <div className="quest-ticket-banner-ui">
-            <div className="mb-0.5 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-amber-200">
-              <IconSwordQuest className="h-3.5 w-3.5" />
+            <div className="mb-0.5 flex items-center gap-2 text-[12px] uppercase tracking-[0.2em] text-amber-200">
+              <IconSwordQuest className="h-4 w-4" />
               Today&apos;s Quest
             </div>
-            <h2 className="font-display text-lg leading-tight text-emerald-50 sm:text-xl">
+            <h2 className="font-display text-xl leading-tight text-emerald-50 sm:text-2xl">
               {formatDateJa(mockToday)}
               {visitIndex ? ` / \u5b9f\u7fd2 ${visitIndex} \u65e5\u76ee` : ''}
             </h2>
-            <p className="mt-0.5 max-w-xl text-[11px] leading-snug text-amber-50/85 sm:text-xs">
+            <p className="mt-0.5 max-w-xl text-[13px] leading-snug text-amber-50/85 sm:text-sm">
               {todayQueue.plan.note ||
                 (todayQueue.isAppOffDay
                   ? '\u672c\u65e5\u306f\u30a2\u30d7\u30ea\u5b66\u7fd2\u306a\u3057\uff08\u898b\u5b66\u306a\u3069\uff09'

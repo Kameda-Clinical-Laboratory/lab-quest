@@ -2,6 +2,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import type { Beat } from '@/mocks/learning'
+import { DIALOGUE_BACKGROUNDS } from '@/lib/dialogueBackgrounds'
 import { JP } from '@/pages/Admin/strings'
 
 type DialogueBeat = Extract<Beat, { type: 'dialogue' }>
@@ -23,8 +24,26 @@ export function DialogueForm({
     onChange({ ...beat, lines: beat.lines.filter((_, idx) => idx !== i) })
   }
 
+  const selectedBackgroundId = beat.backgroundId ?? DIALOGUE_BACKGROUNDS[0].id
+
   return (
     <div className="stack">
+      <div className="field">
+        <Label>{JP.dialogueBackground}</Label>
+        <div className="bg-picker">
+          {DIALOGUE_BACKGROUNDS.map((bg) => (
+            <button
+              key={bg.id}
+              type="button"
+              className={`bg-picker-item${bg.id === selectedBackgroundId ? ' selected' : ''}`}
+              onClick={() => onChange({ ...beat, backgroundId: bg.id })}
+            >
+              <img src={bg.src} alt={bg.label} />
+              <span>{bg.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
       <Label>{JP.dialogueLines}</Label>
       {beat.lines.map((line, i) => (
         <div key={i} className="inline" style={{ alignItems: 'flex-start' }}>

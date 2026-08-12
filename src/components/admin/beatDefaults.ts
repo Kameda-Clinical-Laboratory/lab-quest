@@ -1,4 +1,5 @@
 import type { Beat } from '@/mocks/learning'
+import { DIALOGUE_BACKGROUNDS } from '@/lib/dialogueBackgrounds'
 
 function newId(prefix: string) {
   return `${prefix}${crypto.randomUUID().slice(0, 8)}`
@@ -8,7 +9,13 @@ function newId(prefix: string) {
 export function defaultBeat(type: Beat['type']): Beat {
   switch (type) {
     case 'dialogue':
-      return { type: 'dialogue', id: newId('b'), lines: [{ speaker: '', text: '' }], xp: 0 }
+      return {
+        type: 'dialogue',
+        id: newId('b'),
+        lines: [{ speaker: '', text: '' }],
+        backgroundId: DIALOGUE_BACKGROUNDS[0].id,
+        xp: 0,
+      }
     case 'lecture':
       return { type: 'lecture', id: newId('b'), body: '', xp: 0 }
     case 'investigate':

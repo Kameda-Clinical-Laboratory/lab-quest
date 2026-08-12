@@ -70,6 +70,7 @@ const MUTATING_ACTIONS = new Set([
   'upsert_student',
   'reset_student_password',
   'set_retention_days',
+  'reset_consent',
 ])
 
 async function handle(req: Request): Promise<Response> {
@@ -218,6 +219,22 @@ async function handle(req: Request): Promise<Response> {
         const { error } = await admin.rpc('fn_admin_reset_student_password', {
           p_student_id: p.studentId,
           p_password_hash: passwordHash,
+          p_actor_staff_id: staffId,
+        })
+        if (error) throw new Error(error.message)
+        return json({ ok: true })
+      }
+
+      case 'list_student_consent': {
+        const { data, error } = await admin.rpc('fn_admin_list_student_consent')
+        if (error) throw new Error(error.message)
+        return json({ students: data })
+      }
+
+      case 'reset_consent': {
+        if (!p.studentId) return json({ error: 'studentIdが必要です' }, 400)
+        const { error } = await admin.rpc('fn_admin_reset_consent', {
+          p_student_id: p.studentId,
           p_actor_staff_id: staffId,
         })
         if (error) throw new Error(error.message)

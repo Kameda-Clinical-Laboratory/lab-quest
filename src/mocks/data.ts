@@ -7,6 +7,9 @@ if (_unitErrors.length && typeof console !== 'undefined') {
   console.warn('[lab-quest] unit validation', _unitErrors)
 }
 
+/** RCPC（発展）シリーズのstage id。専用の背景(quest-rcpc-bg.png)の出し分けに使う。 */
+export const RCPC_STAGE_ID = 'bio-rcpc'
+
 export const AREAS = [
   { id: 'biochem' as const, name: '生化学', blurb: '検体・測定・精度の基礎エリア' },
   { id: 'immuno' as const, name: '免疫', blurb: 'ホルモン・感染・薬物のエリア' },

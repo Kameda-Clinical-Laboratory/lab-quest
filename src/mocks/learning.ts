@@ -28,6 +28,8 @@ export type Beat =
       type: 'dialogue'
       id: string
       lines: DialogueLine[]
+      /** 背景に使う画像のid。src/lib/dialogueBackgrounds.ts のカタログを参照する。未選択時は先頭にフォールバック。 */
+      backgroundId?: string
       xp?: number
     }
   | {

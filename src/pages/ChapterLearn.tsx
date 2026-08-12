@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { getStage } from '@/mocks/data'
+import { RCPC_STAGE_ID, getStage } from '@/mocks/data'
 import { unitPhaseLabel, type Beat } from '@/mocks/learning'
 import { useAppState } from '@/context/AppState'
 import { BeatView } from '@/components/learn/BeatView'
@@ -196,7 +196,7 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
         {' へ戻る'}
       </Link>
 
-      <div className="map-board map-board--stage">
+      <div className={`map-board map-board--stage${stageId === RCPC_STAGE_ID ? ' map-board--rcpc' : ''}`}>
         <div className="map-board-body space-y-4 p-4 sm:p-5">
           <div className="quest-paper-board">
             <div className="quest-scroll">
@@ -277,7 +277,7 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
               })}
             </aside>
 
-            <div className="quest-content learn-panel">
+            <div className={`quest-content learn-panel beat-bg-${beat.type}`}>
               <h2 style={{ marginTop: 0 }}>
                 {beatIndex + 1}. {unitPhaseLabel(beat)}
                 <span style={{ opacity: 0.7, fontSize: '0.85em' }}> · {unit.title}</span>

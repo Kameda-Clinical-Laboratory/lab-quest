@@ -19,7 +19,7 @@ export function PreviewPane({
 }) {
   if (!beat) return <p className="muted">{JP.preview2}</p>
   return (
-    <div className="quest-content learn-panel">
+    <div className={`quest-content learn-panel beat-bg-${beat.type}`}>
       <h3 style={{ marginTop: 0 }}>{JP.preview2}</h3>
       <BeatView
         beat={beat}

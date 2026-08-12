@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { answersMatch, type Beat } from '@/mocks/learning'
+import { getDialogueBackground } from '@/lib/dialogueBackgrounds'
 
 // src/pages/ChapterLearn.tsx から移動(Phase 4)。学生ランタイム(UnitLearn)と
 // スタッフ用コンテンツエディタのプレビューペインの両方から使う共有コンポーネント。
@@ -21,19 +22,7 @@ export function BeatView({
   onJumpToInvestigate: () => void
 }) {
   if (beat.type === 'dialogue') {
-    return (
-      <div className="stack">
-        {beat.lines.map((line, i) => (
-          <div key={i} className="dialogue-line">
-            <div className="dialogue-speaker">{line.speaker}</div>
-            <div className="dialogue-bubble">{line.text}</div>
-          </div>
-        ))}
-        <button type="button" className="btn" onClick={() => onComplete()}>
-          {already ? '次へ（再閲覧）' : '講義へ進む'}
-        </button>
-      </div>
-    )
+    return <DialogueBeatView beat={beat} already={already} onComplete={onComplete} />
   }
 
   if (beat.type === 'lecture') {
@@ -86,6 +75,58 @@ export function BeatView({
   }
 
   return null
+}
+
+/**
+ * 会話ビート。選択された背景画像を全面に敷き、画面下部のテキストボックスを
+ * クリック(またはEnter/Space)するたびに1行ずつ進める、ビジュアルノベル風の表示。
+ * 最後の行でさらにクリックするとonCompleteを呼ぶ。
+ */
+function DialogueBeatView({
+  beat,
+  already,
+  onComplete,
+}: {
+  beat: Extract<Beat, { type: 'dialogue' }>
+  already: boolean
+  onComplete: (clueId?: string) => void
+}) {
+  const [lineIndex, setLineIndex] = useState(0)
+
+  // beatが切り替わっても(UnitLearnはBeatViewを再マウントしないため)行の位置をリセットする。
+  useEffect(() => {
+    setLineIndex(0)
+  }, [beat.id])
+
+  const bg = getDialogueBackground(beat.backgroundId)
+  const lines = beat.lines
+  const hasLines = lines.length > 0
+  const isLast = !hasLines || lineIndex >= lines.length - 1
+  const current = hasLines ? lines[Math.min(lineIndex, lines.length - 1)] : null
+
+  function advance() {
+    if (isLast) {
+      onComplete()
+      return
+    }
+    setLineIndex((i) => i + 1)
+  }
+
+  return (
+    <div className="dialogue-stage" style={{ backgroundImage: `url(${bg.src})` }}>
+      <button type="button" className="dialogue-textbox" onClick={advance}>
+        {current && <span className="dialogue-textbox-speaker">{current.speaker || '？？？'}</span>}
+        <span className="dialogue-textbox-text">
+          {current ? current.text : already ? '次へ（再閲覧）' : '講義へ進む'}
+        </span>
+        {current && (
+          <span className="dialogue-textbox-hint">
+            {isLast ? (already ? '▶ 次へ（再閲覧）' : '▶ 講義へ進む') : '▼ クリックで続ける'}
+          </span>
+        )}
+      </button>
+    </div>
+  )
 }
 
 function InvestigateBeat({

@@ -102,3 +102,13 @@ export function getSettingsApi(token: string) {
 export function setRetentionDaysApi(token: string, days: number) {
   return callAdminContent<{ ok: true }>(token, 'set_retention_days', { days })
 }
+
+export type StudentConsent = { studentId: string; code: string; consentAt: string | null }
+
+export function listStudentConsentApi(token: string) {
+  return callAdminContent<{ students: StudentConsent[] }>(token, 'list_student_consent')
+}
+
+export function resetConsentApi(token: string, studentId: string) {
+  return callAdminContent<{ ok: true }>(token, 'reset_consent', { studentId })
+}

@@ -30,9 +30,9 @@ export function Consent() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-6 py-10">
-      <div className="w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-sm">
-        <h1 className="font-display text-2xl">学習記録の取り扱いについて</h1>
-        <div className="mt-4 space-y-3 text-sm leading-relaxed text-muted-foreground">
+      <div className="consent-paper w-full max-w-2xl rounded-xl p-8 shadow-xl sm:p-10">
+        <h1 className="font-display text-3xl">学習記録の取り扱いについて</h1>
+        <div className="mt-5 space-y-4 text-base leading-relaxed text-muted-foreground">
           <p>
             このアプリでは、臨地実習の学習を進めるために、進捗状況(クリア状況・XP・スタンプ)や
             最終CBTの解答・素点を記録します。これらは実習指導のためにスタッフが閲覧します。
@@ -43,11 +43,12 @@ export function Consent() {
           </p>
           <p>同意いただくと、以降このアプリで実習を進められます。</p>
         </div>
-        {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
-        <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+        {error && <p className="mt-4 text-base text-destructive">{error}</p>}
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Button
             type="button"
             variant="quest"
+            size="lg"
             className="flex-1"
             disabled={pending}
             onClick={() => void onAgree()}
@@ -57,6 +58,7 @@ export function Consent() {
           <Button
             type="button"
             variant="outline"
+            size="lg"
             onClick={() => {
               logoutStudent()
               navigate('/')

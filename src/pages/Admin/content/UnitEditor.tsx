@@ -199,7 +199,7 @@ export function UnitEditor() {
         </div>
 
         <div className="panel">
-          <h3 style={{ marginTop: 0 }}>{JP.unitTitle}</h3>
+          <h3 style={{ marginTop: 0 }}>{JP.beatEditor}</h3>
           {selectedBeat && canEdit ? (
             <BeatFormPanel
               beat={selectedBeat}
