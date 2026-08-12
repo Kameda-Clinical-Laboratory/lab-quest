@@ -122,31 +122,66 @@ export function StaffLogin() {
   }
 
   return (
-    <div className="surface-light flex min-h-screen items-center justify-center px-6">
-      <div className="w-full max-w-md rounded-xl border border-teal-200 bg-white p-6 shadow-sm">
-        <h1 className="font-display text-2xl text-teal-900">管理ログイン</h1>
-        <p className="mt-1 text-sm text-teal-800/70">進捗・カレンダー割当・公開管理</p>
-        <form className="mt-5 space-y-4" onSubmit={onSubmit}>
-          <div className="space-y-2">
-            <Label htmlFor="pw">パスワード（モック）</Label>
-            <Input
-              id="pw"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+    <div className="flex min-h-screen items-center justify-center px-6 py-10">
+      <div className="login-hero">
+        <div className="login-hero-art">
+          <img src="/art/quest-staff-login-banner.png" alt="" />
+          <div className="login-hero-caption">
+            <div className="mb-1 text-[11px] uppercase tracking-[0.28em] text-amber-200/85">Staff Gate</div>
+            <div className="brand-title text-2xl sm:text-3xl">指導室から、冒険を見守る</div>
           </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? '確認中…' : '入室'}
-          </Button>
-        </form>
-        <p className="mt-4 text-xs text-muted-foreground">
-          フル: <code>full</code> ／ 運用: <code>ops</code>
-        </p>
-        <Button asChild variant="outline" className="mt-3 w-full border-teal-300 text-teal-800">
-          <Link to="/">実習生ログインへ</Link>
-        </Button>
+        </div>
+
+        <div className="login-panel">
+          <div className="login-brand-art">
+            <h1 className="sr-only">LAB QUEST — Staff Login</h1>
+            <img
+              className="brand-logo"
+              src="/art/quest-brand-title.png"
+              alt="LAB QUEST: Biochemistry and Immunology"
+            />
+            <p className="login-lede">
+              指導スタッフ専用の入口です。
+              <br />
+              進捗・カレンダー割当・公開管理を行います。
+            </p>
+          </div>
+          <CardContent className="relative z-[1] px-0 pt-4">
+            <form className="login-form space-y-4" onSubmit={onSubmit}>
+              <div className="space-y-2">
+                <Label htmlFor="pw" className="login-label">
+                  パスワード（モック）
+                </Label>
+                <Input
+                  id="pw"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                />
+              </div>
+              {error && <p className="text-sm text-destructive">{error}</p>}
+              <Button
+                type="submit"
+                className="login-start-btn w-full"
+                size="lg"
+                variant="quest"
+                disabled={pending}
+              >
+                <IconLabCrest className="login-start-icon" />
+                <span>{pending ? '確認中…' : '指導室へ入る'}</span>
+              </Button>
+            </form>
+            <div className="mt-5 space-y-3 border-t border-border/70 pt-4">
+              <p className="login-hint text-xs text-muted-foreground">
+                モック: フル <code>full</code> ／ 運用 <code>ops</code>
+              </p>
+              <Button asChild variant="outline" className="login-staff-btn w-full">
+                <Link to="/">実習生ログインへ</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </div>
       </div>
     </div>
   )
