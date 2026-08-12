@@ -32,6 +32,13 @@
     @apply border-border;
   }
 
+  /* 全体を一回り大きく(2026-08 UI調整)。rem基準の指定(Tailwindの既定スケール、
+     このファイル内のカスタムCSSの大半)はこれで連動して拡大する。固定px指定の
+     箇所(quest-ticket-banner-compactなど)は別途個別に調整する。 */
+  html {
+    font-size: 112.5%;
+  }
+
   html,
   body,
   #root {
@@ -274,13 +281,13 @@
 }
 
 .quest-ticket-banner-compact {
-  height: 132px;
-  min-height: 132px;
+  height: 168px;
+  min-height: 168px;
 }
 
 .quest-ticket-banner-compact img {
-  height: 132px;
-  min-height: 132px;
+  height: 168px;
+  min-height: 168px;
 }
 
 .quest-ticket-banner-ui {
@@ -389,6 +396,14 @@
     linear-gradient(165deg, rgba(8, 26, 24, 0.42) 0%, rgba(12, 36, 34, 0.62) 100%),
     url('/art/quest-map-bg.png');
   background-position: center 35%;
+}
+
+/* RCPC(発展)シリーズ配下の画面専用。近未来感のある背景に差し替える。 */
+.map-board--rcpc {
+  background-image:
+    linear-gradient(165deg, rgba(10, 8, 30, 0.48) 0%, rgba(16, 10, 40, 0.66) 100%),
+    url('/art/quest-rcpc-bg.png');
+  background-position: center 30%;
 }
 
 /* kept for older markup; CSS background on .map-board is the source of truth */
@@ -833,6 +848,29 @@
   align-items: stretch;
 }
 
+/* 同意画面(Phase 5)。ページ背景はアプリ既定の緑のまま、カード自体を
+   契約書のような古紙の質感にする。トークンを上書きして本文/枠線色を
+   紙に合わせる(.surface-lightと同じ手法)。 */
+.consent-paper {
+  --color-muted-foreground: #5c4426;
+  --color-destructive: #9a3412;
+  --color-border: rgba(90, 55, 20, 0.35);
+  position: relative;
+  border: 1px solid rgba(90, 55, 20, 0.4);
+  color: #2a1a0a;
+  background:
+    linear-gradient(165deg, rgba(255, 250, 236, 0.94) 0%, rgba(236, 214, 170, 0.82) 55%, rgba(220, 190, 140, 0.76) 100%),
+    url('/art/quest-paper-texture.png') center / cover;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 0 40px rgba(90, 50, 20, 0.14),
+    0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.consent-paper h1 {
+  color: #3f210a;
+}
+
 .login-hero-art {
   position: relative;
   overflow: hidden;
@@ -992,6 +1030,20 @@
 }
 .surface-light .stage-meta {
   @apply mt-1 flex flex-wrap gap-1 text-xs text-muted-foreground;
+}
+.surface-light .bg-picker {
+  @apply grid gap-2;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+}
+.surface-light .bg-picker-item {
+  @apply flex cursor-pointer flex-col gap-1 rounded-lg border-2 border-transparent bg-white p-1.5 text-center text-xs;
+}
+.surface-light .bg-picker-item img {
+  @apply block w-full rounded-md object-cover;
+  aspect-ratio: 16 / 9;
+}
+.surface-light .bg-picker-item.selected {
+  @apply border-teal-600 bg-teal-50;
 }
 
 /* Learning pages on dark shell use light reading cards */
@@ -1233,29 +1285,6 @@
   font-weight: 700;
   color: #0f766e;
   background: #f0fdfa;
-}
-
-.learn-panel .dialogue-line {
-  display: grid;
-  grid-template-columns: 4.5rem 1fr;
-  gap: 0.65rem;
-  margin-bottom: 0.75rem;
-}
-
-.learn-panel .dialogue-speaker {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #0f766e;
-  padding-top: 0.55rem;
-}
-
-.learn-panel .dialogue-bubble {
-  border: 1px solid #b7cdc7;
-  background: #fff;
-  border-radius: 0.85rem;
-  padding: 0.7rem 0.85rem;
-  line-height: 1.55;
-  box-shadow: 0 1px 0 rgba(15, 118, 110, 0.06);
 }
 
 .learn-panel .investigate-card {
@@ -1612,4 +1641,84 @@
 .quest-content.learn-panel h2 {
   font-family: var(--font-display);
   color: #3f210a;
+}
+
+/* ビート種別ごとの共通固定背景(Phase4/5 UI調整)。既存のクリーム系グラデーションに
+   薄く画像を重ねる(quest-scroll/quest-content等、他所の「グラデ+画像」と同じ手法)。 */
+.quest-content.learn-panel.beat-bg-lecture {
+  background-image:
+    linear-gradient(180deg, rgba(255, 252, 245, 0.92), rgba(243, 230, 196, 0.9)),
+    url('/art/quest-scroll-texture.png');
+  background-size: cover;
+  background-position: center;
+}
+.quest-content.learn-panel.beat-bg-investigate {
+  background-image:
+    linear-gradient(180deg, rgba(255, 252, 245, 0.93), rgba(243, 230, 196, 0.91)),
+    url('/art/quest-investigate-bg.png');
+  background-size: cover;
+  background-position: center;
+}
+
+/* 会話ビートは読みものカードではなく、背景+テキストボックスの「場面」として表示するため
+   枠を暗い額縁に変え、内側の余白を絞ってdialogue-stageが縁いっぱいに広がるようにする。 */
+.quest-content.learn-panel.beat-bg-dialogue {
+  padding: 0.6rem;
+  background: linear-gradient(165deg, rgba(10, 26, 24, 0.95), rgba(16, 36, 34, 0.92));
+}
+.quest-content.learn-panel.beat-bg-dialogue h2 {
+  color: #f5e6b8;
+  padding: 0 0.35rem;
+}
+.quest-content.learn-panel.beat-bg-dialogue h2 span {
+  color: #cfe6df;
+}
+
+.dialogue-stage {
+  position: relative;
+  min-height: 320px;
+  border-radius: 0.65rem;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  box-shadow: inset 0 0 0 1px rgba(212, 160, 23, 0.35), 0 10px 26px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: flex-end;
+}
+
+.dialogue-textbox {
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.4rem 1.1rem 1.1rem;
+  background: linear-gradient(180deg, rgba(10, 26, 24, 0) 0%, rgba(8, 20, 19, 0.74) 32%, rgba(6, 16, 15, 0.94) 100%);
+  color: #f3e9c9;
+}
+
+.dialogue-textbox-speaker {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #f5cf6b;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.dialogue-textbox-text {
+  font-size: 1.02rem;
+  line-height: 1.6;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+.dialogue-textbox-hint {
+  align-self: flex-end;
+  font-size: 0.75rem;
+  opacity: 0.75;
+}
+
+.dialogue-textbox:hover .dialogue-textbox-hint {
+  opacity: 1;
 }

@@ -28,6 +28,8 @@ export type Beat =
       type: 'dialogue'
       id: string
       lines: DialogueLine[]
+      /** 背景に使う画像のid。src/lib/dialogueBackgrounds.ts のカタログを参照する。未選択時は先頭にフォールバック。 */
+      backgroundId?: string
       xp?: number
     }
   | {
@@ -70,6 +72,12 @@ export type LearningUnit = {
   title: string
   requestLine: string
   beats: Beat[]
+  /**
+   * Supabaseモードでのみ埋まる(get_curriculum RPCが返す)。管理画面の
+   * ユニット一覧/エディタで公開中・非公開を出し分けるために使う。
+   * モックモードのSTAGES定義には無いため常にoptional。
+   */
+  published?: boolean
 }
 
 export function normalizeAnswer(raw: string): string {
@@ -102,10 +110,18 @@ export function isUnitCleared(
 
 export function validateUnit(unit: LearningUnit): string[] {
   const errors: string[] = []
-  const granted = new Set<string>()
   const beatIds = new Set<string>()
 
   if (!unit.requestLine.trim()) errors.push(`${unit.id}: requestLine required`)
+
+  // 手がかりの付与チェックはbeats配列内の並び順に依存させない(fn_publish_unit の
+  // SQL移植と同じ2パス方式)。Phase 4のエディタはビートを追加/並べ替えする過程で
+  // 「resolveを先に置いてから、後でinvestigateを追加/並べ替えする」という順序が
+  // 自然に発生するため、単一パスの逐次チェックだと正しく付与されているのに
+  // 誤って「未付与」と判定してしまう(実際にPhase 4の動作確認中に踏んだ)。
+  const granted = new Set(
+    unit.beats.filter((b) => b.type === 'investigate').map((b) => b.clueId),
+  )
 
   for (const beat of unit.beats) {
     if (beatIds.has(beat.id)) errors.push(`duplicate beat id ${beat.id}`)
@@ -114,7 +130,6 @@ export function validateUnit(unit: LearningUnit): string[] {
     if (beat.type === 'investigate') {
       if (!beat.acceptedAnswers.length) errors.push(`${beat.id}: acceptedAnswers empty`)
       if (!beat.clueId) errors.push(`${beat.id}: clueId required`)
-      granted.add(beat.clueId)
     }
     if (beat.type === 'resolve') {
       for (const cid of beat.requiredClueIds) {

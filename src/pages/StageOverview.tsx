@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import { useEffect } from 'react'
-import { getStage, isStageCleared } from '@/mocks/data'
+import { RCPC_STAGE_ID, getStage, isStageCleared } from '@/mocks/data'
 import { isUnitCleared } from '@/mocks/learning'
 import { useAppState } from '@/context/AppState'
 import { IconCheck, IconFlask, IconProcedure, IconSwordQuest } from '@/components/QuestIcons'
@@ -8,8 +8,8 @@ import { Badge } from '@/components/ui/badge'
 
 export function StageOverview() {
   const { stageId = '' } = useParams()
-  const { currentStudent, maybeClearStage } = useAppState()
-  const stage = getStage(stageId)
+  const { currentStudent, maybeClearStage, stages } = useAppState()
+  const stage = getStage(stages, stageId)
 
   useEffect(() => {
     if (!currentStudent || !stage) return
@@ -42,7 +42,7 @@ export function StageOverview() {
         {'\u2190 \u30de\u30c3\u30d7\u3078\u623b\u308b'}
       </Link>
 
-      <div className="map-board map-board--stage">
+      <div className={`map-board map-board--stage${stage.id === RCPC_STAGE_ID ? ' map-board--rcpc' : ''}`}>
         <div className="map-board-body p-5 sm:p-6">
           <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
             <div>
@@ -123,8 +123,8 @@ export function StageOverview() {
 }
 
 function LegacyStageBody({ stageId }: { stageId: string }) {
-  const { currentStudent } = useAppState()
-  const stage = getStage(stageId)!
+  const { currentStudent, stages } = useAppState()
+  const stage = getStage(stages, stageId)!
   const p = currentStudent!.progress
   const chaptersDone = stage.chapters.filter((c) => p.clearedChapterIds.includes(c.id)).length
   const caseDone = p.clearedCaseStageIds.includes(stage.id)

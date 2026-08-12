@@ -1,6 +1,6 @@
 import { getStage, isStageCleared } from './data'
 import { isUnitCleared } from './learning'
-import type { CbtQuestion, DayPlan, Student } from './types'
+import type { CbtQuestion, DayPlan, Stage, Student } from './types'
 
 export const CBT_TARGET = 30
 
@@ -114,8 +114,8 @@ export function requiredUnassignedWarning(dayPlans: { seriesIds: string[] }[], a
   return allRequiredIds.filter((id) => !assigned.has(id))
 }
 
-export function seriesProgressLabel(student: Student, seriesId: string) {
-  const stage = getStage(seriesId)
+export function seriesProgressLabel(student: Student, seriesId: string, stages: Stage[]) {
+  const stage = getStage(stages, seriesId)
   if (!stage) return '不明'
   if (student.progress.clearedStageIds.includes(seriesId) || isStageCleared(stage, student.progress)) {
     return 'クリア'

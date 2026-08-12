@@ -3,12 +3,19 @@ import { useAppState } from '@/context/AppState'
 import { IconScroll, IconStamp, IconXpOrb } from '@/components/QuestIcons'
 import { Button } from '@/components/ui/button'
 import { readCodexSeen, stampProgress, xpProgress } from '@/lib/playerHud'
+import { backendMode } from '@/lib/backendMode'
 
 export function StudentShell() {
-  const { currentStudent, logoutStudent, todayQueue, stages } = useAppState()
+  const { currentStudent, logoutStudent, todayQueue, stages, studentStateLoaded } = useAppState()
   const navigate = useNavigate()
   const location = useLocation()
   if (!currentStudent) return <Navigate to="/" replace />
+  // Phase 5: 同意ゲート。studentStateLoadedを待つのは、ログイン直後の非同期フェッチが
+  // 終わる前(currentStudent.consentAtがまだ橋渡し元のモック値のまま)に、
+  // 既に同意済みの学生を誤って/consentへ弾かないため。モックモードは対象外。
+  if (backendMode === 'supabase' && studentStateLoaded && !currentStudent.consentAt) {
+    return <Navigate to="/consent" replace />
+  }
 
   const clueTotal = stages.reduce((n, s) => n + (s.clues?.length ?? 0), 0)
   const clueOwned = currentStudent.progress.ownedClueIds.length
@@ -138,6 +145,7 @@ export function StaffShell() {
     { to: '/staff/students', label: '実習生' },
     { to: '/staff/content', label: 'コンテンツ' },
     { to: '/staff/cbt', label: 'CBT結果' },
+    { to: '/staff/settings', label: '設定' },
   ]
 
   return (

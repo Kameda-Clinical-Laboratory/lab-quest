@@ -5,8 +5,8 @@ import { useAppState } from '@/context/AppState'
 
 export function CaseWalkthrough() {
   const { stageId = '' } = useParams()
-  const { currentStudent, completeCase } = useAppState()
-  const stage = getStage(stageId)
+  const { currentStudent, completeCase, stages } = useAppState()
+  const stage = getStage(stages, stageId)
   const [stepIndex, setStepIndex] = useState(0)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [canAdvance, setCanAdvance] = useState(false)

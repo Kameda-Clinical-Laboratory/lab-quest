@@ -59,7 +59,7 @@ export function HomeMap() {
 
   const p = currentStudent.progress
   const reqTotal = stages.filter((s) => s.required).length
-  const reqDone = p.clearedStageIds.filter((id) => getStage(id)?.required).length
+  const reqDone = p.clearedStageIds.filter((id) => getStage(stages, id)?.required).length
   const pct = reqTotal ? Math.round((reqDone / reqTotal) * 100) : 0
   const visitDates = sortDates(currentStudent.visitDates)
   const visitIndex =
@@ -99,15 +99,15 @@ export function HomeMap() {
             })}
           </div>
           <div className="quest-ticket-banner-ui">
-            <div className="mb-0.5 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-amber-200">
-              <IconSwordQuest className="h-3.5 w-3.5" />
+            <div className="mb-0.5 flex items-center gap-2 text-[12px] uppercase tracking-[0.2em] text-amber-200">
+              <IconSwordQuest className="h-4 w-4" />
               Today&apos;s Quest
             </div>
-            <h2 className="font-display text-lg leading-tight text-emerald-50 sm:text-xl">
+            <h2 className="font-display text-xl leading-tight text-emerald-50 sm:text-2xl">
               {formatDateJa(mockToday)}
               {visitIndex ? ` / \u5b9f\u7fd2 ${visitIndex} \u65e5\u76ee` : ''}
             </h2>
-            <p className="mt-0.5 max-w-xl text-[11px] leading-snug text-amber-50/85 sm:text-xs">
+            <p className="mt-0.5 max-w-xl text-[13px] leading-snug text-amber-50/85 sm:text-sm">
               {todayQueue.plan.note ||
                 (todayQueue.isAppOffDay
                   ? '\u672c\u65e5\u306f\u30a2\u30d7\u30ea\u5b66\u7fd2\u306a\u3057\uff08\u898b\u5b66\u306a\u3069\uff09'
@@ -123,7 +123,7 @@ export function HomeMap() {
           <div>
             <div className="font-display font-medium text-amber-100">{'\u7e70\u308a\u8d8a\u3057\u30af\u30a8\u30b9\u30c8\u767a\u751f'}</div>
             <div className="text-sm text-amber-100/90">
-              {todayQueue.carryIds.map((id) => getStage(id)?.title).join('\u3001')}
+              {todayQueue.carryIds.map((id) => getStage(stages, id)?.title).join('\u3001')}
               {'\u3092\u5148\u306b\u30af\u30ea\u30a2\u3057\u3066\u304b\u3089\u3001\u672c\u65e5\u8a08\u753b\u3078\u9032\u307f\u307e\u3059\u3002'}
             </div>
           </div>
@@ -162,7 +162,7 @@ export function HomeMap() {
               )}
 
               {todayQueue.queueIds.map((id, i) => {
-                const stage = getStage(id)
+                const stage = getStage(stages, id)
                 const carried = todayQueue.carryIds.includes(id)
                 return (
                   <Link key={id} to={`/app/stage/${id}`} className={`map-node ${carried ? 'carry' : ''}`}>
@@ -182,7 +182,7 @@ export function HomeMap() {
                         {stage?.hasProcedure && (
                           <Badge variant="secondary">{'\u624b\u6280\u30c1\u30a7\u30c3\u30af'}</Badge>
                         )}
-                        <Badge variant="outline">{seriesProgressLabel(currentStudent, id)}</Badge>
+                        <Badge variant="outline">{seriesProgressLabel(currentStudent, id, stages)}</Badge>
                       </div>
                     </div>
                     <span className="map-node-go" aria-hidden>
@@ -200,7 +200,7 @@ export function HomeMap() {
                       <IconCheck className="h-6 w-6" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium">{getStage(id)?.title}</div>
+                      <div className="font-medium">{getStage(stages, id)?.title}</div>
                       <Badge variant="ok" className="mt-1 text-emerald-100">
                         {'\u30af\u30ea\u30a2\u6e08'}
                       </Badge>
@@ -283,7 +283,7 @@ export function HomeMap() {
                     <span>
                       {plan.seriesIds.length === 0
                         ? plan.note || '\u30a2\u30d7\u30ea\u306a\u3057'
-                        : plan.seriesIds.map((id) => getStage(id)?.title).join('\u3001')}
+                        : plan.seriesIds.map((id) => getStage(stages, id)?.title).join('\u3001')}
                     </span>
                   </li>
                 ))}

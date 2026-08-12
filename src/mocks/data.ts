@@ -7,6 +7,9 @@ if (_unitErrors.length && typeof console !== 'undefined') {
   console.warn('[lab-quest] unit validation', _unitErrors)
 }
 
+/** RCPC（発展）シリーズのstage id。専用の背景(quest-rcpc-bg.png)の出し分けに使う。 */
+export const RCPC_STAGE_ID = 'bio-rcpc'
+
 export const AREAS = [
   { id: 'biochem' as const, name: '生化学', blurb: '検体・測定・精度の基礎エリア' },
   { id: 'immuno' as const, name: '免疫', blurb: 'ホルモン・感染・薬物のエリア' },
@@ -485,6 +488,7 @@ export const INITIAL_STUDENTS: Student[] = [
       xp: 0,
       stamps: 0,
     },
+    consentAt: null,
   },
   {
     id: 'stu-2',
@@ -524,6 +528,7 @@ export const INITIAL_STUDENTS: Student[] = [
       xp: 85,
       stamps: 4,
     },
+    consentAt: null,
   },
 ]
 
@@ -532,8 +537,13 @@ export const STAFF_USERS: StaffUser[] = [
   { id: 'staff-ops', name: '運用 花子（運用）', role: 'ops', password: 'ops' },
 ]
 
-export function getStage(id: string) {
-  return STAGES.find((s) => s.id === id)
+/**
+ * stages は呼び出し側から渡す(Phase 1でSupabase由来にも切り替わるため、
+ * このファイルの静的 STAGES に固定しない)。
+ * 従来の静的モックが欲しい場合は `getStage(STAGES, id)` と書く。
+ */
+export function getStage(stages: Stage[], id: string) {
+  return stages.find((s) => s.id === id)
 }
 
 export function isStageCleared(stage: Stage, progress: Student['progress']) {

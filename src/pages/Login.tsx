@@ -13,12 +13,15 @@ export function StudentLogin() {
   const [code, setCode] = useState('TRAIN01')
   const [password, setPassword] = useState('1234')
   const [error, setError] = useState<string | null>(null)
+  const [pending, setPending] = useState(false)
 
   if (currentStudent) return <Navigate to="/app" replace />
 
-  function onSubmit(e: FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault()
-    const err = loginStudent(code, password)
+    setPending(true)
+    const err = await loginStudent(code, password)
+    setPending(false)
     if (err) setError(err)
     else navigate('/app')
   }
@@ -74,9 +77,15 @@ export function StudentLogin() {
                 />
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
-              <Button type="submit" className="login-start-btn w-full" size="lg" variant="quest">
+              <Button
+                type="submit"
+                className="login-start-btn w-full"
+                size="lg"
+                variant="quest"
+                disabled={pending}
+              >
                 <IconLabCrest className="login-start-icon" />
-                <span>冒険を始める</span>
+                <span>{pending ? 'ログイン確認中…' : '冒険を始める'}</span>
               </Button>
             </form>
             <div className="mt-5 space-y-3 border-t border-border/70 pt-4">
@@ -99,12 +108,15 @@ export function StaffLogin() {
   const navigate = useNavigate()
   const [password, setPassword] = useState('ops')
   const [error, setError] = useState<string | null>(null)
+  const [pending, setPending] = useState(false)
 
   if (currentStaff) return <Navigate to="/staff/progress" replace />
 
-  function onSubmit(e: FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault()
-    const err = loginStaff(password)
+    setPending(true)
+    const err = await loginStaff(password)
+    setPending(false)
     if (err) setError(err)
     else navigate('/staff/progress')
   }
@@ -125,8 +137,8 @@ export function StaffLogin() {
             />
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" className="w-full">
-            入室
+          <Button type="submit" className="w-full" disabled={pending}>
+            {pending ? '確認中…' : '入室'}
           </Button>
         </form>
         <p className="mt-4 text-xs text-muted-foreground">
