@@ -99,6 +99,8 @@ export interface Student {
    * モックモードは同意ゲート対象外のため常にnullのまま。
    */
   consentAt: string | null
+  /** 所属学校名(任意)。ヘッダーのネームプレートに表示する。 */
+  schoolName: string | null
 }
 
 export interface StaffUser {

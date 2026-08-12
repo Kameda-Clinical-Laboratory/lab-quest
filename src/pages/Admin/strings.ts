@@ -5,6 +5,8 @@ export const JP = {
   progressDesc:
     'モック今日: {date}。必須残・繰り越し・CBT素点を確認。合否は表示しません。',
   name: '氏名',
+  schoolName: '学校名',
+  schoolNamePlaceholder: '例: ラボクエスト医療専門学校',
   visitDays: '実習日数',
   requiredClear: '必須クリア',
   requiredRemain: '必須残',

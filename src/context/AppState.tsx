@@ -50,6 +50,11 @@ import {
   submitCbtApi,
   type ServerStudentState,
 } from '../lib/studentProgressApi'
+import {
+  listStudentConsentApi,
+  resetStudentPasswordApi,
+  upsertStudentApi,
+} from '../lib/contentAdminApi'
 
 interface AppStateValue {
   students: Student[]
@@ -92,14 +97,15 @@ interface AppStateValue {
   submitCbt: (answers: Record<string, number>) => Promise<number>
   recordConsent: (consentVersion: string) => Promise<void>
   allowCbtRetake: (studentId: string) => void
-  resetStudentPassword: (studentId: string, password: string) => void
+  resetStudentPassword: (studentId: string, password: string) => Promise<void>
   upsertStudent: (input: {
     id?: string
     name: string
     password: string
     visitDates: string[]
     dayPlans: DayPlan[]
-  }) => void
+    schoolName?: string | null
+  }) => Promise<void>
   updateDayPlan: (studentId: string, plan: DayPlan) => void
   setVisitDates: (studentId: string, dates: string[]) => void
   setPublished: (stageId: string, published: boolean) => void
@@ -172,6 +178,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         ...s,
         name: server.name,
         code: server.code,
+        schoolName: server.schoolName,
         consentAt: server.consentAt,
         visitDates: server.visitDates,
         dayPlans: server.dayPlans,
@@ -586,28 +593,106 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [patchStudent],
   )
 
+  // Phase 4(M9)フォローアップ: 実習生登録/編集/パスワード再発行を実際にSupabaseへ
+  // 書き込む。橋渡し方式(モック配列のidをアプリ内キーに使い続ける)は変えていない
+  // ため、編集対象の実uuidは code をキーに fn_admin_list_student_consent 経由で
+  // 都度引く(この関数は元々は同意日表示用だが、code→実uuidの一覧という性質は
+  // ここでもそのまま使える)。
+  const resolveRealStudentId = useCallback(async (code: string): Promise<string | null> => {
+    const session = loadStaffSession()
+    if (!session) return null
+    try {
+      const { students: rows } = await listStudentConsentApi(session.token)
+      return rows.find((r) => r.code.toUpperCase() === code.toUpperCase())?.studentId ?? null
+    } catch {
+      return null
+    }
+  }, [])
+
   const resetStudentPassword = useCallback(
-    (studentId: string, password: string) => {
+    async (studentId: string, password: string) => {
+      if (backendMode === 'supabase') {
+        const session = loadStaffSession()
+        const mock = students.find((s) => s.id === studentId)
+        if (!session || !mock) throw new Error('スタッフとしてログインし直してください')
+        const realId = await resolveRealStudentId(mock.code)
+        if (!realId) throw new Error('対応する実データが見つかりません')
+        await resetStudentPasswordApi(session.token, { studentId: realId, password })
+      }
       patchStudent(studentId, (s) => ({ ...s, password }))
     },
-    [patchStudent],
+    [patchStudent, students, resolveRealStudentId],
   )
 
   const upsertStudent = useCallback(
-    (input: {
+    async (input: {
       id?: string
       name: string
       password: string
       visitDates: string[]
       dayPlans: DayPlan[]
+      schoolName?: string | null
     }) => {
       const visitDates = sortDates(input.visitDates)
       const dayPlans = ensureDayPlans(visitDates, input.dayPlans)
+      const schoolName = input.schoolName?.trim() || null
+
+      if (backendMode === 'supabase') {
+        const session = loadStaffSession()
+        if (!session) throw new Error('スタッフとしてログインし直してください')
+
+        if (input.id) {
+          const mock = students.find((s) => s.id === input.id)
+          if (!mock) throw new Error('編集対象の学生が見つかりません')
+          const realId = await resolveRealStudentId(mock.code)
+          if (!realId) throw new Error('対応する実データが見つかりません')
+          // 編集保存ではpasswordを送らない(フォームに残った旧パスワード表示で
+          // 実パスワードを意図せず上書きしないため。変更は resetStudentPassword 経由)。
+          await upsertStudentApi(session.token, {
+            id: realId,
+            name: input.name,
+            visitDates,
+            dayPlans,
+            schoolName,
+          })
+          patchStudent(input.id, (s) => ({ ...s, name: input.name, schoolName, visitDates, dayPlans }))
+          return
+        }
+
+        // 新規登録: 実データを作成する。loginStudentはcode一致でモック配列を
+        // 検索する橋渡し方式のため、このセッション内ですぐログインできるよう
+        // 実uuid/実codeでモック配列にも追加しておく。別端末からの新規学生の
+        // ログインは、この橋渡し方式自体を置き換えるまでの既知の制限として残る。
+        const { studentId, code } = await upsertStudentApi(session.token, {
+          name: input.name,
+          password: input.password,
+          visitDates,
+          dayPlans,
+          schoolName,
+        })
+        setStudents((prev) => [
+          ...prev,
+          {
+            id: studentId,
+            name: input.name,
+            code: code ?? studentId,
+            password: input.password,
+            schoolName,
+            visitDates,
+            dayPlans,
+            progress: emptyProgress(),
+            consentAt: null,
+          },
+        ])
+        return
+      }
+
       if (input.id) {
         patchStudent(input.id, (s) => ({
           ...s,
           name: input.name,
           password: input.password,
+          schoolName,
           visitDates,
           dayPlans,
         }))
@@ -621,6 +706,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           name: input.name,
           code,
           password: input.password,
+          schoolName,
           visitDates,
           dayPlans,
           progress: emptyProgress(),
@@ -628,7 +714,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         },
       ])
     },
-    [patchStudent, students.length],
+    [patchStudent, students, resolveRealStudentId],
   )
 
   const updateDayPlan = useCallback(

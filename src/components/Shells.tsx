@@ -20,7 +20,6 @@ export function StudentShell() {
   const clueTotal = stages.reduce((n, s) => n + (s.clues?.length ?? 0), 0)
   const clueOwned = currentStudent.progress.ownedClueIds.length
   const onCodex = location.pathname.startsWith('/app/codex')
-  const initial = currentStudent.name.trim().slice(0, 1)
   const xp = xpProgress(currentStudent.progress.xp)
   const stamps = stampProgress(
     currentStudent.progress.stamps,
@@ -41,15 +40,11 @@ export function StudentShell() {
               alt="LAB QUEST"
             />
           </Link>
-          <div className="status-player" title={`${currentStudent.name} / Lv.${xp.level}`}>
-            <span className="status-avatar" aria-hidden>
-              {initial}
-              <span className="status-level-badge">Lv{xp.level}</span>
-            </span>
-            <div className="status-player-meta">
-              <span className="status-player-name">{currentStudent.name}</span>
-              <span className="status-player-sub">冒険者</span>
-            </div>
+          <div className="status-player" title={currentStudent.name}>
+            {currentStudent.schoolName && (
+              <span className="status-player-school">{currentStudent.schoolName}</span>
+            )}
+            <span className="status-player-name">{currentStudent.name}</span>
           </div>
         </div>
 

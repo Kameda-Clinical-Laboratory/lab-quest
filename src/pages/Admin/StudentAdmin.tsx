@@ -32,18 +32,23 @@ export function StudentAdmin() {
     allowCbtRetake,
     mockToday,
     setMockToday,
+    staffRole,
   } = useAppState()
+  const canEdit = staffRole === 'full'
 
   const [selectedId, setSelectedId] = useState(students[0]?.id ?? '')
   const selected = students.find((s) => s.id === selectedId)
 
   const [name, setName] = useState('')
+  const [schoolName, setSchoolName] = useState('')
   const [password, setPassword] = useState('0000')
   const [draftDates, setDraftDates] = useState<string[]>([])
   const [draftPlans, setDraftPlans] = useState<DayPlan[]>([])
   const [mode, setMode] = useState<'edit' | 'new'>('edit')
   const [activeDate, setActiveDate] = useState<string | null>(null)
   const [month, setMonth] = useState({ y: 2026, m: 8 })
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (students[0] && mode === 'edit' && !name) loadStudent(students[0].id)
@@ -58,20 +63,24 @@ export function StudentAdmin() {
     setMode('edit')
     setSelectedId(id)
     setName(s.name)
+    setSchoolName(s.schoolName ?? '')
     setPassword(s.password)
     setDraftDates([...s.visitDates])
     setDraftPlans(s.dayPlans.map((p) => ({ ...p, seriesIds: [...p.seriesIds] })))
     setActiveDate(s.visitDates[0] ?? null)
+    setError(null)
   }
 
   function startNew() {
     setMode('new')
     setSelectedId('')
     setName('')
+    setSchoolName('')
     setPassword('0000')
     setDraftDates([])
     setDraftPlans([])
     setActiveDate(null)
+    setError(null)
   }
 
   function toggleDate(iso: string) {
@@ -111,7 +120,7 @@ export function StudentAdmin() {
     })
   }
 
-  function onSave(e: FormEvent) {
+  async function onSave(e: FormEvent) {
     e.preventDefault()
     if (!name.trim() || draftDates.length === 0) {
       alert(JP.saveNeedNameDates)
@@ -120,6 +129,7 @@ export function StudentAdmin() {
     const payload = {
       id: mode === 'edit' ? selectedId : undefined,
       name: name.trim(),
+      schoolName: schoolName.trim() || null,
       password,
       visitDates: draftDates,
       dayPlans: draftPlans,
@@ -132,11 +142,19 @@ export function StudentAdmin() {
       )
       if (!ok) return
     }
-    upsertStudent(payload)
-    if (mode === 'new') {
-      startNew()
+    setError(null)
+    setSaving(true)
+    try {
+      await upsertStudent(payload)
+      if (mode === 'new') {
+        startNew()
+      }
+      alert(JP.savedMock)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '保存に失敗しました')
+    } finally {
+      setSaving(false)
     }
-    alert(JP.savedMock)
   }
 
   const activePlan = activeDate ? planFor(activeDate) : null
@@ -192,12 +210,24 @@ export function StudentAdmin() {
         </div>
       </div>
 
+      {!canEdit && <div className="banner warn">{JP.opsViewOnly}</div>}
+      {error && <div className="banner warn">{error}</div>}
+
       <form className="grid-2" onSubmit={onSave}>
+        <fieldset disabled={!canEdit} style={{ display: 'contents', border: 0, padding: 0, margin: 0 }}>
         <div className="panel">
           <h3 style={{ marginTop: 0 }}>{mode === 'new' ? JP.modeNew : JP.modeEdit}</h3>
           <div className="field">
             <label>{JP.name}</label>
             <input value={name} onChange={(e) => setName(e.target.value)} required />
+          </div>
+          <div className="field">
+            <label>{JP.schoolName}</label>
+            <input
+              value={schoolName}
+              onChange={(e) => setSchoolName(e.target.value)}
+              placeholder={JP.schoolNamePlaceholder}
+            />
           </div>
           <div className="field">
             <label>{JP.password}</label>
@@ -272,19 +302,26 @@ export function StudentAdmin() {
             {JP.calHint}
           </p>
           <div className="inline" style={{ marginTop: 12 }}>
-            <button type="submit" className="btn">
-              {JP.save}
+            <button type="submit" className="btn" disabled={saving}>
+              {saving ? '保存中…' : JP.save}
             </button>
             {mode === 'edit' && selected && (
               <>
                 <button
                   type="button"
                   className="btn secondary"
+                  disabled={saving}
                   onClick={() => {
                     const pw = String(Math.floor(1000 + Math.random() * 9000))
+                    setSaving(true)
+                    setError(null)
                     resetStudentPassword(selected.id, pw)
-                    setPassword(pw)
-                    alert(`${JP.pwReissuedPrefix}${pw}${JP.pwReissuedSuffix}`)
+                      .then(() => {
+                        setPassword(pw)
+                        alert(`${JP.pwReissuedPrefix}${pw}${JP.pwReissuedSuffix}`)
+                      })
+                      .catch((err) => setError(err instanceof Error ? err.message : '再発行に失敗しました'))
+                      .finally(() => setSaving(false))
                   }}
                 >
                   {JP.pwReissue}
@@ -366,6 +403,7 @@ export function StudentAdmin() {
             </>
           )}
         </div>
+        </fieldset>
       </form>
     </div>
   )

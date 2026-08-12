@@ -6,6 +6,7 @@ export interface ServerStudentState {
   id: string
   name: string
   code: string
+  schoolName: string | null
   consentAt: string | null
   visitDates: string[]
   dayPlans: DayPlan[]

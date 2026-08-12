@@ -80,9 +80,12 @@ export function upsertStudentApi(
   opts: {
     id?: string
     name: string
-    password: string
+    /** 新規登録は必須。編集保存では通常省略する(送ると実パスワードを
+     * 上書きしてしまうため — パスワード変更は resetStudentPasswordApi を使う)。 */
+    password?: string
     visitDates: string[]
     dayPlans: DayPlan[]
+    schoolName?: string | null
   },
 ) {
   return callAdminContent<{ studentId: string; code?: string }>(token, 'upsert_student', opts)

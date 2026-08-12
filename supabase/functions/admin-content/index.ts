@@ -178,6 +178,7 @@ async function handle(req: Request): Promise<Response> {
         const visitDates = (p.visitDates ?? []) as string[]
         const dayPlans = (p.dayPlans ?? []) as unknown[]
         const password = p.password ? String(p.password) : null
+        const schoolName = p.schoolName ? String(p.schoolName).trim() : null
 
         if (p.id) {
           const { error } = await admin.rpc('fn_admin_update_student', {
@@ -186,8 +187,13 @@ async function handle(req: Request): Promise<Response> {
             p_visit_dates: visitDates,
             p_day_plans: dayPlans,
             p_actor_staff_id: staffId,
+            p_school_name: schoolName,
           })
           if (error) throw new Error(error.message)
+          // 編集保存では、明示的にpasswordが渡されたときだけ再発行する
+          // (「パスワード再発行」ボタンは別アクションを使う。編集フォームの
+          // 表示用パスワードをそのまま毎回送ると意図せず実パスワードを
+          // 上書きしてしまうため、通常の保存では送らない)。
           if (password) {
             const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS)
             const { error: pwErr } = await admin.rpc('fn_admin_reset_student_password', {
@@ -207,6 +213,7 @@ async function handle(req: Request): Promise<Response> {
           p_visit_dates: visitDates,
           p_day_plans: dayPlans,
           p_actor_staff_id: staffId,
+          p_school_name: schoolName,
         })
         if (error) throw new Error(error.message)
         return json(data)

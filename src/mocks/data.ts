@@ -467,6 +467,7 @@ export const INITIAL_STUDENTS: Student[] = [
     name: '山田 花',
     code: 'TRAIN01',
     password: '1234',
+    schoolName: 'ラボクエスト医療専門学校',
     visitDates: [
       '2026-08-10',
       '2026-08-11',
@@ -495,6 +496,7 @@ export const INITIAL_STUDENTS: Student[] = [
     name: '佐藤 健',
     code: 'TRAIN02',
     password: '5678',
+    schoolName: 'ラボクエスト医療専門学校',
     visitDates: [
       '2026-08-10',
       '2026-08-11',
