@@ -15,7 +15,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Trash2 } from 'lucide-react'
 import type { Beat } from '@/mocks/learning'
-import { unitPhaseLabel } from '@/mocks/learning'
+import { beatDisplayTitle } from '@/mocks/learning'
 import { Button } from '@/components/ui/button'
 import { BEAT_TYPES, beatTypeLabel, defaultBeat } from '@/components/admin/beatDefaults'
 import { JP } from '../strings'
@@ -50,7 +50,7 @@ function SortableRow({
         onClick={onSelect}
         style={{ flex: 1, textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
       >
-        {unitPhaseLabel(beat)}
+        {beatDisplayTitle(beat)}
       </button>
       <button type="button" className="btn ghost" onClick={onDelete} aria-label={JP.deleteBeat}>
         <Trash2 size={16} />

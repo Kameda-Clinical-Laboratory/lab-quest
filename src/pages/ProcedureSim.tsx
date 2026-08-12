@@ -23,7 +23,7 @@ export function ProcedureSim() {
   if (!currentStudent || !stage || !stage.procedureSteps) {
     return (
       <div className="learn-panel">
-        <p>このステージに手順はありません。</p>
+        <p>このシリーズに手順はありません。</p>
         <Link to="/app">マップへ</Link>
       </div>
     )
@@ -84,7 +84,7 @@ export function ProcedureSim() {
           {(done || message?.includes('完了')) && (
             <div className="inline" style={{ marginTop: 12 }}>
               <Link className="btn" to="/app">
-                マップへ（ステージクリア）
+                マップへ（シリーズクリア）
               </Link>
             </div>
           )}

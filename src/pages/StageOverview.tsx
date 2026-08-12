@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { RCPC_STAGE_ID, getStage, isStageCleared } from '@/mocks/data'
 import { isUnitCleared } from '@/mocks/learning'
 import { useAppState } from '@/context/AppState'
-import { IconCheck, IconFlask, IconProcedure, IconSwordQuest } from '@/components/QuestIcons'
+import { IconCheck, IconFlask, IconProcedure } from '@/components/QuestIcons'
 import { Badge } from '@/components/ui/badge'
 
 export function StageOverview() {
@@ -20,7 +20,7 @@ export function StageOverview() {
     return (
       <div className="map-board">
         <div className="map-board-body space-y-3 p-5">
-          <p className="text-emerald-50">{'\u30b9\u30c6\u30fc\u30b8\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3002'}</p>
+          <p className="text-emerald-50">{'\u30b7\u30ea\u30fc\u30ba\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3002'}</p>
           <Link to="/app" className="text-amber-200 underline-offset-2 hover:underline">
             {'\u30de\u30c3\u30d7\u3078'}
           </Link>
@@ -59,7 +59,7 @@ export function StageOverview() {
                 )}
                 {cleared && (
                   <Badge variant="ok" className="text-emerald-100">
-                    {'\u30b9\u30c6\u30fc\u30b8\u30af\u30ea\u30a2'}
+                    {'\u30b7\u30ea\u30fc\u30ba\u30af\u30ea\u30a2'}
                   </Badge>
                 )}
               </div>
@@ -87,9 +87,6 @@ export function StageOverview() {
                         </Badge>
                       </div>
                     </div>
-                    <span className="map-node-go" aria-hidden>
-                      <IconSwordQuest className="h-6 w-6" />
-                    </span>
                   </Link>
                 )
               })}
@@ -107,9 +104,6 @@ export function StageOverview() {
                       <Badge variant="secondary">{'\u5b9f\u52d9\u524d'}</Badge>
                     </div>
                   </div>
-                  <span className="map-node-go" aria-hidden>
-                    <IconSwordQuest className="h-6 w-6" />
-                  </span>
                 </Link>
               )}
             </div>
@@ -153,9 +147,6 @@ function LegacyStageBody({ stageId }: { stageId: string }) {
                 </Badge>
               </div>
             </div>
-            <span className="map-node-go" aria-hidden>
-              <IconSwordQuest className="h-6 w-6" />
-            </span>
           </Link>
         )
       })}
@@ -179,11 +170,6 @@ function LegacyStageBody({ stageId }: { stageId: string }) {
             </Badge>
           </div>
         </div>
-        {!caseLocked && (
-          <span className="map-node-go" aria-hidden>
-            <IconSwordQuest className="h-6 w-6" />
-          </span>
-        )}
       </Link>
 
       {stage.hasProcedure && (
@@ -209,11 +195,6 @@ function LegacyStageBody({ stageId }: { stageId: string }) {
               </Badge>
             </div>
           </div>
-          {!procLocked && (
-            <span className="map-node-go" aria-hidden>
-              <IconSwordQuest className="h-6 w-6" />
-            </span>
-          )}
         </Link>
       )}
     </div>

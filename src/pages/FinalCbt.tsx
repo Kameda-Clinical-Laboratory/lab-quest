@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAppState } from '@/context/AppState'
 import { CBT_TARGET } from '@/mocks/schedule'
 import { getStage } from '@/mocks/data'
 import type { CbtQuestion } from '@/mocks/types'
+import { ClearStampPopup } from '@/components/ClearStampPopup'
 
 const DURATION_SEC = 45 * 60
 
@@ -30,7 +31,9 @@ export function FinalCbt() {
 
   useEffect(() => {
     if (ready && left === 0 && currentStudent && !currentStudent.progress.cbtSubmitted) {
-      submitCbt(answers).finally(() => navigate('/app/cbt/result'))
+      submitCbt(answers).finally(() =>
+        navigate('/app/cbt/result', { state: { justSubmitted: true } }),
+      )
     }
   }, [left, ready, answers, currentStudent, submitCbt, navigate])
 
@@ -203,7 +206,7 @@ export function FinalCbt() {
                 setSubmitting(true)
                 try {
                   await submitCbt(answers)
-                  navigate('/app/cbt/result')
+                  navigate('/app/cbt/result', { state: { justSubmitted: true } })
                 } finally {
                   setSubmitting(false)
                 }
@@ -223,6 +226,8 @@ export function FinalCbt() {
 
 export function CbtResult() {
   const { currentStudent, getActiveCbtQuestions, stages } = useAppState()
+  const location = useLocation()
+  const justSubmitted = Boolean((location.state as { justSubmitted?: boolean } | null)?.justSubmitted)
   if (!currentStudent) return null
 
   const questions = getActiveCbtQuestions()
@@ -238,6 +243,7 @@ export function CbtResult() {
 
   return (
     <div className="learn-panel">
+      {justSubmitted && <ClearStampPopup />}
       <p className="muted" style={{ marginTop: 0 }}>
         <Link to="/app">ホームへ</Link>
       </p>

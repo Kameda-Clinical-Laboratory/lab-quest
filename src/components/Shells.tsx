@@ -1,6 +1,7 @@
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAppState } from '@/context/AppState'
-import { IconScroll, IconStamp, IconXpOrb } from '@/components/QuestIcons'
+import { getStage } from '@/mocks/data'
+import { IconFlask, IconScroll, IconStamp, IconXpOrb } from '@/components/QuestIcons'
 import { Button } from '@/components/ui/button'
 import { readCodexSeen, stampProgress, xpProgress } from '@/lib/playerHud'
 import { backendMode } from '@/lib/backendMode'
@@ -28,6 +29,11 @@ export function StudentShell() {
   const codexPct = clueTotal ? Math.round((clueOwned / clueTotal) * 100) : 0
   const codexNew = clueOwned > readCodexSeen(currentStudent.id)
   const carry = todayQueue?.carryIds.length ?? 0
+  const reqTotal = stages.filter((s) => s.required).length
+  const reqDone = currentStudent.progress.clearedStageIds.filter(
+    (id) => getStage(stages, id)?.required,
+  ).length
+  const reqPct = reqTotal ? Math.round((reqDone / reqTotal) * 100) : 0
 
   return (
     <div className="mx-auto min-h-screen max-w-6xl px-6 py-5">
@@ -64,9 +70,23 @@ export function StudentShell() {
               </div>
             </div>
 
-            <div
-              className="status-meter"
-              title={`スタンプ ${stamps.stamps} / 目標 ${stamps.goal}`}
+            <div className="status-meter" title={`必須シリーズ進捗 ${reqDone} / ${reqTotal}`}>
+              <div className="status-meter-head">
+                <IconFlask className="h-4 w-4" />
+                <span className="status-chip-label">進捗</span>
+                <strong>
+                  {reqDone}/{reqTotal}
+                </strong>
+              </div>
+              <div className="status-meter-track" aria-hidden>
+                <div className="status-meter-fill codex" style={{ width: `${reqPct}%` }} />
+              </div>
+            </div>
+
+            <Link
+              to="/app/stamps"
+              className={`status-meter status-meter-link ${location.pathname.startsWith('/app/stamps') ? 'active' : ''}`}
+              title={`スタンプ ${stamps.stamps} / 目標 ${stamps.goal}（クリックでスタンプ手帳へ）`}
             >
               <div className="status-meter-head">
                 <IconStamp className="h-4 w-4" />
@@ -78,7 +98,7 @@ export function StudentShell() {
               <div className="status-meter-track" aria-hidden>
                 <div className="status-meter-fill stamp" style={{ width: `${stamps.pct}%` }} />
               </div>
-            </div>
+            </Link>
 
             <Link
               to="/app/codex"

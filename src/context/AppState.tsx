@@ -25,6 +25,7 @@ import {
   sortDates,
 } from '../mocks/schedule'
 import type { CbtQuestion, DayPlan, Stage, StaffRole, StaffUser, Student } from '../mocks/types'
+import { isUnitCleared } from '../mocks/learning'
 import { backendMode } from '../lib/backendMode'
 import { fetchCurriculum } from '../lib/curriculumApi'
 import { loginStaffApi, loginStudentApi } from '../lib/authApi'
@@ -45,9 +46,11 @@ import {
   getActiveCbtQuestionsApi,
   getStudentState,
   recordConsentApi,
+  recordLoginStampApi,
   setUnitCursorApi,
   startCbtApi,
   submitCbtApi,
+  type LoginStampResult,
   type ServerStudentState,
 } from '../lib/studentProgressApi'
 import {
@@ -67,6 +70,11 @@ interface AppStateValue {
    * currentStudent.consentAt が未確定のまま誤って/consentへ弾かないようにする。
    */
   studentStateLoaded: boolean
+  /**
+   * 今回のセッションでログインスタンプを記録した結果(Supabaseモードのみ)。
+   * isNew=trueのときだけホーム画面がポップアップ演出を出す。
+   */
+  loginStampResult: LoginStampResult | null
   cbtQuestionBank: typeof CBT_QUESTIONS
   mockToday: string
   setMockToday: (date: string) => void
@@ -182,6 +190,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         consentAt: server.consentAt,
         visitDates: server.visitDates,
         dayPlans: server.dayPlans,
+        stampDates: server.stampDates,
         progress: server.progress,
       }))
     },
@@ -202,6 +211,26 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     syncServerStudent(studentStateQuery.data.student)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studentStateQuery.data])
+
+  // ログインボーナス: セッションごとに1回、今日のログインスタンプを記録しに行く。
+  // サーバー側(fn_record_login_stamp)が「今日はまだか」を判定するので、
+  // 同じ日に何度呼んでも2回目以降はisNew=falseが返るだけで安全。
+  const [loginStampResult, setLoginStampResult] = useState<LoginStampResult | null>(null)
+  useEffect(() => {
+    if (backendMode !== 'supabase' || !studentSession) return
+    let cancelled = false
+    recordLoginStampApi(studentSession.token)
+      .then(({ stamp, student }) => {
+        if (cancelled) return
+        setLoginStampResult(stamp)
+        syncServerStudent(student)
+      })
+      .catch((err) => console.error('[recordLoginStamp]', err))
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studentSession?.token])
 
   // Phase 3: CBT出題は全問題プールをクライアントに配布しない設計のため、
   // 「今出題されている問題」だけを別途取得してキャッシュする(リロード後の再開にも対応)。
@@ -306,8 +335,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           progress: {
             ...s.progress,
             clearedStageIds: [...s.progress.clearedStageIds, stageId],
-            stamps: s.progress.stamps + 3,
-            xp: s.progress.xp + 50,
           },
         }
       })
@@ -333,7 +360,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             ...s.progress,
             clearedChapterIds: [...s.progress.clearedChapterIds, chapterId],
             xp: s.progress.xp + xp,
-            stamps: s.progress.stamps + 1,
           },
         }
       })
@@ -358,7 +384,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           progress: {
             ...s.progress,
             clearedCaseStageIds: [...s.progress.clearedCaseStageIds, stageId],
-            stamps: s.progress.stamps + 1,
             xp: s.progress.xp + 30,
           },
         }
@@ -385,7 +410,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           progress: {
             ...s.progress,
             clearedProcedureStageIds: [...s.progress.clearedProcedureStageIds, stageId],
-            stamps: s.progress.stamps + 2,
             xp: s.progress.xp + 40,
           },
         }
@@ -440,22 +464,40 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         if (opts.unitId != null && opts.nextBeatIndex != null) {
           unitCursors[opts.unitId] = opts.nextBeatIndex
         }
+        const nextClearedBeatIds = already
+          ? s.progress.clearedBeatIds
+          : [...s.progress.clearedBeatIds, opts.beatId]
+
+        // XPは幕クリアのたびではなく、クエスト(unit)が新たに完全クリアになった
+        // 瞬間にそのunit配下の幕XP合計をまとめて加算する(supabaseモードの
+        // fn_complete_beatと同じルール)。
+        let xpGain = 0
+        if (!already && opts.unitId) {
+          const stage = opts.stageId ? getStage(stages, opts.stageId) : undefined
+          const unit = stage?.units?.find((u) => u.id === opts.unitId)
+          if (unit) {
+            const wasCleared = isUnitCleared(unit, { clearedBeatIds: s.progress.clearedBeatIds })
+            const nowCleared = isUnitCleared(unit, { clearedBeatIds: nextClearedBeatIds })
+            if (!wasCleared && nowCleared) {
+              xpGain = unit.beats.reduce((sum, b) => sum + (b.xp ?? 0), 0)
+            }
+          }
+        }
+
         return {
           ...s,
           progress: {
             ...s.progress,
-            clearedBeatIds: already
-              ? s.progress.clearedBeatIds
-              : [...s.progress.clearedBeatIds, opts.beatId],
+            clearedBeatIds: nextClearedBeatIds,
             ownedClueIds: Array.from(owned),
             unitCursors,
-            xp: already ? s.progress.xp : s.progress.xp + (opts.xp ?? 0),
+            xp: s.progress.xp + xpGain,
           },
         }
       })
       if (opts.stageId) refreshStageClear(currentStudentId, opts.stageId)
     },
-    [currentStudentId, patchStudent, refreshStageClear, studentSession, syncServerStudent],
+    [currentStudentId, patchStudent, refreshStageClear, stages, studentSession, syncServerStudent],
   )
 
   const setUnitCursor = useCallback(
@@ -682,6 +724,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             dayPlans,
             progress: emptyProgress(),
             consentAt: null,
+            stampDates: [],
           },
         ])
         return
@@ -711,6 +754,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           dayPlans,
           progress: emptyProgress(),
           consentAt: null,
+          stampDates: [],
         },
       ])
     },
@@ -751,6 +795,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       stages,
       stagesLoaded,
       studentStateLoaded,
+      loginStampResult,
       cbtQuestionBank: CBT_QUESTIONS,
       mockToday,
       setMockToday,
@@ -786,6 +831,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       stages,
       stagesLoaded,
       studentStateLoaded,
+      loginStampResult,
       mockToday,
       currentStudentId,
       currentStaff,

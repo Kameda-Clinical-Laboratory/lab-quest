@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { RCPC_STAGE_ID, getStage } from '@/mocks/data'
-import { unitPhaseLabel, type Beat } from '@/mocks/learning'
+import { beatDisplayTitle, type Beat } from '@/mocks/learning'
 import { useAppState } from '@/context/AppState'
 import { BeatView } from '@/components/learn/BeatView'
 
@@ -52,7 +52,7 @@ function LegacyChapterLearn() {
       </p>
       <div className="chapter-layout">
         <aside className="side-nav">
-          <p className="muted">{'チャプター'}</p>
+          <p className="muted">{'クエスト'}</p>
           {stage.chapters.map((ch, i) => (
             <Link key={ch.id} to={`/app/stage/${stage.id}/chapter/${ch.id}`}>
               <button type="button" className={ch.id === chapter.id ? 'active' : ''}>
@@ -119,7 +119,7 @@ function LegacyChapterLearn() {
               {phase === 'done' && (
                 <p style={{ marginTop: 16 }}>
                   <Link className="btn" to={`/app/stage/${stage.id}`}>
-                    {'ステージへ戻る'}
+                    {'シリーズへ戻る'}
                   </Link>
                 </p>
               )}
@@ -246,7 +246,7 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
                   }`}
                   onClick={() => goTo(i)}
                 >
-                  {i + 1}. {unitPhaseLabel(b)}
+                  第{i + 1}幕 {beatDisplayTitle(b)}
                   {done ? ' ✓' : lockedResolve ? ` (${'ロック'})` : ''}
                 </button>
               )
@@ -268,7 +268,7 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
                     onClick={() => goTo(i)}
                   >
                     <span>
-                      {i + 1}. {unitPhaseLabel(b)}
+                      第{i + 1}幕 {beatDisplayTitle(b)}
                       {lockedResolve && !done ? ` · ${'ロック'}` : ''}
                     </span>
                     <span>{done ? '✓' : ''}</span>
@@ -279,7 +279,7 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
 
             <div className={`quest-content learn-panel beat-bg-${beat.type}`}>
               <h2 style={{ marginTop: 0 }}>
-                {beatIndex + 1}. {unitPhaseLabel(beat)}
+                第{beatIndex + 1}幕「{beatDisplayTitle(beat)}」
                 <span style={{ opacity: 0.7, fontSize: '0.85em' }}> · {unit.title}</span>
               </h2>
               <BeatView

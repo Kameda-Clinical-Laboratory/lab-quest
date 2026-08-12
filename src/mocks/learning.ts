@@ -27,6 +27,8 @@ export type Beat =
   | {
       type: 'dialogue'
       id: string
+      /** 幕のタイトル(例: 「看護師さんとの会話」)。未設定時は種別ラベルにフォールバックする。 */
+      title?: string
       lines: DialogueLine[]
       /** 背景に使う画像のid。src/lib/dialogueBackgrounds.ts のカタログを参照する。未選択時は先頭にフォールバック。 */
       backgroundId?: string
@@ -35,6 +37,7 @@ export type Beat =
   | {
       type: 'lecture'
       id: string
+      title?: string
       body: string
       bridge?: string
       xp?: number
@@ -42,6 +45,7 @@ export type Beat =
   | {
       type: 'investigate'
       id: string
+      title?: string
       mode: InvestigateMode
       purpose: string
       howTo: string
@@ -56,6 +60,7 @@ export type Beat =
   | {
       type: 'resolve'
       id: string
+      title?: string
       requiredClueIds: string[]
       steps: CaseStep[]
       xp?: number
@@ -63,6 +68,7 @@ export type Beat =
   | {
       type: 'drill'
       id: string
+      title?: string
       questions: DrillMcq[]
       xp?: number
     }
@@ -152,6 +158,7 @@ export function validateStagesUnits(
   return stages.flatMap((s) => (s.units ?? []).flatMap((u) => validateUnit(u)))
 }
 
+/** 幕の種別ラベル(会話/講義/調査/解決/発展)。beat.titleが未設定のときのフォールバックにも使う。 */
 export function unitPhaseLabel(beat: Beat): string {
   switch (beat.type) {
     case 'dialogue':
@@ -167,4 +174,9 @@ export function unitPhaseLabel(beat: Beat): string {
     default:
       return ''
   }
+}
+
+/** 幕の表示タイトル。beat.titleが未設定/空文字なら種別ラベルにフォールバックする。 */
+export function beatDisplayTitle(beat: Beat): string {
+  return beat.title?.trim() || unitPhaseLabel(beat)
 }

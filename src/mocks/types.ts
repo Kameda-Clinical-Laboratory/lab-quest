@@ -101,6 +101,11 @@ export interface Student {
   consentAt: string | null
   /** 所属学校名(任意)。ヘッダーのネームプレートに表示する。 */
   schoolName: string | null
+  /**
+   * ログインスタンプを押した日(ISO date)の一覧。Supabaseモードのみ意味を持つ
+   * (fn_get_student_stateから同期)。スタンプ手帳(/app/stamps)の表示に使う。
+   */
+  stampDates: string[]
 }
 
 export interface StaffUser {

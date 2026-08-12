@@ -10,7 +10,15 @@ export interface ServerStudentState {
   consentAt: string | null
   visitDates: string[]
   dayPlans: DayPlan[]
+  /** ログインスタンプを押した日(ISO date)の一覧。スタンプ手帳の表示に使う。 */
+  stampDates: string[]
   progress: StudentProgress
+}
+
+export interface LoginStampResult {
+  isNew: boolean
+  dayNumber: number
+  totalStamps: number
 }
 
 interface ServerQuestion {
@@ -117,4 +125,11 @@ export function recordConsentApi(token: string, consentVersion: string) {
   return callStudentProgress<{ student: ServerStudentState }>(token, 'record_consent', {
     consentVersion,
   })
+}
+
+export function recordLoginStampApi(token: string) {
+  return callStudentProgress<{ stamp: LoginStampResult; student: ServerStudentState }>(
+    token,
+    'record_login_stamp',
+  )
 }

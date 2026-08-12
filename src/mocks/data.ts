@@ -490,6 +490,7 @@ export const INITIAL_STUDENTS: Student[] = [
       stamps: 0,
     },
     consentAt: null,
+    stampDates: [],
   },
   {
     id: 'stu-2',
@@ -531,6 +532,7 @@ export const INITIAL_STUDENTS: Student[] = [
       stamps: 4,
     },
     consentAt: null,
+    stampDates: [],
   },
 ]
 
