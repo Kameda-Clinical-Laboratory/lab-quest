@@ -232,27 +232,6 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
             </div>
           </div>
 
-          <div className="quest-phase-rail">
-            {unit.beats.map((b, i) => {
-              const done = currentStudent.progress.clearedBeatIds.includes(b.id)
-              const lockedResolve =
-                b.type === 'resolve' && b.requiredClueIds.some((id) => !owned.has(id))
-              return (
-                <button
-                  key={b.id}
-                  type="button"
-                  className={`quest-phase-pill ${i === beatIndex ? 'active' : ''} ${done ? 'done' : ''} ${
-                    lockedResolve && !done ? 'locked' : ''
-                  }`}
-                  onClick={() => goTo(i)}
-                >
-                  第{i + 1}幕 {beatDisplayTitle(b)}
-                  {done ? ' ✓' : lockedResolve ? ` (${'ロック'})` : ''}
-                </button>
-              )
-            })}
-          </div>
-
           <div className="chapter-layout" style={{ marginTop: 4 }}>
             <aside className="quest-side">
               <p className="quest-side-title">{unit.title}</p>
