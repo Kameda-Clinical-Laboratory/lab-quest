@@ -18,6 +18,8 @@ export function defaultBeat(type: Beat['type']): Beat {
       }
     case 'lecture':
       return { type: 'lecture', id: newId('b'), body: '', xp: 0 }
+    case 'problem':
+      return { type: 'problem', id: newId('b'), xp: 0 }
     case 'investigate':
       return {
         type: 'investigate',
@@ -69,6 +71,8 @@ export function beatTypeLabel(type: Beat['type']): string {
       return '会話'
     case 'lecture':
       return '講義'
+    case 'problem':
+      return 'クエスト発生'
     case 'investigate':
       return '調査'
     case 'resolve':
@@ -78,4 +82,11 @@ export function beatTypeLabel(type: Beat['type']): string {
   }
 }
 
-export const BEAT_TYPES: Beat['type'][] = ['dialogue', 'lecture', 'investigate', 'resolve', 'drill']
+export const BEAT_TYPES: Beat['type'][] = [
+  'dialogue',
+  'lecture',
+  'problem',
+  'investigate',
+  'resolve',
+  'drill',
+]

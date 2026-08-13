@@ -1,5 +1,6 @@
 import { DialogueForm } from '@/components/admin/beatForms/DialogueForm'
 import { LectureForm } from '@/components/admin/beatForms/LectureForm'
+import { ProblemForm } from '@/components/admin/beatForms/ProblemForm'
 import { InvestigateForm } from '@/components/admin/beatForms/InvestigateForm'
 import { ResolveForm } from '@/components/admin/beatForms/ResolveForm'
 import { DrillForm } from '@/components/admin/beatForms/DrillForm'
@@ -72,6 +73,8 @@ function BeatTypeForm({
       return <DialogueForm key={beat.id} beat={beat} onChange={onChange} />
     case 'lecture':
       return <LectureForm key={beat.id} beat={beat} onChange={onChange} />
+    case 'problem':
+      return <ProblemForm key={beat.id} beat={beat} onChange={onChange} />
     case 'investigate':
       return (
         <InvestigateForm

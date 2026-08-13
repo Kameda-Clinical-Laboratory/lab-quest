@@ -11,6 +11,8 @@ export function BeatView({
   owned,
   clues,
   already,
+  unitTitle,
+  requestLine,
   onComplete,
   onJumpToInvestigate,
 }: {
@@ -18,6 +20,9 @@ export function BeatView({
   owned: Set<string>
   clues: { id: string; name: string; summary: string }[]
   already: boolean
+  /** 'problem'ビート用。ユニットのタイトル/依頼文をそのまま依頼票に表示する。 */
+  unitTitle?: string
+  requestLine?: string
   onComplete: (clueId?: string) => void
   onJumpToInvestigate: () => void
 }) {
@@ -34,6 +39,17 @@ export function BeatView({
           {already ? '次へ' : '調査へ進む'}
         </button>
       </div>
+    )
+  }
+
+  if (beat.type === 'problem') {
+    return (
+      <ProblemBeatView
+        title={unitTitle ?? ''}
+        requestLine={requestLine ?? ''}
+        already={already}
+        onComplete={onComplete}
+      />
     )
   }
 
@@ -129,7 +145,38 @@ function DialogueBeatView({
   )
 }
 
-function InvestigateBeat({
+/**
+ * クエスト発生。羊皮紙の依頼票に unit.title / unit.requestLine をそのまま載せる。
+ * 中身は持たない幕なので、コンテンツはUnitLearnからunitTitle/requestLineとして渡す。
+ */
+function ProblemBeatView({
+  title,
+  requestLine,
+  already,
+  onComplete,
+}: {
+  title: string
+  requestLine: string
+  already: boolean
+  onComplete: (clueId?: string) => void
+}) {
+  return (
+    <div>
+      <div className="quest-ticket-stage">
+        <div className="quest-ticket-board">
+          <p className="quest-ticket-title">{title}</p>
+          <p className="quest-ticket-line">{requestLine}</p>
+        </div>
+      </div>
+      <button type="button" className="btn" style={{ marginTop: 16 }} onClick={() => onComplete()}>
+        {already ? '次へ（再閲覧）' : '調査を始める'}
+      </button>
+    </div>
+  )
+}
+
+/** UnitLearnの調査ハブ(InvestigateHubView)からも直接使う個別調査UI。 */
+export function InvestigateBeat({
   beat,
   already,
   onComplete,

@@ -138,6 +138,8 @@ export const JP = {
   removeLine: '削除',
   lectureBody: '本文',
   lectureBridge: 'つなぎ（任意）',
+  problemFormHint:
+    'この幕には編集できる本文がありません。実習生の画面には、このユニットの「タイトル」と「依頼文」がそのまま依頼票として表示されます。',
   investigateMode: '調査の種類',
   investigatePurpose: '目的',
   investigateHowTo: '手順',

@@ -215,7 +215,13 @@ export function UnitEditor() {
         </div>
 
         <div className="panel">
-          <PreviewPane beat={selectedBeat} clues={clues} owned={owned} />
+          <PreviewPane
+            beat={selectedBeat}
+            clues={clues}
+            owned={owned}
+            unitTitle={draft.title}
+            requestLine={draft.requestLine}
+          />
         </div>
       </div>
 

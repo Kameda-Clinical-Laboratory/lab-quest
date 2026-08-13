@@ -31,6 +31,11 @@ export const BIO_BASICS_UNITS: LearningUnit[] = [
         ],
       },
       {
+        type: 'problem',
+        id: 'bio-basics-u1-problem',
+        xp: 5,
+      },
+      {
         type: 'lecture',
         id: 'bio-basics-u1-lec',
         xp: 10,
@@ -136,6 +141,11 @@ export const BIO_BASICS_UNITS: LearningUnit[] = [
           { speaker: '実習生', text: '施設の連絡手順を確認します。' },
           { speaker: 'Dr.', text: '定義を教科書で確認してから、判断を言語化してほしい。' },
         ],
+      },
+      {
+        type: 'problem',
+        id: 'bio-basics-u2-problem',
+        xp: 5,
       },
       {
         type: 'lecture',

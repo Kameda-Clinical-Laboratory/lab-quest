@@ -12,10 +12,15 @@ export function PreviewPane({
   beat,
   clues,
   owned,
+  unitTitle,
+  requestLine,
 }: {
   beat: Beat | null
   clues: ClueDef[]
   owned: Set<string>
+  /** 'problem'ビートのプレビュー用。依頼票にそのまま出す。 */
+  unitTitle?: string
+  requestLine?: string
 }) {
   if (!beat) return <p className="muted">{JP.preview2}</p>
   return (
@@ -26,6 +31,8 @@ export function PreviewPane({
         owned={owned}
         clues={clues}
         already={false}
+        unitTitle={unitTitle}
+        requestLine={requestLine}
         onComplete={() => {}}
         onJumpToInvestigate={() => {}}
       />

@@ -43,6 +43,17 @@ export type Beat =
       xp?: number
     }
   | {
+      /**
+       * クエスト発生。会話の直後に、そのユニットの依頼(unit.requestLine)を
+       * 依頼票として見せるための幕。中身は持たず、unit.title/unit.requestLineを
+       * そのまま表示する(2026-08、幕構成リニューアル)。
+       */
+      type: 'problem'
+      id: string
+      title?: string
+      xp?: number
+    }
+  | {
       type: 'investigate'
       id: string
       title?: string
@@ -165,6 +176,8 @@ export function unitPhaseLabel(beat: Beat): string {
       return '会話'
     case 'lecture':
       return '講義'
+    case 'problem':
+      return 'クエスト発生'
     case 'investigate':
       return '調査'
     case 'resolve':
@@ -179,4 +192,40 @@ export function unitPhaseLabel(beat: Beat): string {
 /** 幕の表示タイトル。beat.titleが未設定/空文字なら種別ラベルにフォールバックする。 */
 export function beatDisplayTitle(beat: Beat): string {
   return beat.title?.trim() || unitPhaseLabel(beat)
+}
+
+export type InvestigateBeatT = Extract<Beat, { type: 'investigate' }>
+
+/** UnitLearnの幕一覧・サイドバーで1コマとして扱う単位。連続するinvestigateは1つの調査ハブにまとめる。 */
+export type BeatDisplayGroup =
+  | { kind: 'single'; beat: Beat; rawIndex: number }
+  | { kind: 'investigateHub'; beats: InvestigateBeatT[]; rawIndexes: number[] }
+
+/**
+ * unit.beatsを画面表示単位にまとめる(2026-08、幕構成リニューアル)。
+ * 連続するinvestigateビート(1本でも複数でも)は1つの「調査ハブ」グループにまとめ、
+ * それ以外のビートは1件ずつ単独グループとする。第N幕の番号付けはこのグループ単位で行う。
+ */
+export function groupBeatsForDisplay(beats: Beat[]): BeatDisplayGroup[] {
+  const groups: BeatDisplayGroup[] = []
+  let i = 0
+  while (i < beats.length) {
+    const b = beats[i]
+    if (b.type === 'investigate') {
+      const runBeats: InvestigateBeatT[] = []
+      const runIdx: number[] = []
+      while (i < beats.length) {
+        const cur = beats[i]
+        if (cur.type !== 'investigate') break
+        runBeats.push(cur)
+        runIdx.push(i)
+        i += 1
+      }
+      groups.push({ kind: 'investigateHub', beats: runBeats, rawIndexes: runIdx })
+    } else {
+      groups.push({ kind: 'single', beat: b, rawIndex: i })
+      i += 1
+    }
+  }
+  return groups
 }

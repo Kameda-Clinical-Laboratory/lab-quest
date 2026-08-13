@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { RCPC_STAGE_ID, getStage } from '@/mocks/data'
-import { beatDisplayTitle, type Beat } from '@/mocks/learning'
+import { beatDisplayTitle, groupBeatsForDisplay, type Beat } from '@/mocks/learning'
 import { useAppState } from '@/context/AppState'
 import { BeatView } from '@/components/learn/BeatView'
+import { InvestigateHubView } from '@/components/learn/InvestigateHubView'
 
 export function ChapterLearn() {
   const { stageId = '', chapterId = '' } = useParams()
@@ -162,13 +163,25 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
     )
   }
 
-  const beat = unit.beats[beatIndex]
   const owned = new Set(currentStudent.progress.ownedClueIds)
   const clues = stage.clues ?? []
+  const clearedBeatIds = currentStudent.progress.clearedBeatIds
+
+  const groups = groupBeatsForDisplay(unit.beats)
+  const activeGroupIndex = groups.findIndex((g) =>
+    g.kind === 'single' ? g.rawIndex === beatIndex : g.rawIndexes.includes(beatIndex),
+  )
+  const activeGroup = groups[activeGroupIndex] ?? groups[0]
 
   function goTo(index: number) {
     setBeatIndex(index)
     setUnitCursor(unit!.id, index)
+  }
+
+  function goToGroup(groupIndex: number) {
+    const g = groups[groupIndex]
+    if (!g) return
+    goTo(g.kind === 'single' ? g.rawIndex : g.rawIndexes[0])
   }
 
   function finishBeat(b: Beat, clueId?: string) {
@@ -183,6 +196,19 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
     })
     maybeClearStage(stageId)
     goTo(next)
+  }
+
+  /** 調査ハブ内の個別調査を1件終えたときの処理。ハブ画面から自動では離れない。 */
+  function finishInvestigateItem(b: Beat, clueId?: string) {
+    completeBeat({
+      beatId: b.id,
+      xp: b.xp,
+      clueId,
+      unitId: unit!.id,
+      nextBeatIndex: beatIndex,
+      stageId,
+    })
+    maybeClearStage(stageId)
   }
 
   return (
@@ -200,10 +226,6 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
         <div className="map-board-body space-y-4 p-4 sm:p-5">
           <div className="quest-paper-board">
             <div className="quest-scroll">
-              <div className="min-w-0 flex-1">
-                <div className="quest-scroll-label">{'依頼票'}</div>
-                <div className="quest-scroll-line">{unit.requestLine}</div>
-              </div>
               <details className="clue-book">
                 <summary>
                   <span className="clue-book-spine" aria-hidden />
@@ -235,45 +257,81 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
           <div className="chapter-layout" style={{ marginTop: 4 }}>
             <aside className="quest-side">
               <p className="quest-side-title">{unit.title}</p>
-              {unit.beats.map((b, i) => {
-                const done = currentStudent.progress.clearedBeatIds.includes(b.id)
-                const lockedResolve =
-                  b.type === 'resolve' && b.requiredClueIds.some((id) => !owned.has(id))
+              {groups.map((g, gi) => {
+                if (g.kind === 'single') {
+                  const b = g.beat
+                  const done = clearedBeatIds.includes(b.id)
+                  const lockedResolve =
+                    b.type === 'resolve' && b.requiredClueIds.some((id) => !owned.has(id))
+                  return (
+                    <button
+                      key={b.id}
+                      type="button"
+                      className={gi === activeGroupIndex ? 'active' : ''}
+                      onClick={() => goToGroup(gi)}
+                    >
+                      <span>
+                        第{gi + 1}幕 {beatDisplayTitle(b)}
+                        {lockedResolve && !done ? ` · ${'ロック'}` : ''}
+                      </span>
+                      <span>{done ? '✓' : ''}</span>
+                    </button>
+                  )
+                }
+                const requiredItems = g.beats.filter((b) => b.required)
+                const done = requiredItems.every((b) => clearedBeatIds.includes(b.id))
                 return (
                   <button
-                    key={b.id}
+                    key={g.beats[0].id}
                     type="button"
-                    className={i === beatIndex ? 'active' : ''}
-                    onClick={() => goTo(i)}
+                    className={gi === activeGroupIndex ? 'active' : ''}
+                    onClick={() => goToGroup(gi)}
                   >
-                    <span>
-                      第{i + 1}幕 {beatDisplayTitle(b)}
-                      {lockedResolve && !done ? ` · ${'ロック'}` : ''}
-                    </span>
+                    <span>第{gi + 1}幕 調査</span>
                     <span>{done ? '✓' : ''}</span>
                   </button>
                 )
               })}
             </aside>
 
-            <div className={`quest-content learn-panel beat-bg-${beat.type}`}>
+            <div
+              className={`quest-content learn-panel beat-bg-${
+                activeGroup.kind === 'single' ? activeGroup.beat.type : 'investigate'
+              }`}
+            >
               <h2 style={{ marginTop: 0 }}>
-                第{beatIndex + 1}幕「{beatDisplayTitle(beat)}」
+                第{activeGroupIndex + 1}幕「
+                {activeGroup.kind === 'single' ? beatDisplayTitle(activeGroup.beat) : '調査'}」
                 <span style={{ opacity: 0.7, fontSize: '0.85em' }}> · {unit.title}</span>
               </h2>
-              <BeatView
-                beat={beat}
-                owned={owned}
-                clues={clues}
-                already={currentStudent.progress.clearedBeatIds.includes(beat.id)}
-                onComplete={(clueId) => finishBeat(beat, clueId)}
-                onJumpToInvestigate={() => {
-                  const idx = unit.beats.findIndex(
-                    (b) => b.type === 'investigate' && b.required && !owned.has(b.clueId),
-                  )
-                  if (idx >= 0) goTo(idx)
-                }}
-              />
+              {activeGroup.kind === 'single' ? (
+                <BeatView
+                  beat={activeGroup.beat}
+                  owned={owned}
+                  clues={clues}
+                  already={clearedBeatIds.includes(activeGroup.beat.id)}
+                  unitTitle={unit.title}
+                  requestLine={unit.requestLine}
+                  onComplete={(clueId) => finishBeat(activeGroup.beat, clueId)}
+                  onJumpToInvestigate={() => {
+                    const missingBeat = unit.beats.find(
+                      (b) => b.type === 'investigate' && b.required && !owned.has(b.clueId),
+                    )
+                    if (missingBeat) goTo(unit.beats.indexOf(missingBeat))
+                  }}
+                />
+              ) : (
+                <InvestigateHubView
+                  beats={activeGroup.beats}
+                  clearedBeatIds={clearedBeatIds}
+                  clues={clues}
+                  canAdvance={activeGroup.beats
+                    .filter((b) => b.required)
+                    .every((b) => clearedBeatIds.includes(b.id))}
+                  onCompleteItem={(b, clueId) => finishInvestigateItem(b, clueId)}
+                  onAdvance={() => goToGroup(activeGroupIndex + 1)}
+                />
+              )}
             </div>
           </div>
         </div>
