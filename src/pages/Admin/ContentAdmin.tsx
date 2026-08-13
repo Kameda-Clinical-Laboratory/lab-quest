@@ -5,11 +5,15 @@
 // 注: シリーズ単位の公開トグル(publishedStageIds/setPublished)は既存どおりモックの
 // インメモリ状態のまま(このフェーズはユニット単位の公開実装がスコープで、
 // シリーズ単位の実データ化は対象外)。
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { useAppState } from '@/context/AppState'
 import { backendMode } from '@/lib/backendMode'
 import { useAdminCurriculum } from '@/lib/useAdminCurriculum'
+import { loadStaffSession } from '@/lib/session'
+import { updateStageReviewSummaryApi } from '@/lib/contentAdminApi'
+import { Button } from '@/components/ui/button'
 import { JP } from './strings'
 
 export function ContentAdmin() {
@@ -21,6 +25,39 @@ export function ContentAdmin() {
   const adminCurriculum = useAdminCurriculum()
   const curriculumStages = adminCurriculum.data ?? []
   const unitsFor = (stageId: string) => curriculumStages.find((s) => s.id === stageId)?.units ?? []
+
+  const queryClient = useQueryClient()
+  const [summaryDraft, setSummaryDraft] = useState('')
+  const [summarySaving, setSummarySaving] = useState(false)
+  const [summaryError, setSummaryError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setSummaryDraft(focusStage?.reviewSummary ?? '')
+    setSummaryError(null)
+  }, [focusStage?.id, focusStage?.reviewSummary])
+
+  async function saveSummary() {
+    if (!focusStage) return
+    const session = loadStaffSession()
+    if (!session) {
+      setSummaryError('スタッフとしてログインし直してください')
+      return
+    }
+    setSummarySaving(true)
+    setSummaryError(null)
+    try {
+      await updateStageReviewSummaryApi(session.token, {
+        stageId: focusStage.id,
+        summary: summaryDraft,
+      })
+      queryClient.invalidateQueries({ queryKey: ['curriculum', 'student'] })
+      queryClient.invalidateQueries({ queryKey: ['curriculum', 'admin'] })
+    } catch (err) {
+      setSummaryError(err instanceof Error ? err.message : '保存に失敗しました')
+    } finally {
+      setSummarySaving(false)
+    }
+  }
 
   return (
     <div className="grid-2">
@@ -92,6 +129,29 @@ export function ContentAdmin() {
             <Link className="btn" to={`/staff/content/${focusStage.id}`}>
               {JP.openEditor}
             </Link>
+
+            <hr className="my-5 border-t border-border" />
+
+            <h4 style={{ marginTop: 0, marginBottom: 4 }}>{JP.reviewSummaryTitle}</h4>
+            <p className="muted" style={{ marginTop: 0 }}>
+              {JP.reviewSummaryHint}
+            </p>
+            {!canEdit && <div className="banner warn">{JP.opsViewOnly}</div>}
+            <div className="field">
+              <textarea
+                rows={6}
+                value={summaryDraft}
+                disabled={!canEdit || summarySaving}
+                onChange={(e) => setSummaryDraft(e.target.value)}
+                placeholder={JP.reviewSummaryPlaceholder}
+              />
+            </div>
+            {summaryError && <div className="banner warn">{summaryError}</div>}
+            {canEdit && (
+              <Button size="sm" onClick={saveSummary} disabled={summarySaving}>
+                {summarySaving ? JP.saving : JP.save}
+              </Button>
+            )}
           </>
         )}
         {focusStage && backendMode !== 'supabase' && <p className="muted">{JP.supabaseOnly}</p>}

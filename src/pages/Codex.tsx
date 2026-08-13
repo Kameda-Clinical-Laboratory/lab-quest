@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useAppState } from '@/context/AppState'
 import { IconScroll } from '@/components/QuestIcons'
 import { Badge } from '@/components/ui/badge'
 import { writeCodexSeen } from '@/lib/playerHud'
-import { buildSeriesReviews } from '@/lib/seriesReview'
+import { buildSeriesOverviews } from '@/lib/seriesReview'
 
 export function Codex() {
   const { currentStudent, stages } = useAppState()
@@ -17,7 +18,7 @@ export function Codex() {
 
   if (!currentStudent) return null
 
-  const reviews = buildSeriesReviews(stages, currentStudent)
+  const overviews = buildSeriesOverviews(stages, currentStudent)
 
   return (
     <div className="space-y-5">
@@ -30,11 +31,11 @@ export function Codex() {
             </div>
             <h2 className="font-display text-2xl text-parchment">シリーズふりかえり</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              各シリーズで学んだことと、調査で確認したキーワードをまとめました。実習記録を書くときの下書きにどうぞ。
+              シリーズを選ぶと、まとめ文と調査キーワードを見られます。実習記録を書くときの下書きにどうぞ。
             </p>
           </div>
           <div className="codex-count">
-            <span className="status-chip-label">手がかり</span>
+            <span className="status-chip-label">調査キーワード</span>
             <strong>
               {ownedCount} / {clueTotal || 0}
             </strong>
@@ -42,61 +43,25 @@ export function Codex() {
         </div>
       </div>
 
-      {reviews.length === 0 ? (
+      {overviews.length === 0 ? (
         <div className="rounded-lg border border-border/70 bg-card/40 px-4 py-6 text-sm text-muted-foreground">
-          まだふりかえれるシリーズがありません。クエストを進めるとここに記録が増えます。
+          まだふりかえれるシリーズがありません。クエストを進めるとここに増えます。
         </div>
       ) : (
-        <div className="space-y-4">
-          {reviews.map((r) => (
-            <details key={r.stageId} className="review-card" open>
-              <summary className="review-card-summary">
-                <div className="review-card-summary-main">
-                  <span className="font-display text-lg text-parchment">{r.title}</span>
-                  <Badge variant={r.required ? 'quest' : 'outline'} className="text-xs">
-                    {r.required ? '必須' : '任意'}
-                  </Badge>
-                  {r.cleared && (
-                    <Badge variant="ok" className="text-xs">
-                      クリア済
-                    </Badge>
-                  )}
-                </div>
-                {r.assignedDateLabels.length > 0 && (
-                  <span className="review-card-dates">{r.assignedDateLabels.join('、')}</span>
-                )}
-              </summary>
-
-              <div className="review-card-body">
-                {r.points.length > 0 && (
-                  <div className="review-section">
-                    <h4 className="review-section-title">学んだこと</h4>
-                    <ul className="review-point-list">
-                      {r.points.map((p, i) => (
-                        <li key={`${r.stageId}-point-${i}`}>
-                          <strong>{p.label}</strong>
-                          <p>{p.text}</p>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {r.keywords.length > 0 && (
-                  <div className="review-section">
-                    <h4 className="review-section-title">調査キーワード</h4>
-                    <div className="review-keyword-grid">
-                      {r.keywords.map((k) => (
-                        <div key={k.id} className="review-keyword-card">
-                          <div className="review-keyword-name">{k.name}</div>
-                          <div className="review-keyword-summary">{k.summary}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+        <div className="review-picker-grid">
+          {overviews.map((o) => (
+            <Link key={o.stageId} to={`/app/codex/${o.stageId}`} className="review-picker-card">
+              <div className="review-picker-card-top">
+                <span className="font-display text-lg text-parchment">{o.title}</span>
+                <Badge variant={o.required ? 'quest' : 'outline'} className="text-xs">
+                  {o.required ? '必須' : '任意'}
+                </Badge>
               </div>
-            </details>
+              <div className="review-picker-card-meta">
+                <span>調査キーワード {o.keywordCount}件</span>
+                <span>{o.hasSummary ? 'まとめ文あり' : 'まとめ文はまだありません'}</span>
+              </div>
+            </Link>
           ))}
         </div>
       )}

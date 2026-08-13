@@ -41,6 +41,8 @@ export interface Stage {
   caseSteps: CaseStep[]
   procedureSteps?: ProcedureStep[]
   procedureImageNote?: string
+  /** スタッフが編集する、実習記録用のシリーズまとめ文。Supabaseモードのみ意味を持つ。 */
+  reviewSummary?: string | null
   /** Present = new conversation→investigate→resolve loop (see learning.ts) */
   units?: import('./learning').LearningUnit[]
   clues?: import('./learning').ClueDef[]

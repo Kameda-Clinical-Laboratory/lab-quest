@@ -96,6 +96,11 @@ export const JP = {
   unitCount: 'クエスト数',
   publishedCount: '公開中',
   openEditor: 'クエストを編集',
+  saving: '保存中…',
+  reviewSummaryTitle: 'シリーズまとめ文（ふりかえり用）',
+  reviewSummaryHint:
+    '実習生の「シリーズふりかえり」ページに表示されます。実習記録の下書きにしやすいよう、要点を書いてください。',
+  reviewSummaryPlaceholder: '例: 採血管はキャップ色で添加剤・用途が異なる。目的に合わない管を使うと再採血になるため…',
   backToStages: 'シリーズ一覧へ戻る',
   newUnit: '＋新規クエスト',
   newUnitTitlePlaceholder: 'クエストのタイトル',

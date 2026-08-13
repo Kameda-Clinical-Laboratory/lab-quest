@@ -5,6 +5,7 @@ import { StaffLogin, StudentLogin } from './pages/Login'
 import { Consent } from './pages/Consent'
 import { HomeMap } from './pages/HomeMap'
 import { Codex } from './pages/Codex'
+import { CodexDetail } from './pages/CodexDetail'
 import { StampBook } from './pages/StampBook'
 import { StageOverview } from './pages/StageOverview'
 import { ChapterLearn } from './pages/ChapterLearn'
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/app" element={<StudentShell />}>
             <Route index element={<HomeMap />} />
             <Route path="codex" element={<Codex />} />
+            <Route path="codex/:stageId" element={<CodexDetail />} />
             <Route path="stamps" element={<StampBook />} />
             <Route path="stage/:stageId" element={<StageOverview />} />
             <Route path="stage/:stageId/chapter/:chapterId" element={<ChapterLearn />} />

@@ -67,6 +67,7 @@ const MUTATING_ACTIONS = new Set([
   'reorder_units',
   'publish_unit',
   'create_clue',
+  'update_stage_review_summary',
   'upsert_student',
   'reset_student_password',
   'set_retention_days',
@@ -171,6 +172,16 @@ async function handle(req: Request): Promise<Response> {
         })
         if (error) throw new Error(error.message)
         return json(data)
+      }
+
+      case 'update_stage_review_summary': {
+        const { error } = await admin.rpc('fn_admin_update_stage_review_summary', {
+          p_stage_id: p.stageId,
+          p_summary: p.summary ?? '',
+          p_actor_staff_id: staffId,
+        })
+        if (error) throw new Error(error.message)
+        return json({ ok: true })
       }
 
       case 'upsert_student': {

@@ -51,14 +51,19 @@ export function StudentShell() {
             )}
             <span className="status-player-name">{currentStudent.name}</span>
             <div className="status-player-stats" role="group" aria-label="ステータス">
-              <span
-                className="status-meter-head"
+              <div
+                className="status-inline-xp"
                 title={`経験値 ${xp.xp}（次のレベルまで ${xp.toNext}）`}
               >
-                <IconXpOrb className="h-3.5 w-3.5" />
-                <span className="status-chip-label">XP</span>
-                <strong>{xp.xp}</strong>
-              </span>
+                <span className="status-meter-head">
+                  <IconXpOrb className="h-3.5 w-3.5" />
+                  <span className="status-chip-label">XP</span>
+                  <strong>{xp.xp}</strong>
+                </span>
+                <div className="status-meter-track" aria-hidden>
+                  <div className="status-meter-fill xp" style={{ width: `${xp.pct}%` }} />
+                </div>
+              </div>
               <span
                 className="status-meter-head"
                 title={`必須シリーズ進捗 ${reqDone} / ${reqTotal}`}
@@ -94,7 +99,7 @@ export function StudentShell() {
           <Link
             to="/app/codex"
             className={`status-btn ${onCodex ? 'active' : ''}`}
-            title="手がかり図鑑"
+            title={`シリーズふりかえり（調査キーワード ${clueOwned}/${clueTotal || 0}）`}
           >
             <div className="status-meter-head">
               <span className="status-icon-wrap">

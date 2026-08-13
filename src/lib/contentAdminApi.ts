@@ -75,6 +75,14 @@ export function createClueApi(
   return callAdminContent<{ clue: ClueDef }>(token, 'create_clue', opts)
 }
 
+/** シリーズふりかえり(旧: 手がかり図鑑)ページに出す、シリーズごとのまとめ文を更新する。 */
+export function updateStageReviewSummaryApi(
+  token: string,
+  opts: { stageId: string; summary: string },
+) {
+  return callAdminContent<{ ok: true }>(token, 'update_stage_review_summary', opts)
+}
+
 export function upsertStudentApi(
   token: string,
   opts: {
