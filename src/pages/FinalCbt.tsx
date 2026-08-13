@@ -39,7 +39,11 @@ export function FinalCbt() {
 
   if (!currentStudent) return null
 
-  if (currentStudent.progress.cbtSubmitted && !currentStudent.progress.cbtRetakeAllowed) {
+  // ready(=出題確定済み)になった後は、このガードを再評価しない。
+  // startCbt() はサーバー側で cbtRetakeAllowed を即座に false へ戻すため、
+  // ready より先にこの判定をしてしまうと「開始」直後に毎回この画面へ
+  // 押し戻されてしまい、再受験フローが進められなくなる。
+  if (!ready && currentStudent.progress.cbtSubmitted && !currentStudent.progress.cbtRetakeAllowed) {
     return (
       <div className="learn-panel">
         <p>提出済みです。結果画面のみ利用できます。</p>
