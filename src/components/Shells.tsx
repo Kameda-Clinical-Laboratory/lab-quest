@@ -33,7 +33,6 @@ export function StudentShell() {
   const reqDone = currentStudent.progress.clearedStageIds.filter(
     (id) => getStage(stages, id)?.required,
   ).length
-  const reqPct = reqTotal ? Math.round((reqDone / reqTotal) * 100) : 0
 
   return (
     <div className="mx-auto min-h-screen max-w-6xl px-6 py-5">
@@ -51,87 +50,79 @@ export function StudentShell() {
               <span className="status-player-school">{currentStudent.schoolName}</span>
             )}
             <span className="status-player-name">{currentStudent.name}</span>
-          </div>
-        </div>
-
-        <div className="status-bar-right">
-          <div className="status-tray" role="group" aria-label="ステータス">
-            <div
-              className="status-meter"
-              title={`経験値 ${xp.xp}（次のレベルまで ${xp.toNext}）`}
-            >
-              <div className="status-meter-head">
-                <IconXpOrb className="h-4 w-4" />
+            <div className="status-player-stats" role="group" aria-label="ステータス">
+              <span
+                className="status-meter-head"
+                title={`経験値 ${xp.xp}（次のレベルまで ${xp.toNext}）`}
+              >
+                <IconXpOrb className="h-3.5 w-3.5" />
                 <span className="status-chip-label">XP</span>
                 <strong>{xp.xp}</strong>
-              </div>
-              <div className="status-meter-track" aria-hidden>
-                <div className="status-meter-fill xp" style={{ width: `${xp.pct}%` }} />
-              </div>
-            </div>
-
-            <div className="status-meter" title={`必須シリーズ進捗 ${reqDone} / ${reqTotal}`}>
-              <div className="status-meter-head">
-                <IconFlask className="h-4 w-4" />
+              </span>
+              <span
+                className="status-meter-head"
+                title={`必須シリーズ進捗 ${reqDone} / ${reqTotal}`}
+              >
+                <IconFlask className="h-3.5 w-3.5" />
                 <span className="status-chip-label">進捗</span>
                 <strong>
                   {reqDone}/{reqTotal}
                 </strong>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="status-bar-right">
+          <Link
+            to="/app/stamps"
+            className={`status-btn ${location.pathname.startsWith('/app/stamps') ? 'active' : ''}`}
+            title={`スタンプ ${stamps.stamps} / 目標 ${stamps.goal}（クリックでスタンプ手帳へ）`}
+          >
+            <div className="status-meter-head">
+              <IconStamp className="h-4 w-4" />
+              <span className="status-chip-label">Stamp</span>
+              <strong>
+                {stamps.stamps}/{stamps.goal}
+              </strong>
+            </div>
+            <div className="status-meter-track" aria-hidden>
+              <div className="status-meter-fill stamp" style={{ width: `${stamps.pct}%` }} />
+            </div>
+          </Link>
+
+          <Link
+            to="/app/codex"
+            className={`status-btn ${onCodex ? 'active' : ''}`}
+            title="手がかり図鑑"
+          >
+            <div className="status-meter-head">
+              <span className="status-icon-wrap">
+                <IconScroll className="h-4 w-4" />
+                {codexNew ? <span className="status-new-dot" aria-label="新規あり" /> : null}
+              </span>
+              <span className="status-chip-label">図鑑</span>
+              <strong>
+                {clueOwned}/{clueTotal || 0}
+              </strong>
+            </div>
+            <div className="status-meter-track" aria-hidden>
+              <div className="status-meter-fill codex" style={{ width: `${codexPct}%` }} />
+            </div>
+          </Link>
+
+          {carry > 0 ? (
+            <div className="status-btn status-btn-warn" title="繰り越しクエスト">
+              <div className="status-meter-head">
+                <span className="status-chip-label">繰越</span>
+                <strong>{carry}</strong>
               </div>
               <div className="status-meter-track" aria-hidden>
-                <div className="status-meter-fill codex" style={{ width: `${reqPct}%` }} />
+                <div className="status-meter-fill warn" style={{ width: '100%' }} />
               </div>
             </div>
+          ) : null}
 
-            <Link
-              to="/app/stamps"
-              className={`status-meter status-meter-link ${location.pathname.startsWith('/app/stamps') ? 'active' : ''}`}
-              title={`スタンプ ${stamps.stamps} / 目標 ${stamps.goal}（クリックでスタンプ手帳へ）`}
-            >
-              <div className="status-meter-head">
-                <IconStamp className="h-4 w-4" />
-                <span className="status-chip-label">Stamp</span>
-                <strong>
-                  {stamps.stamps}/{stamps.goal}
-                </strong>
-              </div>
-              <div className="status-meter-track" aria-hidden>
-                <div className="status-meter-fill stamp" style={{ width: `${stamps.pct}%` }} />
-              </div>
-            </Link>
-
-            <Link
-              to="/app/codex"
-              className={`status-meter status-meter-link ${onCodex ? 'active' : ''}`}
-              title="手がかり図鑑"
-            >
-              <div className="status-meter-head">
-                <span className="status-icon-wrap">
-                  <IconScroll className="h-4 w-4" />
-                  {codexNew ? <span className="status-new-dot" aria-label="新規あり" /> : null}
-                </span>
-                <span className="status-chip-label">図鑑</span>
-                <strong>
-                  {clueOwned}/{clueTotal || 0}
-                </strong>
-              </div>
-              <div className="status-meter-track" aria-hidden>
-                <div className="status-meter-fill codex" style={{ width: `${codexPct}%` }} />
-              </div>
-            </Link>
-
-            {carry > 0 ? (
-              <div className="status-meter status-meter-warn" title="繰り越しクエスト">
-                <div className="status-meter-head">
-                  <span className="status-chip-label">繰越</span>
-                  <strong>{carry}</strong>
-                </div>
-                <div className="status-meter-track" aria-hidden>
-                  <div className="status-meter-fill warn" style={{ width: '100%' }} />
-                </div>
-              </div>
-            ) : null}
-          </div>
           <Button
             variant="outline"
             size="sm"
@@ -141,7 +132,7 @@ export function StudentShell() {
               navigate('/')
             }}
           >
-            退出
+            ログアウト
           </Button>
         </div>
       </header>

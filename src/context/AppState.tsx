@@ -11,7 +11,6 @@ import { useQuery } from '@tanstack/react-query'
 import {
   CBT_QUESTIONS,
   INITIAL_STUDENTS,
-  MOCK_TODAY_DEFAULT,
   STAFF_USERS,
   STAGES,
   emptyProgress,
@@ -21,6 +20,7 @@ import {
 import {
   buildCbtPaper,
   ensureDayPlans,
+  getRealTodayJstIso,
   getTodayQueue,
   sortDates,
 } from '../mocks/schedule'
@@ -151,7 +151,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return { id: session.staff.id, name: session.staff.name, role: session.staff.role, password: '' }
   })
   const [publishedStageIds, setPublishedStageIds] = useState<string[]>(STAGES.map((s) => s.id))
-  const [mockToday, setMockToday] = useState(MOCK_TODAY_DEFAULT)
+  // 既定は実際の「今日」(JST)。スタッフの「モック今日」上書き(setMockToday)は
+  // プレビュー用途としてそのまま使える。
+  const [mockToday, setMockToday] = useState(getRealTodayJstIso)
 
   // Phase 1: バックエンドモードが 'supabase' のときだけ、学生向け(公開分のみ)の
   // カリキュラムをRPC(get_curriculum)経由で取得する。'mock' のときは従来どおり

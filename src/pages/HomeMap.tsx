@@ -141,7 +141,7 @@ export function HomeMap() {
               <div>
                 <h3 className="flex items-center gap-2 font-display text-xl text-emerald-50">
                   <IconFlask className="h-6 w-6" />
-                  {'\u5192\u967a\u30de\u30c3\u30d7 / \u4eca\u65e5\u306e\u30b7\u30ea\u30fc\u30ba'}
+                  {'\u4eca\u65e5\u306e\u30b7\u30ea\u30fc\u30ba'}
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {'\u8a08\u753b'} {todayQueue.plan.seriesIds.length} {'\u672c'}

@@ -8,6 +8,16 @@ export function sortDates(dates: string[]) {
   return [...dates].sort()
 }
 
+/**
+ * 実際の「今日」をJST基準のYYYY-MM-DD文字列で返す。
+ * ホーム画面の日付マスをログイン時にデフォルト選択するために使う
+ * (「モック今日」はスタッフのプレビュー用上書きとして引き続き使える)。
+ */
+export function getRealTodayJstIso(): string {
+  const jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000)
+  return jstNow.toISOString().slice(0, 10)
+}
+
 export function formatDateJa(iso: string) {
   const [y, m, d] = iso.split('-').map(Number)
   const dt = new Date(y, m - 1, d)

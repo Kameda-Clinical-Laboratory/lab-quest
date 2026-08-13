@@ -560,6 +560,13 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
+.status-player-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 0.15rem;
+}
+
 .status-bar-right {
   display: flex;
   align-items: center;
@@ -579,6 +586,37 @@
   box-shadow:
     inset 0 1px 0 rgba(243, 230, 196, 0.1),
     0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+/** スタンプ・図鑑のように、それぞれ独立した押せるボタンとして見せたいとき用。
+ * .status-tray の見た目(枠・背景)をボタン1個分に持たせたもの。 */
+.status-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.28rem;
+  min-width: 5.6rem;
+  min-height: 2.55rem;
+  padding: 0.28rem 0.65rem 0.35rem;
+  border: 1px solid rgba(212, 160, 23, 0.5);
+  border-radius: 0.3rem;
+  background:
+    linear-gradient(180deg, rgba(30, 52, 48, 0.9), rgba(8, 28, 26, 0.92));
+  box-shadow:
+    inset 0 1px 0 rgba(243, 230, 196, 0.1),
+    0 4px 14px rgba(0, 0, 0, 0.2);
+  color: #f3e6c4;
+  text-decoration: none;
+}
+
+.status-btn:hover,
+.status-btn.active {
+  background: rgba(61, 207, 184, 0.12);
+}
+
+.status-btn-warn {
+  border-color: rgba(196, 120, 40, 0.5);
+  background: rgba(180, 83, 9, 0.22);
 }
 
 .status-meter {
@@ -714,12 +752,14 @@
     min-width: 0;
     flex: 1;
   }
-}
-
-.codex-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 0.9rem;
+  .status-btn {
+    min-width: 0;
+    flex: 1;
+  }
+  .status-player-stats {
+    flex-wrap: wrap;
+    gap: 0.5rem 0.9rem;
+  }
 }
 
 .codex-count {
@@ -739,38 +779,115 @@
   font-size: 1.05rem;
 }
 
-.codex-card {
-  padding: 1rem;
+/* シリーズふりかえりページ(旧: 手がかり図鑑) */
+.review-card {
   border-radius: 0.4rem;
   border: 1px solid rgba(196, 156, 72, 0.35);
   background: linear-gradient(160deg, rgba(22, 48, 44, 0.95), rgba(10, 30, 28, 0.98));
   box-shadow: inset 0 0 0 1px rgba(243, 230, 196, 0.06);
+  overflow: hidden;
 }
 
-.codex-card.locked {
-  opacity: 0.78;
-  filter: saturate(0.7);
-}
-
-.codex-card-top {
+.review-card-summary {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.65rem;
+  gap: 0.5rem 1rem;
+  padding: 0.85rem 1.1rem;
+  cursor: pointer;
+  list-style: none;
 }
 
-.codex-seal {
-  display: grid;
-  place-items: center;
-  width: 2.4rem;
-  height: 2.4rem;
-  border-radius: 0.35rem;
-  border: 1px solid rgba(240, 215, 140, 0.45);
-  background: rgba(12, 36, 34, 0.8);
-  color: #f0d78c;
+.review-card-summary::-webkit-details-marker {
+  display: none;
+}
+
+.review-card-summary-main {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.review-card-dates {
+  font-size: 0.78rem;
+  color: rgba(155, 184, 178, 0.9);
+}
+
+.review-card-body {
+  padding: 0 1.1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-top: 1px solid rgba(196, 156, 72, 0.2);
+  padding-top: 0.9rem;
+}
+
+.review-section-title {
+  margin: 0 0 0.5rem;
   font-family: var(--font-display);
-  font-size: 1.15rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: #f0d78c;
+}
+
+.review-point-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.review-point-list li {
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.3rem;
+  border: 1px solid rgba(196, 156, 72, 0.22);
+  background: rgba(10, 32, 30, 0.55);
+}
+
+.review-point-list li strong {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 0.88rem;
+  color: #f3e6c4;
+}
+
+.review-point-list li p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: rgba(216, 232, 226, 0.85);
+  white-space: pre-line;
+}
+
+.review-keyword-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.6rem;
+}
+
+.review-keyword-card {
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.3rem;
+  border: 1px solid rgba(212, 160, 23, 0.35);
+  background: rgba(212, 160, 23, 0.08);
+}
+
+.review-keyword-name {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: #f0d78c;
+  margin-bottom: 0.2rem;
+}
+
+.review-keyword-summary {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: rgba(216, 232, 226, 0.85);
 }
 
 .stamp-grid {
