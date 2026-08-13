@@ -1964,9 +1964,11 @@
 }
 
 .quest-ticket-board {
+  box-sizing: border-box;
   width: 100%;
-  max-width: 420px;
+  max-width: 560px;
   aspect-ratio: 3 / 2;
+  overflow: hidden;
   background-image: url('/art/quest-request-board.png');
   background-size: 100% 100%;
   display: flex;
@@ -1974,7 +1976,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 15% 16%;
+  padding: 11% 14%;
   color: #2a1a0a;
   filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.4));
 }
@@ -1982,17 +1984,17 @@
 .quest-ticket-title {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.15rem;
-  margin: 0 0 0.55rem;
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
   text-wrap: balance;
 }
 
 .quest-ticket-line {
   font-family: var(--font-display);
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: 0.88rem;
+  line-height: 1.5;
   margin: 0;
-  max-width: 26ch;
+  max-width: 28ch;
 }
 
 .dialogue-stage {
