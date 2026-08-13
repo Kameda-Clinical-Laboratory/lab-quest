@@ -47,7 +47,7 @@ export function FinalCbt() {
     return (
       <div className="learn-panel">
         <p>提出済みです。結果画面のみ利用できます。</p>
-        <Link className="btn" to="/app/cbt/result">
+        <Link className="btn quest" to="/app/cbt/result">
           結果・解説へ
         </Link>
       </div>
@@ -83,7 +83,7 @@ export function FinalCbt() {
         </p>
         <button
           type="button"
-          className="btn"
+          className="btn quest"
           disabled={cleared.length === 0 || starting}
           onClick={async () => {
             setStarting(true)

@@ -95,7 +95,7 @@ export function InvestigateHubView({
           </span>
           <button
             type="button"
-            className={`btn ${canAdvance ? '' : 'secondary'}`}
+            className={`btn ${canAdvance ? 'quest' : 'secondary'}`}
             disabled={!canAdvance}
             onClick={onAdvance}
           >
@@ -106,7 +106,7 @@ export function InvestigateHubView({
       {requiredCount === 0 && (
         <div className="investigate-hub-footer">
           <span className="investigate-hub-footer-note">必須の調査はありません</span>
-          <button type="button" className="btn" onClick={onAdvance}>
+          <button type="button" className="btn quest" onClick={onAdvance}>
             解決へ進む
           </button>
         </div>

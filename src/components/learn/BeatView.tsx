@@ -1,10 +1,43 @@
 import { useEffect, useState } from 'react'
+import DOMPurify from 'dompurify'
 import { answersMatch, type Beat } from '@/mocks/learning'
 import { getDialogueBackground } from '@/lib/dialogueBackgrounds'
 
 // src/pages/ChapterLearn.tsx から移動(Phase 4)。学生ランタイム(UnitLearn)と
 // スタッフ用コンテンツエディタのプレビューペインの両方から使う共有コンポーネント。
 // ロジックは移動時点から一切変更していない。
+
+/** RichTextEditorが出力するタグだけを許可(RichTextEditor.tsxのPURIFY_CONFIGと揃える)。
+ * 学生側の描画でも再度サニタイズし、DBを直接編集された場合等に備える(多重防御)。 */
+const LECTURE_BODY_HTML_CONFIG = {
+  ALLOWED_TAGS: ['b', 'strong', 'i', 'em', 'u', 'span', 'br', 'div', 'p'],
+  ALLOWED_ATTR: ['style'],
+}
+
+/** 講義本文がリッチテキスト(HTML)か、従来どおりのプレーンテキストかを判定する。
+ * 旧データ(タグを含まない普通の文章)はこれまでどおりpre-wrapのプレーンテキストとして
+ * 表示し、RichTextEditorで一度でも装飾されたものだけHTMLとして描画する。 */
+function isRichBody(body: string): boolean {
+  return /<[a-z][\s\S]*>/i.test(body)
+}
+
+/** 講義の動画URLをiframeで埋め込める形に正規化する(YouTubeの視聴用/短縮URLをembed形式へ)。
+ * YouTube以外(Vimeo等)は埋め込み用URLがそのまま渡される前提でそのまま使う。 */
+function toEmbedUrl(url: string): string {
+  try {
+    const u = new URL(url)
+    if (u.hostname === 'youtu.be') {
+      return `https://www.youtube.com/embed/${u.pathname.slice(1)}`
+    }
+    if (u.hostname.includes('youtube.com')) {
+      const v = u.searchParams.get('v')
+      if (v) return `https://www.youtube.com/embed/${v}`
+    }
+    return url
+  } catch {
+    return url
+  }
+}
 
 export function BeatView({
   beat,
@@ -32,12 +65,55 @@ export function BeatView({
 
   if (beat.type === 'lecture') {
     return (
-      <div>
-        <div className="lecture">{beat.body}</div>
-        {beat.bridge && <p className="muted" style={{ marginTop: 12 }}>{beat.bridge}</p>}
-        <button type="button" className="btn" style={{ marginTop: 16 }} onClick={() => onComplete()}>
-          {already ? '次へ' : '調査へ進む'}
-        </button>
+      <div className="beat-body">
+        {/* 本文+添付をまとめて1つのスクロール領域にする。分量が増えてもここだけで
+            上下スクロールになり、下のボタンは常にカード下端に留まる。 */}
+        <div className="lecture">
+          {isRichBody(beat.body) ? (
+            <div
+              className="lecture-rich"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(beat.body, LECTURE_BODY_HTML_CONFIG),
+              }}
+            />
+          ) : (
+            beat.body
+          )}
+          {beat.bridge && <p className="muted" style={{ marginTop: 12 }}>{beat.bridge}</p>}
+          {beat.pdfUrl && (
+            <div className="lecture-pdf">
+              <div className="lecture-pdf-bar">
+                <span>{'📄 '}{beat.pdfName ?? 'PDF'}</span>
+              </div>
+              {/* #toolbar=0&navpanes=0&statusbar=0 はChromium系(Chrome/Edge)の内蔵PDF
+                  ビューアがサポートするハッシュパラメータで、ダウンロード/印刷/サイドパネル
+                  などのツールバーを非表示にする。あくまで見た目上の抑制であり、URL自体は
+                  公開されているためF12や直接アクセスでの閲覧/保存までは防げない。 */}
+              {/* view=FitHで横幅に合わせて表示する。付けないとブラウザによっては
+                  等倍(実寸)ズームのまま表示され、A4等の実ページが小さく浮いて
+                  見える(周りが余白/背景色で埋まる)ことがある。 */}
+              <iframe
+                src={`${beat.pdfUrl}#toolbar=0&navpanes=0&statusbar=0&view=FitH`}
+                title={beat.pdfName ?? 'PDF'}
+              />
+            </div>
+          )}
+          {beat.videoUrl && (
+            <div className="lecture-video">
+              <iframe
+                src={toEmbedUrl(beat.videoUrl)}
+                title="講義動画"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          )}
+        </div>
+        <div className="beat-actions" style={{ marginTop: 16 }}>
+          <button type="button" className="btn quest" onClick={() => onComplete()}>
+            {already ? '次へ' : '調査へ進む'}
+          </button>
+        </div>
       </div>
     )
   }
@@ -77,13 +153,15 @@ export function BeatView({
               )
             })}
           </div>
-          <button type="button" className="btn" style={{ marginTop: 12 }} onClick={onJumpToInvestigate}>
-            調査へ戻る
-          </button>
+          <div className="beat-actions" style={{ marginTop: 12 }}>
+            <button type="button" className="btn quest" onClick={onJumpToInvestigate}>
+              調査へ戻る
+            </button>
+          </div>
         </div>
       )
     }
-    return <ResolveBeat beat={beat} already={already} onComplete={onComplete} />
+    return <ResolveBeat beat={beat} onComplete={onComplete} />
   }
 
   if (beat.type === 'drill') {
@@ -161,16 +239,16 @@ function ProblemBeatView({
   onComplete: (clueId?: string) => void
 }) {
   return (
-    <div>
-      <div className="quest-ticket-stage">
-        <div className="quest-ticket-board">
-          <p className="quest-ticket-title">{title}</p>
-          <p className="quest-ticket-line">{requestLine}</p>
-        </div>
+    <div className="quest-ticket-stage">
+      <div className="quest-ticket-board">
+        <p className="quest-ticket-title">{title}</p>
+        <p className="quest-ticket-line">{requestLine}</p>
       </div>
-      <button type="button" className="btn" style={{ marginTop: 16 }} onClick={() => onComplete()}>
-        {already ? '次へ（再閲覧）' : '調査を始める'}
-      </button>
+      <div className="quest-ticket-actions">
+        <button type="button" className="btn quest" onClick={() => onComplete()}>
+          {already ? '次へ（再閲覧）' : '調査を始める'}
+        </button>
+      </div>
     </div>
   )
 }
@@ -226,9 +304,9 @@ export function InvestigateBeat({
         <input value={value} onChange={(e) => setValue(e.target.value)} disabled={already} />
       </label>
       {msg && <div className="feedback">{msg}</div>}
-      <div className="inline">
+      <div className="inline beat-actions">
         {!already && (
-          <button type="button" className="btn" onClick={submit}>
+          <button type="button" className="btn quest" onClick={submit}>
             回答する
           </button>
         )}
@@ -238,7 +316,7 @@ export function InvestigateBeat({
           </button>
         )}
         {already && (
-          <button type="button" className="btn" onClick={() => onComplete(beat.clueId)}>
+          <button type="button" className="btn quest" onClick={() => onComplete(beat.clueId)}>
             次へ
           </button>
         )}
@@ -252,41 +330,34 @@ export function InvestigateBeat({
   )
 }
 
+/**
+ * 症例解決。2026-08から1幕=1問(以前は1幕に複数ステップを内包していた)。
+ * 複数問にしたい場合は呼び出し元(ChapterLearn)がresolveビートを複数連続で
+ * 並べる。正解した瞬間にonComplete()を呼び、次の幕(次のresolve、または
+ * drillなど)へそのまま進む — 旧実装の「最終ステップは即onComplete」と同じ挙動。
+ */
 function ResolveBeat({
   beat,
-  already,
   onComplete,
 }: {
   beat: Extract<Beat, { type: 'resolve' }>
-  already: boolean
   onComplete: () => void
 }) {
-  const [step, setStep] = useState(0)
   const [selected, setSelected] = useState<number | null>(null)
   const [checked, setChecked] = useState(false)
-  const current = beat.steps[step]
 
   function submit() {
     if (selected === null) return
     setChecked(true)
-    const choice = current.choices[selected]
-    if (!choice.correct) return
-    if (step < beat.steps.length - 1) {
-      setTimeout(() => {
-        setStep(step + 1)
-        setSelected(null)
-        setChecked(false)
-      }, 400)
-    } else {
-      onComplete()
-    }
+    if (!beat.choices[selected].correct) return
+    onComplete()
   }
 
   return (
     <div>
-      <p>{current.prompt}</p>
+      <p>{beat.prompt}</p>
       <div className="choices">
-        {current.choices.map((c, i) => (
+        {beat.choices.map((c, i) => (
           <button
             key={c.label}
             type="button"
@@ -300,14 +371,16 @@ function ResolveBeat({
         ))}
       </div>
       {!checked && (
-        <button type="button" className="btn" style={{ marginTop: 12 }} onClick={submit}>
-          回答する
-        </button>
+        <div className="beat-actions" style={{ marginTop: 12 }}>
+          <button type="button" className="btn quest" onClick={submit}>
+            回答する
+          </button>
+        </div>
       )}
       {checked && selected !== null && (
         <div className="feedback">
-          {current.choices[selected].feedback}
-          {!current.choices[selected].correct && (
+          {beat.choices[selected].feedback}
+          {!beat.choices[selected].correct && (
             <div style={{ marginTop: 8 }}>
               <button
                 type="button"
@@ -320,9 +393,6 @@ function ResolveBeat({
                 やり直す
               </button>
             </div>
-          )}
-          {current.choices[selected].correct && step >= beat.steps.length - 1 && already && (
-            <p style={{ marginTop: 8 }}>解決済み（再閲覧）</p>
           )}
         </div>
       )}
@@ -380,9 +450,11 @@ function DrillBeat({
         ))}
       </div>
       {!checked && (
-        <button type="button" className="btn" style={{ marginTop: 12 }} onClick={submit}>
-          回答する
-        </button>
+        <div className="beat-actions" style={{ marginTop: 12 }}>
+          <button type="button" className="btn quest" onClick={submit}>
+            回答する
+          </button>
+        </div>
       )}
       {checked && (
         <div className="feedback">

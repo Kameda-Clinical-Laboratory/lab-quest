@@ -35,11 +35,9 @@ export function StageOverview() {
 
   return (
     <div className="space-y-4">
-      <Link
-        to="/app"
-        className="inline-flex items-center gap-1 text-sm text-amber-200/90 hover:text-amber-100"
-      >
-        {'\u2190 \u30de\u30c3\u30d7\u3078\u623b\u308b'}
+      <Link to="/app" className="quest-back-btn">
+        <span className="quest-back-btn-arrow" aria-hidden>{'\u2190'}</span>
+        {'\u30de\u30c3\u30d7\u3078\u623b\u308b'}
       </Link>
 
       <div className={`map-board map-board--stage${stage.id === RCPC_STAGE_ID ? ' map-board--rcpc' : ''}`}>

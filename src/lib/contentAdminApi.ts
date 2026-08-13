@@ -106,6 +106,13 @@ export function resetStudentPasswordApi(
   return callAdminContent<{ ok: true }>(token, 'reset_student_password', opts)
 }
 
+export function uploadLecturePdfApi(
+  token: string,
+  opts: { unitId: string; beatId: string; fileName: string; fileBase64: string },
+) {
+  return callAdminContent<{ url: string; fileName: string }>(token, 'upload_lecture_pdf', opts)
+}
+
 export function getSettingsApi(token: string) {
   return callAdminContent<{ retentionDays: number }>(token, 'get_settings')
 }

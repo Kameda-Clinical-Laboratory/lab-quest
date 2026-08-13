@@ -1,5 +1,3 @@
-import type { CaseStep } from './types'
-
 export type InvestigateMode = 'textbook' | 'doc' | 'observe'
 
 export type DialogueLine = {
@@ -41,6 +39,12 @@ export type Beat =
       body: string
       bridge?: string
       xp?: number
+      /** 添付PDF(lecture-attachmentsバケットの公開URL)。任意。 */
+      pdfUrl?: string
+      /** 添付PDFの元ファイル名(表示用)。 */
+      pdfName?: string
+      /** 添付動画。ファイルは置かず、YouTube等の埋め込み可能なURLをそのまま保存する。 */
+      videoUrl?: string
     }
   | {
       /**
@@ -69,11 +73,20 @@ export type Beat =
       xp?: number
     }
   | {
+      /**
+       * 症例解決。2026-08までは1つのresolveビートが複数ステップ(CaseStep[])を
+       * 持つ構成だったが、管理画面での編集が煩雑だったため「1問につき1幕」に
+       * フラット化した(既存の複数ステップ幕は個別の幕へ分割済み)。
+       * 手がかりロック(requiredClueIds)は連続するresolveの最初の1幕にだけ
+       * 付ければ、そこで入口をせき止められる(以降の幕は既に通過済みのため
+       * 空配列でよい)。
+       */
       type: 'resolve'
       id: string
       title?: string
       requiredClueIds: string[]
-      steps: CaseStep[]
+      prompt: string
+      choices: { label: string; correct: boolean; feedback: string }[]
       xp?: number
     }
   | {
@@ -154,7 +167,8 @@ export function validateUnit(unit: LearningUnit): string[] {
           errors.push(`${beat.id}: required clue ${cid} not granted by any investigate`)
         }
       }
-      if (!beat.steps.length) errors.push(`${beat.id}: resolve steps empty`)
+      if (!beat.prompt.trim()) errors.push(`${beat.id}: resolve prompt empty`)
+      if (!beat.choices.length) errors.push(`${beat.id}: resolve choices empty`)
     }
     if (beat.type === 'drill' && !beat.questions.length) {
       errors.push(`${beat.id}: drill questions empty`)

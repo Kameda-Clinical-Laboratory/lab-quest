@@ -72,7 +72,10 @@ const MUTATING_ACTIONS = new Set([
   'reset_student_password',
   'set_retention_days',
   'reset_consent',
+  'upload_lecture_pdf',
 ])
+
+const MAX_PDF_BYTES = 20 * 1024 * 1024 // 20MB(lecture-attachmentsバケットのfile_size_limitと合わせる)
 
 async function handle(req: Request): Promise<Response> {
   if (req.method !== 'POST') return json({ error: 'method not allowed' }, 405)
@@ -257,6 +260,43 @@ async function handle(req: Request): Promise<Response> {
         })
         if (error) throw new Error(error.message)
         return json({ ok: true })
+      }
+
+      case 'upload_lecture_pdf': {
+        const unitId = String(p.unitId ?? '')
+        const beatId = String(p.beatId ?? '')
+        const fileName = String(p.fileName ?? 'file.pdf')
+        const fileBase64 = String(p.fileBase64 ?? '')
+        if (!unitId || !beatId || !fileBase64) {
+          return json({ error: 'unitId/beatId/fileBase64が必要です' }, 400)
+        }
+
+        let bytes: Uint8Array
+        try {
+          const binary = atob(fileBase64)
+          bytes = new Uint8Array(binary.length)
+          for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+        } catch {
+          return json({ error: 'ファイルの読み取りに失敗しました' }, 400)
+        }
+        if (bytes.byteLength > MAX_PDF_BYTES) {
+          return json({ error: `ファイルサイズが大きすぎます(上限${MAX_PDF_BYTES / 1024 / 1024}MB)` }, 400)
+        }
+
+        // Storageのオブジェクトキーは非ASCII文字(日本語ファイル名など)を許容しないため、
+        // 拡張子だけ残してASCII安全な名前に丸める。元のファイル名はfileNameとして
+        // 別途返し、表示用にはそちらを使う。
+        const extMatch = fileName.match(/\.[A-Za-z0-9]+$/)
+        const ext = extMatch ? extMatch[0] : '.pdf'
+        const safeName = `file${ext}`
+        const path = `${unitId}/${beatId}/${Date.now()}-${safeName}`
+        const { error: upErr } = await admin.storage
+          .from('lecture-attachments')
+          .upload(path, bytes, { contentType: 'application/pdf', upsert: true })
+        if (upErr) throw new Error(upErr.message)
+
+        const { data: pub } = admin.storage.from('lecture-attachments').getPublicUrl(path)
+        return json({ url: pub.publicUrl, fileName })
       }
 
       case 'get_settings': {

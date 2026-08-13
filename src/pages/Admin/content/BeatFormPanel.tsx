@@ -20,6 +20,7 @@ export function BeatFormPanel({
   beat,
   onChange,
   stageId,
+  unitId,
   clues,
   token,
   onClueCreated,
@@ -27,6 +28,7 @@ export function BeatFormPanel({
   beat: Beat
   onChange: (next: Beat) => void
   stageId: string
+  unitId: string
   clues: ClueDef[]
   token: string
   onClueCreated: (clue: ClueDef) => void
@@ -45,6 +47,7 @@ export function BeatFormPanel({
         beat={beat}
         onChange={onChange}
         stageId={stageId}
+        unitId={unitId}
         clues={clues}
         token={token}
         onClueCreated={onClueCreated}
@@ -57,6 +60,7 @@ function BeatTypeForm({
   beat,
   onChange,
   stageId,
+  unitId,
   clues,
   token,
   onClueCreated,
@@ -64,6 +68,7 @@ function BeatTypeForm({
   beat: Beat
   onChange: (next: Beat) => void
   stageId: string
+  unitId: string
   clues: ClueDef[]
   token: string
   onClueCreated: (clue: ClueDef) => void
@@ -72,7 +77,7 @@ function BeatTypeForm({
     case 'dialogue':
       return <DialogueForm key={beat.id} beat={beat} onChange={onChange} />
     case 'lecture':
-      return <LectureForm key={beat.id} beat={beat} onChange={onChange} />
+      return <LectureForm key={beat.id} beat={beat} onChange={onChange} unitId={unitId} token={token} />
     case 'problem':
       return <ProblemForm key={beat.id} beat={beat} onChange={onChange} />
     case 'investigate':

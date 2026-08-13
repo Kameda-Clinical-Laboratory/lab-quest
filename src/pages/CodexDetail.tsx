@@ -13,8 +13,9 @@ export function CodexDetail() {
   if (!stage) {
     return (
       <div className="space-y-4">
-        <Link className="text-sm text-amber-200/90 hover:underline" to="/app/codex">
-          {'← シリーズふりかえりへ戻る'}
+        <Link className="quest-back-btn" to="/app/codex">
+          <span className="quest-back-btn-arrow" aria-hidden>{'←'}</span>
+          {'シリーズふりかえりへ戻る'}
         </Link>
         <p className="text-sm text-muted-foreground">シリーズが見つかりませんでした。</p>
       </div>
@@ -25,8 +26,9 @@ export function CodexDetail() {
 
   return (
     <div className="space-y-5">
-      <Link className="text-sm text-amber-200/90 hover:underline" to="/app/codex">
-        {'← シリーズふりかえりへ戻る'}
+      <Link className="quest-back-btn" to="/app/codex">
+        <span className="quest-back-btn-arrow" aria-hidden>{'←'}</span>
+        {'シリーズふりかえりへ戻る'}
       </Link>
 
       <div className="quest-frame px-5 py-4">

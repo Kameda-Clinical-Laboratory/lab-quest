@@ -2,20 +2,17 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import type { Beat, ClueDef } from '@/mocks/learning'
-import type { CaseStep } from '@/mocks/types'
 import { CreateClueButton } from '@/components/admin/CreateClueButton'
 import { JP } from '@/pages/Admin/strings'
 
 type ResolveBeat = Extract<Beat, { type: 'resolve' }>
 
-function emptyStep(): CaseStep {
-  return {
-    id: `s${crypto.randomUUID().slice(0, 8)}`,
-    prompt: '',
-    choices: [{ label: '', correct: true, feedback: '' }],
-  }
-}
-
+/**
+ * 症例解決フォーム(2026-08、1問1幕化)。以前は1つのresolveビートの中に
+ * 複数ステップ(設問)をネストしたリストを持ち、管理が煩雑だった。
+ * 「調査」ビートと同じく1幕=1問に揃えたので、複数問にしたいときは
+ * この幕を「+解決」で複数個並べる。
+ */
 export function ResolveForm({
   beat,
   onChange,
@@ -41,32 +38,14 @@ export function ResolveForm({
     })
   }
 
-  function setStep(i: number, patch: Partial<CaseStep>) {
-    onChange({ ...beat, steps: beat.steps.map((s, idx) => (idx === i ? { ...s, ...patch } : s)) })
+  function setChoice(i: number, patch: Partial<ResolveBeat['choices'][number]>) {
+    onChange({ ...beat, choices: beat.choices.map((c, idx) => (idx === i ? { ...c, ...patch } : c)) })
   }
-  function addStep() {
-    onChange({ ...beat, steps: [...beat.steps, emptyStep()] })
+  function addChoice() {
+    onChange({ ...beat, choices: [...beat.choices, { label: '', correct: false, feedback: '' }] })
   }
-  function removeStep(i: number) {
-    onChange({ ...beat, steps: beat.steps.filter((_, idx) => idx !== i) })
-  }
-
-  function setChoice(
-    stepIdx: number,
-    choiceIdx: number,
-    patch: Partial<CaseStep['choices'][number]>,
-  ) {
-    const step = beat.steps[stepIdx]
-    const choices = step.choices.map((c, idx) => (idx === choiceIdx ? { ...c, ...patch } : c))
-    setStep(stepIdx, { choices })
-  }
-  function addChoice(stepIdx: number) {
-    const step = beat.steps[stepIdx]
-    setStep(stepIdx, { choices: [...step.choices, { label: '', correct: false, feedback: '' }] })
-  }
-  function removeChoice(stepIdx: number, choiceIdx: number) {
-    const step = beat.steps[stepIdx]
-    setStep(stepIdx, { choices: step.choices.filter((_, idx) => idx !== choiceIdx) })
+  function removeChoice(i: number) {
+    onChange({ ...beat, choices: beat.choices.filter((_, idx) => idx !== i) })
   }
 
   return (
@@ -87,60 +66,42 @@ export function ResolveForm({
           {clues.length === 0 && <p className="muted">{JP.clueNone}</p>}
         </div>
         <CreateClueButton stageId={stageId} token={token} onCreated={onClueCreated} />
+        <p className="muted" style={{ marginTop: 4 }}>
+          {JP.resolveRequiredCluesHint}
+        </p>
       </div>
 
-      <Label>{JP.resolveSteps}</Label>
-      {beat.steps.map((step, si) => (
-        <div key={step.id} className="panel" style={{ padding: 12 }}>
-          <div className="field">
-            <Label>{JP.resolveStepPrompt}</Label>
-            <Input value={step.prompt} onChange={(e) => setStep(si, { prompt: e.target.value })} />
+      <div className="field">
+        <Label>{JP.resolveStepPrompt}</Label>
+        <Input value={beat.prompt} onChange={(e) => onChange({ ...beat, prompt: e.target.value })} />
+      </div>
+
+      <Label>{JP.resolveChoices}</Label>
+      {beat.choices.map((c, ci) => (
+        <div key={ci} className="inline" style={{ alignItems: 'flex-start', marginBottom: 6 }}>
+          <div className="field" style={{ width: 140 }}>
+            <Label>{JP.choiceLabel}</Label>
+            <Input value={c.label} onChange={(e) => setChoice(ci, { label: e.target.value })} />
           </div>
-          <Label>{JP.resolveChoices}</Label>
-          {step.choices.map((c, ci) => (
-            <div key={ci} className="inline" style={{ alignItems: 'flex-start', marginBottom: 6 }}>
-              <div className="field" style={{ width: 140 }}>
-                <Label>{JP.choiceLabel}</Label>
-                <Input value={c.label} onChange={(e) => setChoice(si, ci, { label: e.target.value })} />
-              </div>
-              <div className="field" style={{ flex: 1 }}>
-                <Label>{JP.choiceFeedback}</Label>
-                <Input
-                  value={c.feedback}
-                  onChange={(e) => setChoice(si, ci, { feedback: e.target.value })}
-                />
-              </div>
-              <label className="inline" style={{ gap: 4, marginTop: 22 }}>
-                <input
-                  type="checkbox"
-                  checked={c.correct}
-                  onChange={(e) => setChoice(si, ci, { correct: e.target.checked })}
-                />
-                {JP.choiceCorrect}
-              </label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                style={{ marginTop: 20 }}
-                onClick={() => removeChoice(si, ci)}
-              >
-                {JP.removeLine}
-              </Button>
-            </div>
-          ))}
-          <div className="inline">
-            <Button type="button" variant="outline" size="sm" onClick={() => addChoice(si)}>
-              {JP.resolveAddChoice}
-            </Button>
-            <Button type="button" variant="outline" size="sm" onClick={() => removeStep(si)}>
-              {JP.deleteBeat}
-            </Button>
+          <div className="field" style={{ flex: 1 }}>
+            <Label>{JP.choiceFeedback}</Label>
+            <Input value={c.feedback} onChange={(e) => setChoice(ci, { feedback: e.target.value })} />
           </div>
+          <label className="inline" style={{ gap: 4, marginTop: 22 }}>
+            <input
+              type="checkbox"
+              checked={c.correct}
+              onChange={(e) => setChoice(ci, { correct: e.target.checked })}
+            />
+            {JP.choiceCorrect}
+          </label>
+          <Button type="button" variant="outline" size="sm" style={{ marginTop: 20 }} onClick={() => removeChoice(ci)}>
+            {JP.removeLine}
+          </Button>
         </div>
       ))}
-      <Button type="button" variant="outline" size="sm" onClick={addStep}>
-        {JP.resolveAddStep}
+      <Button type="button" variant="outline" size="sm" onClick={addChoice}>
+        {JP.resolveAddChoice}
       </Button>
 
       <div className="field" style={{ width: 120 }}>

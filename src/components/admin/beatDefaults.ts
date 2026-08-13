@@ -39,9 +39,8 @@ export function defaultBeat(type: Beat['type']): Beat {
         type: 'resolve',
         id: newId('b'),
         requiredClueIds: [],
-        steps: [
-          { id: newId('s'), prompt: '', choices: [{ label: '', correct: true, feedback: '' }] },
-        ],
+        prompt: '',
+        choices: [{ label: '', correct: true, feedback: '' }],
         xp: 0,
       }
     case 'drill':

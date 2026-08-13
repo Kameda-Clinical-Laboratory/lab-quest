@@ -27,6 +27,7 @@ export function PreviewPane({
     <div className={`quest-content learn-panel beat-bg-${beat.type}`}>
       <h3 style={{ marginTop: 0 }}>{JP.preview2}</h3>
       <BeatView
+        key={beat.id}
         beat={beat}
         owned={owned}
         clues={clues}

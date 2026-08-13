@@ -212,49 +212,16 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
   }
 
   return (
-    <div className="space-y-4">
-      <Link
-        to={`/app/stage/${stage.id}`}
-        className="inline-flex items-center gap-1 text-sm text-amber-200/90 hover:text-amber-100"
-      >
-        {'← '}
+    <div className="quest-play-frame">
+      <Link to={`/app/stage/${stage.id}`} className="quest-back-btn">
+        <span className="quest-back-btn-arrow" aria-hidden>{'←'}</span>
         {stage.title}
         {' へ戻る'}
       </Link>
 
       <div className={`map-board map-board--stage${stageId === RCPC_STAGE_ID ? ' map-board--rcpc' : ''}`}>
-        <div className="map-board-body space-y-4 p-4 sm:p-5">
-          <div className="quest-paper-board">
-            <div className="quest-scroll">
-              <details className="clue-book">
-                <summary>
-                  <span className="clue-book-spine" aria-hidden />
-                  <span className="clue-book-title">
-                    <span className="clue-book-kicker">{'フィールドノート'}</span>
-                    <span className="clue-book-name">
-                      {'手がかり手帳'}
-                      <em>{owned.size}</em>
-                    </span>
-                  </span>
-                </summary>
-                <div className="clue-book-pages">
-                  {clues
-                    .filter((c) => owned.has(c.id))
-                    .map((c) => (
-                      <div key={c.id} className="clue-entry" title={c.summary}>
-                        <strong>{c.name}</strong>
-                        <p>{c.summary}</p>
-                      </div>
-                    ))}
-                  {owned.size === 0 && (
-                    <p className="clue-book-empty">{'まだ項目がありません。調査で記入されます。'}</p>
-                  )}
-                </div>
-              </details>
-            </div>
-          </div>
-
-          <div className="chapter-layout" style={{ marginTop: 4 }}>
+        <div className="map-board-body p-4 sm:p-5">
+          <div className="chapter-layout">
             <aside className="quest-side">
               <p className="quest-side-title">{unit.title}</p>
               {groups.map((g, gi) => {
@@ -306,6 +273,10 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
               </h2>
               {activeGroup.kind === 'single' ? (
                 <BeatView
+                  // 幕が切り替わっても同じ型のコンポーネントが再利用されうる(例: resolveが
+                  // 連続する場合)。keyでbeat.idごとに強制的に作り直し、resolve/drillの
+                  // 選択状態などが次の幕に持ち越されるのを防ぐ。
+                  key={activeGroup.beat.id}
                   beat={activeGroup.beat}
                   owned={owned}
                   clues={clues}

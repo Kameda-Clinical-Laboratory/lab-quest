@@ -70,28 +70,28 @@ export const BIO_BASICS_UNITS: LearningUnit[] = [
         xp: 5,
       },
       {
+        // 2026-08、1幕1問化: 以前はsteps配列で2問を内包する1幕だった。
+        // 手がかりロックは連続するresolveの最初の幕(この幕)にだけ付ける。
         type: 'resolve',
-        id: 'bio-basics-u1-res',
+        id: 'bio-basics-u1-res-1',
         requiredClueIds: ['clue-priority-flow'],
-        xp: 25,
-        steps: [
-          {
-            id: 'bio-basics-u1-res-1',
-            prompt: 'Ns. 「まず何から手を付けますか？」',
-            choices: [
-              { label: '受付と急ぎ度の整理から入る', correct: true, feedback: '流れの入口を整えるのが先です。' },
-              { label: 'まず分析装置の細かい設定から', correct: false, feedback: '今の溜まりに対しては受付側が先行です。' },
-              { label: '全部後回しにして見学だけする', correct: false, feedback: '今の依頼には応えが必要です。' },
-            ],
-          },
-          {
-            id: 'bio-basics-u1-res-2',
-            prompt: 'Ns. 「急ぎ依頼があったら？」',
-            choices: [
-              { label: '流れの中で優先度を上げて処理する', correct: true, feedback: '優先を言語化できると現場で動けます。' },
-              { label: '通常依頼と同じ順で処理する', correct: false, feedback: '緊急度に応じて優先を変えます。' },
-            ],
-          },
+        xp: 13,
+        prompt: 'Ns. 「まず何から手を付けますか？」',
+        choices: [
+          { label: '受付と急ぎ度の整理から入る', correct: true, feedback: '流れの入口を整えるのが先です。' },
+          { label: 'まず分析装置の細かい設定から', correct: false, feedback: '今の溜まりに対しては受付側が先行です。' },
+          { label: '全部後回しにして見学だけする', correct: false, feedback: '今の依頼には応えが必要です。' },
+        ],
+      },
+      {
+        type: 'resolve',
+        id: 'bio-basics-u1-res-2',
+        requiredClueIds: [],
+        xp: 12,
+        prompt: 'Ns. 「急ぎ依頼があったら？」',
+        choices: [
+          { label: '流れの中で優先度を上げて処理する', correct: true, feedback: '優先を言語化できると現場で動けます。' },
+          { label: '通常依頼と同じ順で処理する', correct: false, feedback: '緊急度に応じて優先を変えます。' },
         ],
       },
       {
@@ -168,19 +168,15 @@ export const BIO_BASICS_UNITS: LearningUnit[] = [
         xp: 15,
       },
       {
+        // こちらは元々1問だけだったので、形を変えるだけで済む。
         type: 'resolve',
-        id: 'bio-basics-u2-res',
+        id: 'bio-basics-u2-res-1',
         requiredClueIds: ['clue-panic-def'],
         xp: 25,
-        steps: [
-          {
-            id: 'bio-basics-u2-res-1',
-            prompt: 'Dr. 「パニック値出現。最初の動作は？」',
-            choices: [
-              { label: '施設手順に沿って速やかに連絡する', correct: true, feedback: '正解です。診断を自分で下さない。' },
-              { label: '自分で診断名を伝える', correct: false, feedback: '診断行為は行わず、決められたルートで伝えます。' },
-            ],
-          },
+        prompt: 'Dr. 「パニック値出現。最初の動作は？」',
+        choices: [
+          { label: '施設手順に沿って速やかに連絡する', correct: true, feedback: '正解です。診断を自分で下さない。' },
+          { label: '自分で診断名を伝える', correct: false, feedback: '診断行為は行わず、決められたルートで伝えます。' },
         ],
       },
       {

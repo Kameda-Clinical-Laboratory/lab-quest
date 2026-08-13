@@ -5,6 +5,7 @@ import { IconFlask, IconScroll, IconStamp, IconXpOrb } from '@/components/QuestI
 import { Button } from '@/components/ui/button'
 import { readCodexSeen, stampProgress, xpProgress } from '@/lib/playerHud'
 import { backendMode } from '@/lib/backendMode'
+import { UnsavedChangesProvider, useUnsavedChanges } from '@/context/UnsavedChanges'
 
 export function StudentShell() {
   const { currentStudent, logoutStudent, todayQueue, stages, studentStateLoaded } = useAppState()
@@ -35,7 +36,7 @@ export function StudentShell() {
   ).length
 
   return (
-    <div className="mx-auto min-h-screen max-w-6xl px-6 py-5">
+    <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-5">
       <header className="status-bar mb-6">
         <div className="status-bar-left">
           <Link to="/app" className="status-bar-brand" title="ホームへ">
@@ -141,7 +142,9 @@ export function StudentShell() {
           </Button>
         </div>
       </header>
-      <Outlet />
+      <div className="shell-outlet">
+        <Outlet />
+      </div>
     </div>
   )
 }
@@ -160,6 +163,28 @@ export function StaffShell() {
   ]
 
   return (
+    <UnsavedChangesProvider>
+      <StaffShellBody currentStaff={currentStaff} links={links} logoutStaff={logoutStaff} navigate={navigate} />
+    </UnsavedChangesProvider>
+  )
+}
+
+function StaffShellBody({
+  currentStaff,
+  links,
+  logoutStaff,
+  navigate,
+}: {
+  currentStaff: { name: string; role: string }
+  links: { to: string; label: string }[]
+  logoutStaff: () => void
+  navigate: ReturnType<typeof useNavigate>
+}) {
+  // ヘッダーのナビ/ログアウトは、編集中の未保存の変更がある間、離脱前に確認する
+  // (エディタページ本体がuseUnsavedChanges().setDirty(...)で状態を反映する)。
+  const { confirmLeave } = useUnsavedChanges()
+
+  return (
     <div className="surface-light min-h-screen">
       <div className="mx-auto max-w-6xl px-6 py-5">
         <header className="mb-6 flex items-center justify-between gap-4">
@@ -176,6 +201,9 @@ export function StaffShell() {
                   key={l.to}
                   to={l.to}
                   className="rounded-md px-3 py-1.5 text-sm text-teal-900 hover:bg-teal-50"
+                  onClick={(e) => {
+                    if (!confirmLeave()) e.preventDefault()
+                  }}
                 >
                   {l.label}
                 </Link>
@@ -185,6 +213,7 @@ export function StaffShell() {
               variant="outline"
               size="sm"
               onClick={() => {
+                if (!confirmLeave()) return
                 logoutStaff()
                 navigate('/staff/login')
               }}
