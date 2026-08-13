@@ -155,7 +155,7 @@ export function HomeMap() {
             <div className="space-y-3">
               {todayQueue.queueIds.length === 0 && todayQueue.isVisitDay && !todayQueue.isAppOffDay && (
                 <div className="rounded-lg border-2 border-emerald-500/40 bg-emerald-950/50 px-4 py-3 text-emerald-100">
-                  {'\u672c\u65e5\u5206\u30af\u30ea\u30a2\uff01\u30b9\u30bf\u30f3\u30d7\u7372\u5f97\u6e08\u307f\u3067\u3059\u3002'}
+                  {'\u672c\u65e5\u5206\u30af\u30ea\u30a2\uff01'}
                 </div>
               )}
 
