@@ -27,8 +27,7 @@ export function defaultBeat(type: Beat['type']): Beat {
         mode: 'textbook',
         purpose: '',
         howTo: '',
-        inputPrompt: '',
-        acceptedAnswers: [],
+        choices: [{ label: '', correct: true }],
         // 未選択状態のプレースホルダ(空文字)。Edge Function側でnullに正規化される。
         clueId: '',
         required: true,

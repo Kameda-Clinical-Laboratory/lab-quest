@@ -368,8 +368,8 @@
 |------|------|----------------|
 | dialogue | 症例オープン | lines[{ speaker, text }], xp? |
 | lecture | 短い講義 | body, bridge?, xp? |
-| investigate | 調査（手がかり集め） | mode: textbook\\|doc\\|observe, purpose, howTo, inputPrompt, acceptedAnswers[], clueId, required, manners?, demoHint?, xp? |
-| resolve | 症例解決 | requiredClueIds[], steps（分岐 CaseStep）, xp? |
+| investigate | 調査（手がかり集め） | mode: textbook\\|doc\\|observe, purpose, howTo, choices[{ label, correct }]（複数正解可・チェックボックス選択式。2026-08に自由入力inputPrompt/acceptedAnswersから刷新）, clueId, required, manners?, demoHint?, xp? |
+| resolve | 症例解決（1幕=1問。2026-08に複数ステップ内包から刷新） | requiredClueIds[], prompt, choices[{ label, correct, feedback }], xp? |
 | drill | 発展（MVPは mcq） | questions[{ id, format:'mcq', prompt, choices, correctIndex, explanation }], xp? |
 
 ### ゲート・救済（実装済み）

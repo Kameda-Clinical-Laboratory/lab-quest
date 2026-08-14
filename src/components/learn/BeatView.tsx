@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import DOMPurify from 'dompurify'
-import { answersMatch, type Beat } from '@/mocks/learning'
+import type { Beat } from '@/mocks/learning'
 import { getDialogueBackground } from '@/lib/dialogueBackgrounds'
 
 // src/pages/ChapterLearn.tsx から移動(Phase 4)。学生ランタイム(UnitLearn)と
@@ -263,25 +263,51 @@ export function InvestigateBeat({
   already: boolean
   onComplete: (clueId?: string) => void
 }) {
-  const [value, setValue] = useState('')
+  const [selected, setSelected] = useState<Set<number>>(new Set())
   const [fails, setFails] = useState(0)
   const [msg, setMsg] = useState<string | null>(null)
+  // 正解(または5回失敗による自動正解)が確定した直後の状態。ここではまだonComplete()を
+  // 呼ばない — 呼ぶと調査ハブ(InvestigateHubView)が即座に一覧へ戻ってしまい、解説
+  // メッセージを読む間もなく画面が切り替わってしまうため。「次へ」を押した時点で呼ぶ。
+  const [answered, setAnswered] = useState(false)
+
+  const correctIndexes = new Set(
+    beat.choices.map((c, i) => (c.correct ? i : -1)).filter((i) => i >= 0),
+  )
+  const locked = already || answered
+
+  function toggle(i: number) {
+    if (locked) return
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(i)) next.delete(i)
+      else next.add(i)
+      return next
+    })
+  }
+
+  function isCorrectSelection() {
+    if (selected.size !== correctIndexes.size) return false
+    for (const i of selected) if (!correctIndexes.has(i)) return false
+    return true
+  }
 
   function submit() {
-    if (answersMatch(value, beat.acceptedAnswers) || fails >= 5) {
+    if (isCorrectSelection() || fails >= 5) {
       setMsg('手がかりを入手しました')
-      onComplete(beat.clueId)
+      setAnswered(true)
       return
     }
     const next = fails + 1
     setFails(next)
     if (next >= 5) {
-      setMsg(`正解: ${beat.acceptedAnswers[0]} — 手がかりを付与します`)
-      onComplete(beat.clueId)
+      const answerLabels = beat.choices.filter((c) => c.correct).map((c) => c.label)
+      setMsg(`正解: ${answerLabels.join('、')} — 手がかりを付与します`)
+      setAnswered(true)
     } else if (next >= 3 && beat.demoHint) {
       setMsg(`ヒント: ${beat.demoHint}`)
     } else {
-      setMsg('一致しません。やり直してください')
+      setMsg('正解と一致しません。やり直してください')
     }
   }
 
@@ -299,29 +325,40 @@ export function InvestigateBeat({
           </p>
         )}
       </div>
-      <label className="field">
-        {beat.inputPrompt}
-        <input value={value} onChange={(e) => setValue(e.target.value)} disabled={already} />
-      </label>
+      <div className="choices">
+        {beat.choices.map((c, i) => (
+          <button
+            key={c.label}
+            type="button"
+            className={`choice ${selected.has(i) ? 'selected' : ''} ${
+              locked ? (c.correct ? 'correct' : selected.has(i) ? 'wrong' : '') : ''
+            }`}
+            onClick={() => toggle(i)}
+            disabled={locked}
+          >
+            {selected.has(i) ? '☑' : '☐'} {c.label}
+          </button>
+        ))}
+      </div>
       {msg && <div className="feedback">{msg}</div>}
       <div className="inline beat-actions">
-        {!already && (
-          <button type="button" className="btn quest" onClick={submit}>
+        {!locked && (
+          <button type="button" className="btn quest" onClick={submit} disabled={selected.size === 0}>
             回答する
           </button>
         )}
-        {!beat.required && !already && (
+        {!beat.required && !locked && (
           <button type="button" className="btn secondary" onClick={() => onComplete()}>
             スキップ（ボーナス放棄）
           </button>
         )}
-        {already && (
+        {locked && (
           <button type="button" className="btn quest" onClick={() => onComplete(beat.clueId)}>
             次へ
           </button>
         )}
       </div>
-      {fails >= 3 && beat.demoHint && !already && (
+      {fails >= 3 && beat.demoHint && !locked && (
         <p className="muted">
           ヒント: {beat.demoHint}
         </p>

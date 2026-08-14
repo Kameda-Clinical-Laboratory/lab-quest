@@ -28,14 +28,14 @@ export function InvestigateForm({
   token: string
   onClueCreated: (clue: ClueDef) => void
 }) {
-  function setAnswer(i: number, value: string) {
-    onChange({ ...beat, acceptedAnswers: beat.acceptedAnswers.map((a, idx) => (idx === i ? value : a)) })
+  function setChoice(i: number, patch: Partial<InvestigateBeat['choices'][number]>) {
+    onChange({ ...beat, choices: beat.choices.map((c, idx) => (idx === i ? { ...c, ...patch } : c)) })
   }
-  function addAnswer() {
-    onChange({ ...beat, acceptedAnswers: [...beat.acceptedAnswers, ''] })
+  function addChoice() {
+    onChange({ ...beat, choices: [...beat.choices, { label: '', correct: false }] })
   }
-  function removeAnswer(i: number) {
-    onChange({ ...beat, acceptedAnswers: beat.acceptedAnswers.filter((_, idx) => idx !== i) })
+  function removeChoice(i: number) {
+    onChange({ ...beat, choices: beat.choices.filter((_, idx) => idx !== i) })
   }
 
   return (
@@ -62,25 +62,25 @@ export function InvestigateForm({
         <Label>{JP.investigateHowTo}</Label>
         <Input value={beat.howTo} onChange={(e) => onChange({ ...beat, howTo: e.target.value })} />
       </div>
-      <div className="field">
-        <Label>{JP.investigateInputPrompt}</Label>
-        <Input
-          value={beat.inputPrompt}
-          onChange={(e) => onChange({ ...beat, inputPrompt: e.target.value })}
-        />
-      </div>
-
-      <Label>{JP.investigateAcceptedAnswers}</Label>
-      {beat.acceptedAnswers.map((a, i) => (
-        <div key={i} className="inline">
-          <Input value={a} onChange={(e) => setAnswer(i, e.target.value)} />
-          <Button type="button" variant="outline" size="sm" onClick={() => removeAnswer(i)}>
+      <Label>{JP.investigateChoices}</Label>
+      {beat.choices.map((c, i) => (
+        <div key={i} className="inline" style={{ alignItems: 'center' }}>
+          <Input value={c.label} onChange={(e) => setChoice(i, { label: e.target.value })} style={{ flex: 1 }} />
+          <label className="inline" style={{ gap: 4 }}>
+            <input
+              type="checkbox"
+              checked={c.correct}
+              onChange={(e) => setChoice(i, { correct: e.target.checked })}
+            />
+            {JP.choiceCorrect}
+          </label>
+          <Button type="button" variant="outline" size="sm" onClick={() => removeChoice(i)}>
             {JP.removeLine}
           </Button>
         </div>
       ))}
-      <Button type="button" variant="outline" size="sm" onClick={addAnswer}>
-        {JP.investigateAddAnswer}
+      <Button type="button" variant="outline" size="sm" onClick={addChoice}>
+        {JP.investigateAddChoice}
       </Button>
 
       <div className="field">

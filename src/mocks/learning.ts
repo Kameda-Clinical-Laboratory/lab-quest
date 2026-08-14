@@ -58,14 +58,18 @@ export type Beat =
       xp?: number
     }
   | {
+      /**
+       * 調査。以前は自由入力(inputPrompt+acceptedAnswers)だったが、実習生には
+       * 入力の手間が負担という声を受け、2026-08に選択式(複数選択可)へ刷新した。
+       * choicesのうちcorrect:trueのものを過不足なく選べば正解(複数正解も許容)。
+       */
       type: 'investigate'
       id: string
       title?: string
       mode: InvestigateMode
       purpose: string
       howTo: string
-      inputPrompt: string
-      acceptedAnswers: string[]
+      choices: { label: string; correct: boolean }[]
       clueId: string
       required: boolean
       manners?: string
@@ -110,20 +114,6 @@ export type LearningUnit = {
   published?: boolean
 }
 
-export function normalizeAnswer(raw: string): string {
-  return raw
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '')
-    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0))
-    .replace(/[ー−–—]/g, '-')
-}
-
-export function answersMatch(input: string, accepted: string[]): boolean {
-  const n = normalizeAnswer(input)
-  return accepted.some((a) => normalizeAnswer(a) === n)
-}
-
 export function isBeatRequiredForUnitClear(beat: Beat): boolean {
   if (beat.type === 'investigate' && !beat.required) return false
   return true
@@ -158,7 +148,8 @@ export function validateUnit(unit: LearningUnit): string[] {
     beatIds.add(beat.id)
 
     if (beat.type === 'investigate') {
-      if (!beat.acceptedAnswers.length) errors.push(`${beat.id}: acceptedAnswers empty`)
+      if (!beat.choices.length) errors.push(`${beat.id}: choices empty`)
+      if (!beat.choices.some((c) => c.correct)) errors.push(`${beat.id}: 正解の選択肢が1つもありません`)
       if (!beat.clueId) errors.push(`${beat.id}: clueId required`)
     }
     if (beat.type === 'resolve') {
