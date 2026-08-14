@@ -173,6 +173,18 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
   )
   const activeGroup = groups[activeGroupIndex] ?? groups[0]
 
+  // 幕一覧は最初から全幕を見せず、クリア済み or 現在到達している幕までを順に出す
+  // (未到達の幕タイトルが先読みでネタバレしないようにする)。
+  const maxClearedGroupIndex = groups.reduce((max, g, gi) => {
+    const done =
+      g.kind === 'single'
+        ? clearedBeatIds.includes(g.beat.id)
+        : g.beats.filter((b) => b.required).every((b) => clearedBeatIds.includes(b.id))
+    return done ? gi : max
+  }, -1)
+  const revealedGroupCount = Math.max(activeGroupIndex >= 0 ? activeGroupIndex : 0, maxClearedGroupIndex) + 1
+  const visibleGroups = groups.slice(0, revealedGroupCount)
+
   function goTo(index: number) {
     setBeatIndex(index)
     setUnitCursor(unit!.id, index)
@@ -224,7 +236,7 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
           <div className="chapter-layout">
             <aside className="quest-side">
               <p className="quest-side-title">{unit.title}</p>
-              {groups.map((g, gi) => {
+              {visibleGroups.map((g, gi) => {
                 if (g.kind === 'single') {
                   const b = g.beat
                   const done = clearedBeatIds.includes(b.id)
