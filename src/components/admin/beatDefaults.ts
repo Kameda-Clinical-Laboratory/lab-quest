@@ -51,8 +51,10 @@ export function defaultBeat(type: Beat['type']): Beat {
             id: newId('q'),
             format: 'mcq',
             prompt: '',
-            choices: ['', ''],
-            correctIndex: 0,
+            choices: [
+              { label: '', correct: true },
+              { label: '', correct: false },
+            ],
             explanation: '',
           },
         ],

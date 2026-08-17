@@ -2083,7 +2083,8 @@
   flex: 0 0 auto;
 }
 .quest-play-frame .dialogue-stage,
-.quest-play-frame .quest-ticket-stage {
+.quest-play-frame .quest-ticket-stage,
+.quest-play-frame .quest-clear-stage {
   flex: 1 1 auto;
   min-height: 0;
   height: auto;
@@ -2112,6 +2113,16 @@
   padding-right: 0.6rem;
 }
 .quest-play-frame .quest-content.learn-panel.beat-bg-lecture .beat-actions {
+  flex: 0 0 auto;
+}
+
+/* 発展を終えたときの「クエストクリア」画面(quest-clear-stage)は、
+   クエスト発生(quest-ticket-stage)と同じく見出し以外の残り高さを舞台に渡す。 */
+.quest-play-frame .quest-content.learn-panel.beat-bg-drill {
+  display: flex;
+  flex-direction: column;
+}
+.quest-play-frame .quest-content.learn-panel.beat-bg-drill > h2 {
   flex: 0 0 auto;
 }
 
@@ -2229,6 +2240,60 @@
 }
 
 .quest-ticket-line {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 28ch;
+}
+
+/* クエストクリア画面(発展を終えたときの完了ボード)。クエスト発生(quest-ticket-*)と
+   全く同じ構造・寸法感で、背景の羊皮紙絵だけquest-clear-board.pngに差し替える。 */
+.quest-clear-stage {
+  position: relative;
+  height: var(--beat-stage-h);
+  border-radius: 0.65rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.quest-clear-board {
+  box-sizing: border-box;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background-image: url('/art/quest-clear-board.png');
+  background-size: 100% 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 11% 14%;
+  color: #2a1a0a;
+  filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.4));
+}
+
+.quest-clear-actions {
+  position: absolute;
+  right: 1.1rem;
+  bottom: 1rem;
+}
+
+.quest-clear-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.6rem;
+  margin: 0 0 0.7rem;
+  text-wrap: balance;
+}
+
+.quest-clear-line {
   font-family: var(--font-display);
   font-size: 1.15rem;
   line-height: 1.6;

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import DOMPurify from 'dompurify'
 import type { Beat } from '@/mocks/learning'
 import { getDialogueBackground } from '@/lib/dialogueBackgrounds'
@@ -165,7 +166,7 @@ export function BeatView({
   }
 
   if (beat.type === 'drill') {
-    return <DrillBeat beat={beat} already={already} onComplete={onComplete} />
+    return <DrillBeat beat={beat} already={already} unitTitle={unitTitle ?? ''} onComplete={onComplete} />
   }
 
   return null
@@ -437,34 +438,87 @@ function ResolveBeat({
   )
 }
 
+/**
+ * 発展問題。2026-08から investigate と同じ「複数選択可・◯を押すまで進まない」形へ統一。
+ * 正解しても自動では進めず、必ず「次へ」を押した時点で次の設問(または最終設問なら
+ * 完了パネル)へ進む(以前は正解した瞬間に自動で次へ進んでしまい、解説を読む間もなく
+ * 画面が切り替わっていた)。最終設問を終えると、そのままホームへ戻れるボタンを出す。
+ */
 function DrillBeat({
   beat,
-  already,
+  unitTitle,
   onComplete,
 }: {
   beat: Extract<Beat, { type: 'drill' }>
   already: boolean
+  unitTitle: string
   onComplete: () => void
 }) {
   const [qi, setQi] = useState(0)
-  const [selected, setSelected] = useState<number | null>(null)
+  const [selected, setSelected] = useState<Set<number>>(new Set())
   const [checked, setChecked] = useState(false)
+  const [finished, setFinished] = useState(false)
   const q = beat.questions[qi]
+  const isLast = qi >= beat.questions.length - 1
+
+  const correctIndexes = new Set(
+    q.choices.map((c, i) => (c.correct ? i : -1)).filter((i) => i >= 0),
+  )
+
+  function isCorrectSelection() {
+    if (selected.size !== correctIndexes.size) return false
+    for (const i of selected) if (!correctIndexes.has(i)) return false
+    return true
+  }
+
+  function toggle(i: number) {
+    if (checked) return
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(i)) next.delete(i)
+      else next.add(i)
+      return next
+    })
+  }
 
   function submit() {
-    if (selected === null) return
+    if (selected.size === 0) return
     setChecked(true)
-    if (selected !== q.correctIndex) return
-    if (qi < beat.questions.length - 1) {
-      setTimeout(() => {
-        setQi(qi + 1)
-        setSelected(null)
-        setChecked(false)
-      }, 400)
-    } else {
-      onComplete()
-    }
   }
+
+  function retry() {
+    setChecked(false)
+    setSelected(new Set())
+  }
+
+  function next() {
+    if (isLast) {
+      setFinished(true)
+      onComplete()
+      return
+    }
+    setQi((i) => i + 1)
+    setSelected(new Set())
+    setChecked(false)
+  }
+
+  if (finished) {
+    return (
+      <div className="quest-clear-stage">
+        <div className="quest-clear-board">
+          <p className="quest-clear-title">クエストクリア</p>
+          <p className="quest-clear-line">{unitTitle}</p>
+        </div>
+        <div className="quest-clear-actions">
+          <Link to="/app" className="btn quest">
+            ホームに戻る
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  const correct = checked && isCorrectSelection()
 
   return (
     <div>
@@ -475,44 +529,39 @@ function DrillBeat({
       <div className="choices">
         {q.choices.map((c, i) => (
           <button
-            key={c}
+            key={c.label}
             type="button"
-            className={`choice ${selected === i ? 'selected' : ''} ${
-              checked ? (i === q.correctIndex ? 'correct' : selected === i ? 'wrong' : '') : ''
+            className={`choice ${selected.has(i) ? 'selected' : ''} ${
+              checked ? (c.correct ? 'correct' : selected.has(i) ? 'wrong' : '') : ''
             }`}
-            onClick={() => !checked && setSelected(i)}
+            onClick={() => toggle(i)}
+            disabled={checked}
           >
-            {c}
+            {selected.has(i) ? '☑' : '☐'} {c.label}
           </button>
         ))}
       </div>
       {!checked && (
         <div className="beat-actions" style={{ marginTop: 12 }}>
-          <button type="button" className="btn quest" onClick={submit}>
+          <button type="button" className="btn quest" onClick={submit} disabled={selected.size === 0}>
             回答する
           </button>
         </div>
       )}
       {checked && (
         <div className="feedback">
-          {selected === q.correctIndex ? '正解' : '不正解'} — {q.explanation}
-          {selected !== q.correctIndex && (
-            <div style={{ marginTop: 8 }}>
-              <button
-                type="button"
-                className="btn secondary"
-                onClick={() => {
-                  setChecked(false)
-                  setSelected(null)
-                }}
-              >
+          {correct ? '正解' : '不正解'} — {q.explanation}
+          <div style={{ marginTop: 8 }}>
+            {correct ? (
+              <button type="button" className="btn quest" onClick={next}>
+                {isLast ? '発展を終える' : '次へ'}
+              </button>
+            ) : (
+              <button type="button" className="btn secondary" onClick={retry}>
                 やり直す
               </button>
-            </div>
-          )}
-          {selected === q.correctIndex && qi >= beat.questions.length - 1 && already && (
-            <p style={{ marginTop: 8 }}>発展完了（再閲覧）</p>
-          )}
+            )}
+          </div>
         </div>
       )}
     </div>

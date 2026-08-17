@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "db:seed": "tsx supabase/seed/seed.ts"
+    "db:seed": "tsx supabase/seed/seed.ts",
+    "content:push": "node scripts/push-series.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

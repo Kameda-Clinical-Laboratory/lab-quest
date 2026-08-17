@@ -11,8 +11,10 @@ function emptyQuestion(): DrillMcq {
     id: `q${crypto.randomUUID().slice(0, 8)}`,
     format: 'mcq',
     prompt: '',
-    choices: ['', ''],
-    correctIndex: 0,
+    choices: [
+      { label: '', correct: true },
+      { label: '', correct: false },
+    ],
     explanation: '',
   }
 }
@@ -33,20 +35,17 @@ export function DrillForm({
   function removeQuestion(i: number) {
     onChange({ ...beat, questions: beat.questions.filter((_, idx) => idx !== i) })
   }
-  function setChoice(qi: number, ci: number, value: string) {
+  function setChoice(qi: number, ci: number, patch: Partial<DrillMcq['choices'][number]>) {
     const q = beat.questions[qi]
-    setQuestion(qi, { choices: q.choices.map((c, idx) => (idx === ci ? value : c)) })
+    setQuestion(qi, { choices: q.choices.map((c, idx) => (idx === ci ? { ...c, ...patch } : c)) })
   }
   function addChoice(qi: number) {
     const q = beat.questions[qi]
-    setQuestion(qi, { choices: [...q.choices, ''] })
+    setQuestion(qi, { choices: [...q.choices, { label: '', correct: false }] })
   }
   function removeChoice(qi: number, ci: number) {
     const q = beat.questions[qi]
-    setQuestion(qi, {
-      choices: q.choices.filter((_, idx) => idx !== ci),
-      correctIndex: q.correctIndex >= ci && q.correctIndex > 0 ? q.correctIndex - 1 : q.correctIndex,
-    })
+    setQuestion(qi, { choices: q.choices.filter((_, idx) => idx !== ci) })
   }
 
   return (
@@ -63,14 +62,17 @@ export function DrillForm({
             <div key={ci} className="inline" style={{ marginBottom: 6 }}>
               <label className="inline" style={{ gap: 4 }}>
                 <input
-                  type="radio"
-                  name={`correct-${q.id}`}
-                  checked={q.correctIndex === ci}
-                  onChange={() => setQuestion(qi, { correctIndex: ci })}
+                  type="checkbox"
+                  checked={c.correct}
+                  onChange={(e) => setChoice(qi, ci, { correct: e.target.checked })}
                 />
                 {JP.choiceCorrect}
               </label>
-              <Input value={c} onChange={(e) => setChoice(qi, ci, e.target.value)} style={{ flex: 1 }} />
+              <Input
+                value={c.label}
+                onChange={(e) => setChoice(qi, ci, { label: e.target.value })}
+                style={{ flex: 1 }}
+              />
               <Button type="button" variant="outline" size="sm" onClick={() => removeChoice(qi, ci)}>
                 {JP.removeLine}
               </Button>

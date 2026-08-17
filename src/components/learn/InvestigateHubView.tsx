@@ -58,7 +58,7 @@ export function InvestigateHubView({
   return (
     <div className="investigate-hub">
       <p className="investigate-hub-prompt">気になる場所を調べてみましょう</p>
-      <p className="investigate-hub-sub">カードを選ぶと調査を開始します。すべて終えたら解決へ。</p>
+      <p className="investigate-hub-sub">カードを選ぶと調査を開始します。すべて終えたら判断へ。</p>
 
       <div className="investigate-hub-grid">
         {beats.map((b, i) => {
@@ -99,7 +99,7 @@ export function InvestigateHubView({
             disabled={!canAdvance}
             onClick={onAdvance}
           >
-            解決へ進む
+            判断へ進む
           </button>
         </div>
       )}
@@ -107,7 +107,7 @@ export function InvestigateHubView({
         <div className="investigate-hub-footer">
           <span className="investigate-hub-footer-note">必須の調査はありません</span>
           <button type="button" className="btn quest" onClick={onAdvance}>
-            解決へ進む
+            判断へ進む
           </button>
         </div>
       )}
