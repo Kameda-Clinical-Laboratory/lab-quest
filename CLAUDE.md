@@ -14,6 +14,15 @@ Skip this for changes with no visual surface (pure backend/SQL/types/docs-only e
 
 This does not replace the existing `<when_to_verify>`/`<verification_workflow>` functional check (console errors, network requests, clicking through the flow) — do both. The functional check confirms it *works*; the reviewer subagent checks it *looks and reads right* for this app's fantasy-quest visual language.
 
+## Curriculum content review (mandatory)
+
+Whenever a new or substantially rewritten unit's content (dialogue/lecture/investigate/resolve/drill text — anything authored via `content/series/*.mjs` and `scripts/push-series.mjs`, per `docs/unit-content-template.md`) is ready — do the following **before** treating the content as done:
+
+1. Invoke the `clinical-content-reviewer` subagent (`Agent` tool, `subagent_type: "clinical-content-reviewer"`) and point it at the `content/series/<stageId>.mjs` file (and the relevant `docs/ラボクエスト骨子案.md` section if scope-fit is in question).
+2. Read its `VERDICT`. On `FAIL`, fix the listed issues and re-review. Only report the content as finished once it's a `PASS`.
+
+This checks clinical accuracy and 国家試験出題範囲 fit (core beats should stay in-scope; deeper/edge-case material belongs in 発展/drill, not in the mandatory beats) — a different axis from the UI review above. Run both when a new series' first unit goes out: content review for what it says, UI review (once real content is in the actual screens) for how it looks. Skip content review for copy-only cosmetic tweaks that don't touch a clinical claim.
+
 ## Known environment quirks
 
 - **`mcp__Claude_Browser__computer` click by `ref` is sometimes unreliable** (clicks land on stale/wrong coordinates after a re-render). If a click via `ref` doesn't visibly change state, retry via `mcp__Claude_Browser__javascript_tool` dispatching a real `.click()` on the matching DOM element (read-only for inspection, this is just a more reliable click, not implementing anything).
