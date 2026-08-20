@@ -15,8 +15,9 @@ export type DrillMcq = {
   id: string
   format: 'mcq'
   prompt: string
-  choices: string[]
-  correctIndex: number
+  /** 複数選択可(2026-08、investigateと同じ形へ統一)。correct:trueの集合と過不足なく
+   * 一致すれば正解(単一正解の設問でも1つだけcorrect:trueにすればそのまま機能する)。 */
+  choices: { label: string; correct: boolean }[]
   explanation: string
   xp?: number
 }

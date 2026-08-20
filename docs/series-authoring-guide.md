@@ -3,6 +3,8 @@
 この文書は、シリーズ（学習パッケージ）を **別の作成者** が同じ型で作るための手順書です。  
 アプリ実装の詳細ではなく、「学習の流れ・中身の書き方・チェックリスト」を定めます。
 
+**実際に1ユニット分の原稿を書くときは、`docs/unit-content-template.md`(調査・判断・報告・発展それぞれの分量/構成テンプレート)と、コード版の`content/series/_template.mjs`を使う。投入は`scripts/push-series.mjs`、シリーズ全体の優先順位は`docs/series-roadmap.md`を参照。**
+
 ---
 
 ## 1. この教材で目指すもの
@@ -36,15 +38,19 @@
 
 ## 3. ユニットの基本フロー（最重要）
 
-各ユニットは、次の **固定順** で作る。
+各ユニットは、次の **固定順** で作る(2026-08、幕構成リニューアル後の正本。実装上のbeat配列は下記7幕)。
 
 ```text
-① 会話（症例が開く）
- → ② 講義（解決に必要な最小知識）
- → ③ 調査（その症例を解くための手がかり集め）
- → ④ 症例解決（手がかりを使って判断）
- → ⑤ 発展問題（定着・一般化）
+第1幕 会話（症例が開く。beat.titleは自由記載）
+ → 第2幕 クエスト発生（unit.title/requestLineをそのまま表示。編集不可）
+ → 第3幕 講義（解決に必要な最小知識）
+ → 第4幕 調査（その症例を解くための手がかり集め。1〜複数のinvestigateビートを1つの調査ハブにまとめる）
+ → 第5幕 判断（1問目のresolve。手がかりを使った初動判断）
+ → 第6幕 報告（2問目のresolve。判断を踏まえた最終的な報告方針。無ければ省略可）
+ → 第7幕 発展（定着・一般化。国試形式の設問）
 ```
+
+**幕タイトルの付け方**: 第2〜7幕は上記の固定名を`beat.title`にそのまま設定する(会話だけ自由記載)。特に **resolveビートが2つ以上あるユニットでは、1つ目に`title: '判断'`、2つ目に`title: '報告'`を必ず設定すること**(未設定だと種別ラベル「解決」がどちらにも表示され、サイドバー上で見分けがつかなくなる。既存の`bio-hemolysis-u1`もこの命名で統一済み)。調査ハブの「判断へ進む」ボタン文言もこの固定名に合わせてある。
 
 ### 設計の核
 
@@ -370,7 +376,7 @@
 | lecture | 短い講義 | body, bridge?, xp? |
 | investigate | 調査（手がかり集め） | mode: textbook\\|doc\\|observe, purpose, howTo, choices[{ label, correct }]（複数正解可・チェックボックス選択式。2026-08に自由入力inputPrompt/acceptedAnswersから刷新）, clueId, required, manners?, demoHint?, xp? |
 | resolve | 症例解決（1幕=1問。2026-08に複数ステップ内包から刷新） | requiredClueIds[], prompt, choices[{ label, correct, feedback }], xp? |
-| drill | 発展（MVPは mcq） | questions[{ id, format:'mcq', prompt, choices, correctIndex, explanation }], xp? |
+| drill | 発展（MVPは mcq） | questions[{ id, format:'mcq', prompt, choices[{ label, correct }]（複数正解可・チェックボックス選択式。2026-08にcorrectIndexから刷新）, explanation }], xp? |
 
 ### ゲート・救済（実装済み）
 
