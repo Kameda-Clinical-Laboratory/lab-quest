@@ -551,7 +551,7 @@ function DrillBeat({
       {checked && (
         <div className="feedback">
           {correct ? '正解' : '不正解'} — {q.explanation}
-          <div style={{ marginTop: 8 }}>
+          <div className="beat-actions" style={{ marginTop: 8 }}>
             {correct ? (
               <button type="button" className="btn quest" onClick={next}>
                 {isLast ? '発展を終える' : '次へ'}
