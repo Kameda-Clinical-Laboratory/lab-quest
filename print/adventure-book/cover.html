@@ -45,18 +45,56 @@
         width: 210mm;
         height: 297mm;
         overflow: hidden;
-        background: #fbfcfb;
+        background: #ffffff;
       }
 
       .cover {
         position: relative;
         width: 210mm;
         height: 297mm;
-        background:
-          linear-gradient(180deg, rgba(251, 252, 251, 0.12) 0%, rgba(251, 252, 251, 0) 18%, rgba(251, 252, 251, 0) 78%, rgba(247, 241, 228, 0.18) 100%),
-          url('art/cover-bg.png') center / cover no-repeat;
+        background-color: #ffffff;
+        background-image:
+          radial-gradient(ellipse 56% 46% at 50% 40%, rgba(26, 155, 138, 0.16) 0%, rgba(243, 230, 196, 0.14) 46%, rgba(255, 255, 255, 0) 74%),
+          radial-gradient(ellipse 42% 30% at 36% 30%, rgba(61, 207, 184, 0.11) 0%, rgba(255, 255, 255, 0) 72%),
+          radial-gradient(ellipse 44% 28% at 66% 56%, rgba(212, 160, 23, 0.12) 0%, rgba(255, 255, 255, 0) 70%),
+          url('art/cover-bg.png');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: auto, auto, auto, 100% 100%;
         color: #14302c;
         font-family: 'IBM Plex Sans JP', 'Hiragino Sans', sans-serif;
+      }
+
+      /* 印刷余白と同化させる：外周は純白へ溶かす（文字の下） */
+      .cover::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        background:
+          linear-gradient(
+            to right,
+            #ffffff 0,
+            #ffffff 6mm,
+            rgba(255, 255, 255, 0.72) 12mm,
+            rgba(255, 255, 255, 0) 24mm,
+            rgba(255, 255, 255, 0) calc(100% - 24mm),
+            rgba(255, 255, 255, 0.72) calc(100% - 12mm),
+            #ffffff calc(100% - 6mm),
+            #ffffff 100%
+          ),
+          linear-gradient(
+            to bottom,
+            #ffffff 0,
+            #ffffff 8mm,
+            rgba(255, 255, 255, 0.78) 16mm,
+            rgba(255, 255, 255, 0) 30mm,
+            rgba(255, 255, 255, 0) calc(100% - 30mm),
+            rgba(255, 255, 255, 0.78) calc(100% - 16mm),
+            #ffffff calc(100% - 8mm),
+            #ffffff 100%
+          );
       }
 
       .stack {
@@ -66,7 +104,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 22mm 22mm 16mm;
+        padding: 30mm 26mm 32mm;
       }
 
       .logo {
@@ -116,7 +154,7 @@
         height: 2.4mm;
         border: 0.35mm solid #c9a24a;
         transform: rotate(45deg);
-        background: #fbf8ef;
+        background: #ffffff;
       }
 
       .subtitle {
