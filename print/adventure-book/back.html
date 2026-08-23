@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>LAB QUEST 冒険の書 — 裏表紙</title>
+    <style>
+      @font-face {
+        font-family: 'Zen Antique Soft';
+        src: url('fonts/ZenAntiqueSoft-Regular.ttf') format('truetype');
+        font-weight: 400;
+        font-display: block;
+      }
+      @font-face {
+        font-family: 'IBM Plex Sans JP';
+        src: url('fonts/IBMPlexSansJP-Medium.ttf') format('truetype');
+        font-weight: 500;
+        font-display: block;
+      }
+
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 210mm;
+        height: 297mm;
+        overflow: hidden;
+        background: #ffffff;
+      }
+
+      .cover {
+        position: relative;
+        width: 210mm;
+        height: 297mm;
+        background-color: #ffffff;
+        background-image:
+          radial-gradient(ellipse 56% 46% at 50% 48%, rgba(26, 155, 138, 0.14) 0%, rgba(243, 230, 196, 0.12) 46%, rgba(255, 255, 255, 0) 74%),
+          url('art/cover-bg.png');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: auto, 100% 100%;
+        color: #14302c;
+        font-family: 'IBM Plex Sans JP', sans-serif;
+      }
+
+      .cover::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        background:
+          linear-gradient(
+            to right,
+            #ffffff 0,
+            #ffffff 6mm,
+            rgba(255, 255, 255, 0.72) 12mm,
+            rgba(255, 255, 255, 0) 24mm,
+            rgba(255, 255, 255, 0) calc(100% - 24mm),
+            rgba(255, 255, 255, 0.72) calc(100% - 12mm),
+            #ffffff calc(100% - 6mm),
+            #ffffff 100%
+          ),
+          linear-gradient(
+            to bottom,
+            #ffffff 0,
+            #ffffff 8mm,
+            rgba(255, 255, 255, 0.78) 16mm,
+            rgba(255, 255, 255, 0) 30mm,
+            rgba(255, 255, 255, 0) calc(100% - 30mm),
+            rgba(255, 255, 255, 0.78) calc(100% - 16mm),
+            #ffffff calc(100% - 8mm),
+            #ffffff 100%
+          );
+      }
+
+      .stack {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 32mm 28mm;
+        text-align: center;
+      }
+
+      .brand {
+        font-size: 9pt;
+        font-weight: 500;
+        letter-spacing: 0.42em;
+        text-indent: 0.42em;
+        color: #6b5a28;
+      }
+
+      .tagline {
+        margin-top: 8mm;
+        font-family: 'Zen Antique Soft', serif;
+        font-size: 16pt;
+        letter-spacing: 0.08em;
+        color: #143532;
+        line-height: 1.7;
+      }
+
+      .hint {
+        margin-top: 6mm;
+        font-family: 'Zen Antique Soft', serif;
+        font-size: 11pt;
+        letter-spacing: 0.12em;
+        color: #3d5a54;
+      }
+    </style>
+  </head>
+  <body>
+    <article class="cover">
+      <div class="stack">
+        <div class="brand">LAB QUEST</div>
+        <p class="tagline">検査室は、<br />冒険の拠点になる</p>
+        <p class="hint">生化学・免疫検査　臨地実習</p>
+      </div>
+    </article>
+  </body>
+</html>
