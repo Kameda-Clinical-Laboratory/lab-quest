@@ -16,6 +16,8 @@ export const DIALOGUE_BACKGROUNDS: DialogueBackground[] = [
   { id: 'corridor', label: '廊下', src: '/art/quest-dialogue-bg-corridor.png' },
   // プロローグ「小さな声」用。会話UIに立ち絵レイヤがないため、見習いアスピアを絵の中に入れている。
   { id: 'prologue', label: 'プロローグ（アスピア）', src: '/art/quest-dialogue-bg-prologue.png' },
+  // エピローグ用。立派な技師になったアスピアが、ほぼ同身長の後輩と資料を一緒に見ている場面。
+  { id: 'epilogue', label: 'エピローグ（アスピア）', src: '/art/quest-dialogue-bg-epilogue.png' },
 ]
 
 /** 未選択・不明なidは先頭(labhall)にフォールバックする。 */
