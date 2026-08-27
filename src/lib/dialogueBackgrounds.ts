@@ -14,6 +14,8 @@ export const DIALOGUE_BACKGROUNDS: DialogueBackground[] = [
   { id: 'ward', label: '病棟', src: '/art/quest-dialogue-bg-ward.png' },
   { id: 'conference', label: 'カンファレンス室', src: '/art/quest-dialogue-bg-conference.png' },
   { id: 'corridor', label: '廊下', src: '/art/quest-dialogue-bg-corridor.png' },
+  // プロローグ「小さな声」用。会話UIに立ち絵レイヤがないため、見習いアスピアを絵の中に入れている。
+  { id: 'prologue', label: 'プロローグ（アスピア）', src: '/art/quest-dialogue-bg-prologue.png' },
 ]
 
 /** 未選択・不明なidは先頭(labhall)にフォールバックする。 */
