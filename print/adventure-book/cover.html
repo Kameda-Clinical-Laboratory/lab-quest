@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>LAB QUEST 冒険の書 — 表紙</title>
+    <style>
+      @font-face {
+        font-family: 'Zen Antique Soft';
+        src: url('fonts/ZenAntiqueSoft-Regular.ttf') format('truetype');
+        font-weight: 400;
+        font-display: block;
+      }
+      @font-face {
+        font-family: 'IBM Plex Sans JP';
+        src: url('fonts/IBMPlexSansJP-Regular.ttf') format('truetype');
+        font-weight: 400;
+        font-display: block;
+      }
+      @font-face {
+        font-family: 'IBM Plex Sans JP';
+        src: url('fonts/IBMPlexSansJP-Medium.ttf') format('truetype');
+        font-weight: 500;
+        font-display: block;
+      }
+      @font-face {
+        font-family: 'IBM Plex Sans JP';
+        src: url('fonts/IBMPlexSansJP-SemiBold.ttf') format('truetype');
+        font-weight: 600;
+        font-display: block;
+      }
+
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 210mm;
+        height: 297mm;
+        overflow: hidden;
+        background: #ffffff;
+      }
+
+      .cover {
+        position: relative;
+        width: 210mm;
+        height: 297mm;
+        background-color: #ffffff;
+        background-image:
+          radial-gradient(ellipse 56% 46% at 50% 40%, rgba(26, 155, 138, 0.16) 0%, rgba(243, 230, 196, 0.14) 46%, rgba(255, 255, 255, 0) 74%),
+          radial-gradient(ellipse 42% 30% at 36% 30%, rgba(61, 207, 184, 0.11) 0%, rgba(255, 255, 255, 0) 72%),
+          radial-gradient(ellipse 44% 28% at 66% 56%, rgba(212, 160, 23, 0.12) 0%, rgba(255, 255, 255, 0) 70%),
+          url('art/cover-bg.png');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: auto, auto, auto, 100% 100%;
+        color: #14302c;
+        font-family: 'IBM Plex Sans JP', 'Hiragino Sans', sans-serif;
+      }
+
+      /* 印刷余白と同化させる：外周は純白へ溶かす（文字の下） */
+      .cover::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        background:
+          linear-gradient(
+            to right,
+            #ffffff 0,
+            #ffffff 6mm,
+            rgba(255, 255, 255, 0.72) 12mm,
+            rgba(255, 255, 255, 0) 24mm,
+            rgba(255, 255, 255, 0) calc(100% - 24mm),
+            rgba(255, 255, 255, 0.72) calc(100% - 12mm),
+            #ffffff calc(100% - 6mm),
+            #ffffff 100%
+          ),
+          linear-gradient(
+            to bottom,
+            #ffffff 0,
+            #ffffff 8mm,
+            rgba(255, 255, 255, 0.78) 16mm,
+            rgba(255, 255, 255, 0) 30mm,
+            rgba(255, 255, 255, 0) calc(100% - 30mm),
+            rgba(255, 255, 255, 0.78) calc(100% - 16mm),
+            #ffffff calc(100% - 8mm),
+            #ffffff 100%
+          );
+      }
+
+      .stack {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30mm 26mm 32mm;
+      }
+
+      .logo {
+        display: block;
+        width: 118mm;
+        height: auto;
+        margin-top: 6mm;
+        filter: drop-shadow(0 2.4mm 5mm rgba(12, 36, 34, 0.16));
+      }
+
+      .kicker {
+        margin-top: 14mm;
+        font-size: 9.5pt;
+        font-weight: 500;
+        letter-spacing: 0.42em;
+        color: #6b5a28;
+        text-indent: 0.42em;
+      }
+
+      .title {
+        margin: 4mm 0 0;
+        font-family: 'Zen Antique Soft', 'Yu Mincho', serif;
+        font-size: 58pt;
+        font-weight: 400;
+        letter-spacing: 0.22em;
+        text-indent: 0.22em;
+        line-height: 1.15;
+        color: #143532;
+      }
+
+      .rule {
+        display: flex;
+        align-items: center;
+        gap: 4.5mm;
+        width: 92mm;
+        margin-top: 5mm;
+      }
+
+      .rule span {
+        flex: 1;
+        height: 0.35mm;
+        background: linear-gradient(90deg, transparent, #c9a24a, transparent);
+      }
+
+      .rule i {
+        width: 2.4mm;
+        height: 2.4mm;
+        border: 0.35mm solid #c9a24a;
+        transform: rotate(45deg);
+        background: #ffffff;
+      }
+
+      .subtitle {
+        margin-top: 5mm;
+        font-family: 'Zen Antique Soft', serif;
+        font-size: 13.5pt;
+        letter-spacing: 0.18em;
+        text-indent: 0.18em;
+        color: #3d5a54;
+      }
+
+      .tagline {
+        margin-top: 3mm;
+        font-family: 'Zen Antique Soft', serif;
+        font-size: 12pt;
+        letter-spacing: 0.06em;
+        color: #1a5f56;
+      }
+
+      .spacer {
+        flex: 1;
+      }
+
+      .footer {
+        text-align: center;
+        margin-bottom: 2mm;
+      }
+
+      .footer-en {
+        font-size: 8pt;
+        font-weight: 500;
+        letter-spacing: 0.32em;
+        text-indent: 0.32em;
+        color: #8b6914;
+      }
+
+      .footer-ja {
+        margin-top: 2mm;
+        font-family: 'Zen Antique Soft', serif;
+        font-size: 11pt;
+        letter-spacing: 0.14em;
+        text-indent: 0.14em;
+        color: #3d5a54;
+      }
+    </style>
+  </head>
+  <body>
+    <article class="cover">
+      <div class="stack">
+        <img class="logo" src="../../public/art/quest-brand-title.png" alt="LAB QUEST: Biochemistry and Immunology" />
+        <div class="kicker">THE BOOK OF ADVENTURE</div>
+        <h1 class="title">冒険の書</h1>
+        <div class="rule" aria-hidden="true"><span></span><i></i><span></span></div>
+        <p class="subtitle">臨地実習の手引き</p>
+        <p class="tagline">検査室は、冒険の拠点になる</p>
+        <div class="spacer"></div>
+        <footer class="footer">
+          <div class="footer-en">CLINICAL PRACTICUM</div>
+          <div class="footer-ja">生化学・免疫検査　臨地実習</div>
+        </footer>
+      </div>
+    </article>
+  </body>
+</html>

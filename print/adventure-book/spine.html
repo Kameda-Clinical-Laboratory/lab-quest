@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>LAB QUEST 冒険の書 — 背表紙</title>
+    <style>
+      @font-face {
+        font-family: 'Zen Antique Soft';
+        src: url('fonts/ZenAntiqueSoft-Regular.ttf') format('truetype');
+        font-weight: 400;
+        font-display: block;
+      }
+      @font-face {
+        font-family: 'IBM Plex Sans JP';
+        src: url('fonts/IBMPlexSansJP-Medium.ttf') format('truetype');
+        font-weight: 500;
+        font-display: block;
+      }
+
+      @page {
+        size: 12mm 297mm;
+        margin: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 12mm;
+        height: 297mm;
+        overflow: hidden;
+        background: #ffffff;
+      }
+
+      .spine {
+        position: relative;
+        width: 12mm;
+        height: 297mm;
+        background-color: #ffffff;
+        background-image:
+          radial-gradient(ellipse 90% 42% at 50% 40%, rgba(26, 155, 138, 0.2) 0%, rgba(255, 255, 255, 0) 72%),
+          radial-gradient(ellipse 90% 36% at 50% 68%, rgba(212, 160, 23, 0.14) 0%, rgba(255, 255, 255, 0) 70%);
+        color: #14302c;
+      }
+
+      /* 表紙・裏表紙との接合部が白くなるよう、左右と天地を白へ溶かす */
+      .spine::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(
+            to right,
+            #ffffff 0,
+            rgba(255, 255, 255, 0.88) 1.6mm,
+            rgba(255, 255, 255, 0) 4.2mm,
+            rgba(255, 255, 255, 0) calc(100% - 4.2mm),
+            rgba(255, 255, 255, 0.88) calc(100% - 1.6mm),
+            #ffffff 100%
+          ),
+          linear-gradient(
+            to bottom,
+            #ffffff 0,
+            #ffffff 8mm,
+            rgba(255, 255, 255, 0.75) 18mm,
+            rgba(255, 255, 255, 0) 32mm,
+            rgba(255, 255, 255, 0) calc(100% - 32mm),
+            rgba(255, 255, 255, 0.75) calc(100% - 18mm),
+            #ffffff calc(100% - 8mm),
+            #ffffff 100%
+          );
+      }
+
+      .stack {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 24mm 0 22mm;
+      }
+
+      .flask {
+        width: 7mm;
+        height: 7mm;
+        display: block;
+      }
+
+      .brand {
+        margin-top: 4mm;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        font-family: 'IBM Plex Sans JP', sans-serif;
+        font-size: 6.5pt;
+        font-weight: 500;
+        letter-spacing: 0.22em;
+        color: #6b5a28;
+      }
+
+      .mid {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5mm;
+      }
+
+      .tick {
+        width: 1.6mm;
+        height: 1.6mm;
+        border: 0.28mm solid #c9a24a;
+        transform: rotate(45deg);
+        background: #ffffff;
+      }
+
+      .title {
+        margin: 0;
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        font-family: 'Zen Antique Soft', 'Yu Mincho', serif;
+        font-size: 15pt;
+        font-weight: 400;
+        letter-spacing: 0.28em;
+        line-height: 1;
+        color: #143532;
+      }
+
+      .sub {
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        font-family: 'Zen Antique Soft', serif;
+        font-size: 8pt;
+        letter-spacing: 0.22em;
+        color: #3d5a54;
+      }
+    </style>
+  </head>
+  <body>
+    <article class="spine">
+      <div class="stack">
+        <svg class="flask" viewBox="0 0 48 48" aria-hidden="true">
+          <path
+            d="M18 6 H30 V14 L39 33 A9 9 0 0 1 31 44 H17 A9 9 0 0 1 9 33 L18 14 Z"
+            fill="#1a4540"
+            stroke="#e6c56a"
+            stroke-width="2"
+            stroke-linejoin="round"
+          />
+          <path d="M13 30 H35 L30 40 H18 Z" fill="#3dcfb8" opacity="0.88" />
+          <circle cx="21" cy="33" r="1.6" fill="#fff4cc" />
+          <circle cx="27" cy="35" r="1.2" fill="#7ec8b8" />
+          <rect x="17" y="4" width="14" height="5" rx="1.4" fill="#f0d78c" stroke="#8b6914" stroke-width="1.5" />
+          <path d="M20 8 H28" stroke="#8b6914" stroke-width="1.2" stroke-linecap="round" />
+        </svg>
+        <div class="brand">LAB QUEST</div>
+        <div class="mid">
+          <i class="tick" aria-hidden="true"></i>
+          <h1 class="title">冒険の書</h1>
+          <i class="tick" aria-hidden="true"></i>
+        </div>
+        <div class="sub">臨地実習</div>
+      </div>
+    </article>
+  </body>
+</html>
