@@ -18,6 +18,8 @@ export const DIALOGUE_BACKGROUNDS: DialogueBackground[] = [
   { id: 'prologue', label: 'プロローグ（アスピア）', src: '/art/quest-dialogue-bg-prologue.png' },
   // エピローグ用。立派な技師になったアスピアが、ほぼ同身長の後輩と資料を一緒に見ている場面。
   { id: 'epilogue', label: 'エピローグ（アスピア）', src: '/art/quest-dialogue-bg-epilogue.png' },
+  // エピローグ直後の映画エンドカード。「Fin.」を絵の中に入れている。
+  { id: 'fin', label: 'Fin.', src: '/art/quest-dialogue-bg-fin.png' },
 ]
 
 /** 未選択・不明なidは先頭(labhall)にフォールバックする。 */
