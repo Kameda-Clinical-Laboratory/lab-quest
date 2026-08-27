@@ -139,6 +139,8 @@ async function handle(req: Request): Promise<Response> {
           p_request_line: p.requestLine,
           p_beats: beats,
           p_actor_staff_id: staffId,
+          // フラグワード(§3)。全置換保存の対象。未指定ならnull(=flagWordなし)で保存する。
+          p_flag_word: p.flagWord ?? null,
         })
         if (error) throw new Error(error.message)
         return json(data)

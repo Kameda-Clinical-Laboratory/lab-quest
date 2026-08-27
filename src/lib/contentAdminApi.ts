@@ -54,7 +54,15 @@ export function createUnitApi(
 
 export function saveUnitDraftApi(
   token: string,
-  opts: { unitId: string; title: string; requestLine: string; beats: Beat[] },
+  opts: {
+    unitId: string
+    title: string
+    requestLine: string
+    beats: Beat[]
+    /** フラグワード(§3)。全置換保存の対象なので、既存のflagWordを保つ場合も
+     * 呼び出し元は draft.flagWord をそのまま渡す必要がある(省略するとnullで上書きされる)。 */
+    flagWord?: LearningUnit['flagWord']
+  },
 ) {
   return callAdminContent<{ unit: LearningUnit }>(token, 'save_unit_draft', opts)
 }

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import type { Beat } from '@/mocks/learning'
+import { useEffect, useState } from 'react'
+import type { Beat, FlagWordConfig } from '@/mocks/learning'
 import { InvestigateBeat } from './BeatView'
 
 type InvestigateBeatT = Extract<Beat, { type: 'investigate' }>
@@ -11,12 +11,16 @@ type InvestigateBeatT = Extract<Beat, { type: 'investigate' }>
  *
  * 完了状態(clearedBeatIds)は個々のinvestigateビートidに対して従来どおり記録されるため、
  * 必須/任意の判定やresolveの手がかりロックなど、既存ロジックには一切手を入れていない。
+ *
+ * 2026-08(第4幕リニューアル §3): unit.flagWordが設定されていて、このハブにcipher型の
+ * カードがあれば、「判断へ進む」ボタンを押した直後に文字の欠片を並べ替える画面を挟む。
  */
 export function InvestigateHubView({
   beats,
   clearedBeatIds,
   clues,
   canAdvance,
+  flagWord,
   onCompleteItem,
   onAdvance,
 }: {
@@ -24,10 +28,12 @@ export function InvestigateHubView({
   clearedBeatIds: string[]
   clues: { id: string; name: string; summary: string }[]
   canAdvance: boolean
+  flagWord?: FlagWordConfig
   onCompleteItem: (beat: InvestigateBeatT, clueId?: string) => void
   onAdvance: () => void
 }) {
   const [openId, setOpenId] = useState<string | null>(null)
+  const [showAssembly, setShowAssembly] = useState(false)
 
   const openBeat = beats.find((b) => b.id === openId) ?? null
 
@@ -50,6 +56,41 @@ export function InvestigateHubView({
         </div>
       </div>
     )
+  }
+
+  // フラグワード組み立て画面を挟むかどうか: このハブにcipher型カードがあり、かつ
+  // その全てが(スキップされずに)クリア済みで欠片が過不足なく揃っている場合のみ。
+  // 任意(required: false)のcipherカードがスキップされて欠片が足りない場合、
+  // 組み立て不能な行き止まりを作らないよう、その場合は素通りして判断へ進める。
+  const cipherBeats = beats.filter(
+    (b): b is Extract<InvestigateBeatT, { puzzleType: 'cipher' }> => b.puzzleType === 'cipher',
+  )
+  const ownedFragments = cipherBeats
+    .filter((b) => clearedBeatIds.includes(b.id))
+    .map((b) => b.fragmentChar)
+  const answerChars = flagWord?.answer ? [...flagWord.answer] : []
+  const needsAssembly = cipherBeats.length > 0 && answerChars.length > 0 && ownedFragments.length === answerChars.length
+
+  if (showAssembly) {
+    return (
+      <FlagWordAssembly
+        answer={flagWord!.answer}
+        fragments={ownedFragments}
+        onSolved={() => {
+          setShowAssembly(false)
+          onAdvance()
+        }}
+        onBack={() => setShowAssembly(false)}
+      />
+    )
+  }
+
+  function handleAdvanceClick() {
+    if (needsAssembly) {
+      setShowAssembly(true)
+      return
+    }
+    onAdvance()
   }
 
   const requiredCount = beats.filter((b) => b.required).length
@@ -97,7 +138,7 @@ export function InvestigateHubView({
             type="button"
             className={`btn ${canAdvance ? 'quest' : 'secondary'}`}
             disabled={!canAdvance}
-            onClick={onAdvance}
+            onClick={handleAdvanceClick}
           >
             判断へ進む
           </button>
@@ -106,11 +147,115 @@ export function InvestigateHubView({
       {requiredCount === 0 && (
         <div className="investigate-hub-footer">
           <span className="investigate-hub-footer-note">必須の調査はありません</span>
-          <button type="button" className="btn quest" onClick={onAdvance}>
+          <button type="button" className="btn quest" onClick={handleAdvanceClick}>
             判断へ進む
           </button>
         </div>
       )}
+    </div>
+  )
+}
+
+/**
+ * フラグワード組み立て画面(§3)。集めた文字の欠片(fragments)をタップしてスロットに
+ * 並べ、unit.flagWord.answerと同じ語を完成させる。完成するまで判断へは進めない。
+ */
+function FlagWordAssembly({
+  answer,
+  fragments,
+  onSolved,
+  onBack,
+}: {
+  answer: string
+  fragments: string[]
+  onSolved: () => void
+  onBack: () => void
+}) {
+  const answerChars = [...answer]
+  const [placed, setPlaced] = useState<(number | null)[]>(() => answerChars.map(() => null))
+  const [msg, setMsg] = useState<string | null>(null)
+
+  const usedIndexes = new Set(placed.filter((p): p is number => p !== null))
+  const allFilled = placed.every((p) => p !== null)
+  const isCorrect = allFilled && placed.every((p, i) => p !== null && fragments[p] === answerChars[i])
+
+  useEffect(() => {
+    if (allFilled && !isCorrect) setMsg('まだ違うようだ。タイルをタップして並べ替えよう')
+    if (isCorrect) setMsg(null)
+  }, [allFilled, isCorrect])
+
+  function placeFragment(fi: number) {
+    if (usedIndexes.has(fi) || isCorrect) return
+    const emptySlot = placed.findIndex((p) => p === null)
+    if (emptySlot < 0) return
+    const next = [...placed]
+    next[emptySlot] = fi
+    setPlaced(next)
+  }
+  function clearSlot(si: number) {
+    if (placed[si] === null || isCorrect) return
+    const next = [...placed]
+    next[si] = null
+    setPlaced(next)
+  }
+  function resetAll() {
+    setPlaced(answerChars.map(() => null))
+    setMsg(null)
+  }
+
+  return (
+    <div className="flagword-stage">
+      <button type="button" className="btn ghost" onClick={onBack}>
+        {'← 調査一覧へ戻る'}
+      </button>
+      <p className="investigate-hub-prompt" style={{ marginTop: 12 }}>
+        文字の欠片を並べ替えて、合言葉を完成させよう
+      </p>
+      <p className="investigate-hub-sub">タイルをタップしてマスに置き、もう一度タップすると戻せます。</p>
+
+      <div className="flagword-slots">
+        {placed.map((p, si) => (
+          <button
+            key={si}
+            type="button"
+            className={`flagword-slot ${p !== null ? 'filled' : ''}`}
+            onClick={() => clearSlot(si)}
+            aria-label={`${si + 1}文字目`}
+          >
+            {p !== null ? fragments[p] : ''}
+          </button>
+        ))}
+      </div>
+
+      <div className="flagword-tiles">
+        {fragments.map((f, fi) => (
+          <button
+            key={fi}
+            type="button"
+            className="flagword-tile"
+            disabled={usedIndexes.has(fi) || isCorrect}
+            onClick={() => placeFragment(fi)}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
+      {msg && <div className="feedback">{msg}</div>}
+      {isCorrect && <div className="feedback">合言葉「{answer}」を完成させた!</div>}
+
+      <div className="inline beat-actions" style={{ justifyContent: 'center', marginTop: 16 }}>
+        {!isCorrect && (
+          <button type="button" className="btn secondary" onClick={resetAll}>
+            やり直す
+          </button>
+        )}
+        {isCorrect && (
+          <button type="button" className="btn quest" onClick={onSolved}>
+            判断へ進む
+          </button>
+        )}
+      </div>
     </div>
   )
 }

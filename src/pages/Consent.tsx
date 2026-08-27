@@ -13,14 +13,16 @@ export function Consent() {
   const [error, setError] = useState<string | null>(null)
 
   if (!currentStudent) return <Navigate to="/" replace />
-  if (currentStudent.consentAt) return <Navigate to="/app" replace />
+  if (currentStudent.consentAt) {
+    return <Navigate to={currentStudent.nickname ? '/app' : '/prologue'} replace />
+  }
 
   async function onAgree() {
     setPending(true)
     setError(null)
     try {
       await recordConsent(CONSENT_VERSION)
-      navigate('/app')
+      navigate(currentStudent?.nickname ? '/app' : '/prologue')
     } catch (err) {
       setError(err instanceof Error ? err.message : '通信エラーが発生しました')
     } finally {

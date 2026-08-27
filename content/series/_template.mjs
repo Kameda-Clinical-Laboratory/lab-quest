@@ -37,6 +37,10 @@ export default {
       // unitId: 'TODO-unit-id',
       title: 'TODO: ユニットタイトル(体言止め、例:「赤く染まった検体」)',
       requestLine: 'TODO: 依頼文1文(状況+今回何を決めるか)',
+      // TODO: 調査カードにpuzzleType: 'cipher'を1枚でも使うなら必須。
+      // answerの文字集合(1文字ずつ)が全cipherカードのfragmentCharの集合と
+      // 一致している必要がある。詳細はdocs/unit-content-template.md参照。
+      // flagWord: { answer: 'TODO' },
       beats: [
         // ── 第1幕 会話(自由記載、3〜5行) ──────────────────────────
         {
@@ -71,12 +75,17 @@ export default {
         },
 
         // ── 第4幕 調査(1〜3枚。カードごとにclueKeyで手がかりを紐付ける) ─────
+        // puzzleType省略時はboard(証拠ボード型、下記choicesで正解を選ぶ)。
+        // 対立仮説の消去で謎解きが成立するなら、まずboardのまま作る(docs/series-authoring-guide.md §3.5)。
+        // order(手順並べ替え)/match(結線マッチング)/cloze(文中の穴埋め、ひらがな入力)は
+        // docs/unit-content-template.md 参照。cipherは非推奨(同§3.5)。
         {
           id: 'TODO-unit-id-inv-a',
           type: 'investigate',
           xp: 15,
           mode: 'textbook', // textbook / doc / observe
           required: true,
+          // puzzleType: 'board', // 省略可(デフォルト)。'cipher'/'order'/'match'も選べる
           purpose: 'TODO: なぜ確認するか(症例の文脈に紐づける)',
           howTo: 'TODO: どこで確認するか(教科書・配布資料・観察)',
           clueKey: 'clue-a',

@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# コンテンツ執筆時の私的な参考資料(教科書PDF・国試過去問など、著作権物/大容量のため管理外)
+docs/materials/
+docs/national exam/
+
+# 発表用の個人的な原稿・スライド(アプリ本体とは無関係)
+docs/発表原稿-*.md
+docs/LABQUEST_発表スライド.pptx

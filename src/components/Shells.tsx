@@ -18,6 +18,11 @@ export function StudentShell() {
   if (backendMode === 'supabase' && studentStateLoaded && !currentStudent.consentAt) {
     return <Navigate to="/consent" replace />
   }
+  // プロローグゲート(§1.1)。同意済みだがまだニックネーム未入力(=プロローグ未実施)なら
+  // そちらへ弾く。同意ゲートと同じ理由でstudentStateLoadedを待つ。
+  if (backendMode === 'supabase' && studentStateLoaded && !currentStudent.nickname) {
+    return <Navigate to="/prologue" replace />
+  }
 
   const clueTotal = stages.reduce((n, s) => n + (s.clues?.length ?? 0), 0)
   const clueOwned = currentStudent.progress.ownedClueIds.length

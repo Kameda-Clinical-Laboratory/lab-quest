@@ -260,6 +260,12 @@ export function CbtResult() {
       </p>
       <p className="muted">合否判定はありません。指導者が評価表の理解度に換算します。</p>
 
+      <p style={{ marginTop: 12 }}>
+        <Link to="/epilogue" className="btn quest">
+          エピローグへ →
+        </Link>
+      </p>
+
       <table className="data">
         <thead>
           <tr>

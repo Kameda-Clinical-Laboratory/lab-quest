@@ -33,7 +33,7 @@ export function StudentLogin() {
           <img src="/art/quest-login-banner.png" alt="" />
           <div className="login-hero-caption">
             <div className="mb-1 text-[11px] uppercase tracking-[0.28em] text-amber-200/85">Lab Quest</div>
-            <div className="brand-title text-2xl sm:text-3xl">検査室は、冒険の拠点になる</div>
+            <div className="brand-title text-2xl sm:text-3xl">臨床検査室は、冒険の拠点になる</div>
           </div>
         </div>
 

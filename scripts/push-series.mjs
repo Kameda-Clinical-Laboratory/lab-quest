@@ -18,10 +18,16 @@
 //         unitId: 'bio-hemolysis-u1',   // 省略時は新規ユニットとしてcreate_unitする
 //         title: '...',
 //         requestLine: '...',
+//         // フラグワード(§3)。cipher型の調査カードを1枚でも使うなら必須
+//         // (答えの文字集合が全cipherカードのfragmentCharの集合と一致している必要がある)。
+//         flagWord: { answer: '...' },
 //         beats: [
 //           // investigate beatは clueId の代わりに clueKey を書く
 //           // resolve beatは requiredClueIds の代わりに requiredClueKeys を書く
 //           // (このスクリプトが実際のclue idへ解決してから送信する)
+//           // investigate beatは puzzleType: 'board'|'cipher'|'order'|'match' を持てる
+//           // (省略時はboard)。cipherはfragmentChar、orderはsteps、matchはpairsが必要。
+//           // 詳細は docs/unit-content-template.md 参照。
 //         ],
 //       },
 //     ],
@@ -144,7 +150,9 @@ async function main() {
     for (const u of content.units) {
       const beats = u.beats.map((b) => resolveDryRun(b, keyToId))
       console.log(`\n[dry-run] unit: ${u.unitId ?? '(新規)'} ${u.title}`)
-      console.log(JSON.stringify({ title: u.title, requestLine: u.requestLine, beats }, null, 2))
+      console.log(
+        JSON.stringify({ title: u.title, requestLine: u.requestLine, flagWord: u.flagWord, beats }, null, 2),
+      )
     }
     console.log('\n[dry-run] 実際の送信は行っていません。')
     return
@@ -182,6 +190,9 @@ async function main() {
       title: u.title,
       requestLine: u.requestLine,
       beats,
+      // フラグワード(§3)。全置換保存の対象なので、cipher型カードを使うユニットは
+      // content fileにflagWordを書く(省略するとnullで保存され、既存の設定を消す)。
+      flagWord: u.flagWord,
     })
     console.log(`[unit] 下書き保存: ${unitId}(beats: ${beats.length})`)
 

@@ -10,7 +10,7 @@ export type DialogueBackground = {
 }
 
 export const DIALOGUE_BACKGROUNDS: DialogueBackground[] = [
-  { id: 'labhall', label: '検査室ホール', src: '/art/quest-dialogue-bg-labhall.png' },
+  { id: 'labhall', label: '臨床検査室ホール', src: '/art/quest-dialogue-bg-labhall.png' },
   { id: 'ward', label: '病棟', src: '/art/quest-dialogue-bg-ward.png' },
   { id: 'conference', label: 'カンファレンス室', src: '/art/quest-dialogue-bg-conference.png' },
   { id: 'corridor', label: '廊下', src: '/art/quest-dialogue-bg-corridor.png' },

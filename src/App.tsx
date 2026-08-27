@@ -3,6 +3,8 @@ import { AppStateProvider } from './context/AppState'
 import { StaffShell, StudentShell } from './components/Shells'
 import { StaffLogin, StudentLogin } from './pages/Login'
 import { Consent } from './pages/Consent'
+import { Prologue } from './pages/Prologue'
+import { Epilogue } from './pages/Epilogue'
 import { HomeMap } from './pages/HomeMap'
 import { Codex } from './pages/Codex'
 import { CodexDetail } from './pages/CodexDetail'
@@ -29,6 +31,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<StudentLogin />} />
           <Route path="/consent" element={<Consent />} />
+          <Route path="/prologue" element={<Prologue />} />
+          <Route path="/epilogue" element={<Epilogue />} />
           <Route path="/staff/login" element={<StaffLogin />} />
 
           <Route path="/app" element={<StudentShell />}>
