@@ -504,7 +504,7 @@ export default {
           id: 'bio-tubes-u4-d0',
           type: 'dialogue',
           xp: 5,
-          title: '検査室での気づき',
+          title: '臨床検査室での気づき',
           backgroundId: 'labhall',
           lines: [
             { speaker: '技師', text: 'あれ、同じ患者さんなのに血清管とヘパリン血漿管でKの値が違うね。' },

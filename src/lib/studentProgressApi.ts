@@ -6,6 +6,8 @@ export interface ServerStudentState {
   id: string
   name: string
   code: string
+  /** プロローグでプレイヤー自身が入力する呼び名。未入力(null)ならプロローグ未実施。 */
+  nickname: string | null
   schoolName: string | null
   consentAt: string | null
   visitDates: string[]
@@ -124,6 +126,12 @@ export function getActiveCbtQuestionsApi(token: string) {
 export function recordConsentApi(token: string, consentVersion: string) {
   return callStudentProgress<{ student: ServerStudentState }>(token, 'record_consent', {
     consentVersion,
+  })
+}
+
+export function setNicknameApi(token: string, nickname: string) {
+  return callStudentProgress<{ student: ServerStudentState }>(token, 'set_nickname', {
+    nickname,
   })
 }
 

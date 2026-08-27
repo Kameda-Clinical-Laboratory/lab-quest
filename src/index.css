@@ -54,7 +54,11 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    min-width: 1100px;
+    /* 以前は1100px固定だったため、タブレット/狭いノートPC幅(768〜1024px)で
+       ページ全体が横スクロールしてしまっていた(.status-bar/.login-heroなど
+       既存のmax-width:820px/900pxのブレークポイントも無効化されていた)。
+       320pxまで縮められるようにして、それらのブレークポイントを機能させる。 */
+    min-width: 320px;
     background-color: #0a1f1d;
     background-image:
       radial-gradient(ellipse 90% 60% at 8% -10%, rgba(26, 155, 138, 0.28), transparent 55%),
@@ -1082,6 +1086,38 @@
   color: #3f210a;
 }
 
+/* プロローグ(§1.1)。ニックネーム入力・選択肢カードは.consent-paperの
+   羊皮紙見た目を流用し、中身だけこのファイル専用のクラスで組む。 */
+.prologue-overlay-wrap {
+  margin-top: 1rem;
+}
+.prologue-prompt {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: #3f210a;
+}
+.prologue-choices {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.prologue-choice-btn {
+  border-radius: 0.5rem;
+  border: 1px solid rgba(90, 55, 20, 0.35);
+  background: rgba(255, 250, 236, 0.6);
+  color: #2a1a0a;
+  padding: 0.65rem 0.9rem;
+  text-align: left;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.prologue-choice-btn:hover {
+  border-color: #8b6914;
+  background: rgba(255, 250, 236, 0.9);
+}
+
 .login-hero-art {
   position: relative;
   overflow: hidden;
@@ -1275,6 +1311,28 @@
   @apply border-teal-600 bg-teal-50;
 }
 
+/* 調査カードの型選択(InvestigateForm.tsx、2026-08 第4幕リニューアル) */
+.surface-light .puzzle-type-picker {
+  @apply grid gap-2;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+.surface-light .puzzle-type-card {
+  @apply flex cursor-pointer flex-col gap-1 rounded-lg border-2 border-transparent bg-white p-3 text-left;
+  border-color: var(--border);
+}
+.surface-light .puzzle-type-card:hover {
+  @apply border-teal-300;
+}
+.surface-light .puzzle-type-card.selected {
+  @apply border-teal-600 bg-teal-50;
+}
+.surface-light .puzzle-type-card-label {
+  @apply text-sm font-semibold text-foreground;
+}
+.surface-light .puzzle-type-card-desc {
+  @apply text-xs text-muted-foreground;
+}
+
 /* Learning pages on dark shell use light reading cards */
 .learn-panel {
   @apply rounded-xl border border-border/60 bg-[#f3faf8] p-6 text-[#14302c] shadow-lg;
@@ -1310,6 +1368,17 @@
 .learn-panel .btn.quest:hover {
   background: linear-gradient(180deg, #f8e0a0, #d69f42);
 }
+/* 無効状態(未入力/未選択で押せないボタン)の視覚的サイン。従来は機能的に押せない
+   だけで見た目が押せるボタンと同じだった(game-ui-ux-reviewer指摘、2026-08、cloze型
+   レビューで発覚。回答系ボタン全般に共通する問題のためbtn全体に適用する)。 */
+.learn-panel .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.learn-panel .btn.quest:hover:disabled {
+  background: linear-gradient(180deg, #f6d688, #c98f34);
+}
 .learn-panel .choices {
   @apply mt-4 flex flex-col gap-2;
 }
@@ -1329,7 +1398,7 @@
   @apply mt-3 border-l-4 border-teal-600 bg-teal-50 px-3 py-2;
 }
 .learn-panel .chapter-layout {
-  @apply grid gap-5 md:grid-cols-[200px_1fr];
+  @apply grid gap-5 md:grid-cols-[200px_minmax(0,1fr)];
 }
 
 .chapter-layout {
@@ -1339,7 +1408,10 @@
 
 @media (min-width: 768px) {
   .chapter-layout {
-    grid-template-columns: 200px 1fr;
+    /* minmax(0, 1fr): 1frだけだと列の暗黙min-widthがautoのままになり、
+       中の文章/画像などの内容幅次第で列がそれ以上縮まずに横スクロールが
+       出ることがあるため、明示的に0まで縮められるようにしておく。 */
+    grid-template-columns: 200px minmax(0, 1fr);
   }
 }
 .learn-panel .side-nav button {
@@ -1743,6 +1815,195 @@
 .investigate-hub-footer-note {
   font-size: 0.8rem;
   color: #6b5a3a;
+}
+
+/* 調査カードの型別UI(2026-08、第4幕リニューアル) */
+
+/* cipher型: 証拠ボード型(investigate-card)と見た目で区別できるよう紫の縁取りにする */
+.learn-panel .investigate-card.cipher {
+  border-color: #7c5cbf;
+  background: linear-gradient(180deg, #fdfbff, #ece3f7);
+}
+.learn-panel .investigate-card.cipher h4 {
+  color: #4c3a7a;
+}
+.learn-panel .fragment-reveal {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+.learn-panel .fragment-tile {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.5rem;
+  border: 2px solid #7c5cbf;
+  background: linear-gradient(180deg, #f3ecff, #ded0f5);
+  color: #4c3a7a;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* order型: 手順の並べ替え(ProcedureSim.tsxと同じ order-list/order-item を流用) */
+.learn-panel .order-item.correct {
+  border-color: #34d399;
+  background: #ecfdf5;
+}
+.learn-panel .order-item.wrong {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+/* match型: 結線マッチング(タップで左→右を選んで結ぶ) */
+.learn-panel .match-board {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+.learn-panel .match-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.learn-panel .match-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #b7cdc7;
+  background: #fff;
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  font-size: 0.9rem;
+}
+.learn-panel .match-item.selectable:hover {
+  border-color: #0f766e;
+}
+.learn-panel .match-item.selected {
+  border-color: #0f766e;
+  background: #ecfdf5;
+  box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.25);
+}
+.learn-panel .match-item.paired {
+  border-color: #c4a35a;
+  background: #fff8e1;
+}
+.learn-panel .match-item.correct {
+  border-color: #34d399;
+  background: #ecfdf5;
+}
+.learn-panel .match-item.wrong {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+.learn-panel .match-item-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 999px;
+  background: #c4a35a;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+/* cloze型: 文中の空欄にひらがな入力(2026-08追加) */
+.learn-panel .cloze-text {
+  line-height: 2.2;
+  font-size: 0.95rem;
+}
+.learn-panel .cloze-blank-wrap {
+  display: inline-block;
+}
+.learn-panel .cloze-blank {
+  border: none;
+  border-bottom: 2px solid #0f766e;
+  background: #ecfdf5;
+  border-radius: 0.25rem 0.25rem 0 0;
+  padding: 0.05rem 0.4rem;
+  margin: 0 0.15rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  text-align: center;
+}
+.learn-panel .cloze-blank:disabled {
+  color: inherit;
+  opacity: 1;
+}
+.learn-panel .cloze-blank-wrap.correct .cloze-blank {
+  border-bottom-color: #34d399;
+  background: #ecfdf5;
+  color: #067a55;
+}
+.learn-panel .cloze-blank-wrap.wrong .cloze-blank {
+  border-bottom-color: #ef4444;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* フラグワード組み立て(InvestigateHubView、判断へ進む前に挟む§3の画面) */
+.flagword-stage {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+.flagword-slots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+}
+.flagword-slot {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 0.5rem;
+  border: 2px dashed #c4a35a;
+  background: #fffdf6;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: #8b6914;
+  cursor: pointer;
+}
+.flagword-slot.filled {
+  border-style: solid;
+  background: linear-gradient(180deg, #f6d688, #c98f34);
+  color: #2a1a0a;
+  font-weight: 700;
+}
+.flagword-tiles {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+}
+.flagword-tile {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 0.5rem;
+  border: 2px solid #7c5cbf;
+  background: linear-gradient(180deg, #f3ecff, #ded0f5);
+  color: #4c3a7a;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.flagword-tile:disabled {
+  opacity: 0.25;
+  cursor: default;
 }
 
 /* Monster Hunter-style quest request paper (aged parchment, not a scroll) */
@@ -2313,6 +2574,51 @@
   align-items: flex-end;
 }
 
+/* プロローグ/エピローグ(src/pages/Prologue.tsx, Epilogue.tsx)専用の背景は横長すぎず、
+   通常の会話ビートより舞台を縦に1.5倍広げたい構図なので、共通の高さ調整クラスにしてある
+   (--beat-stage-h自体は他の会話ビートと共用なので変更しない)。 */
+.story-stage {
+  height: calc(var(--beat-stage-h) * 1.5);
+}
+
+/* プロローグの背景画像だけ、下端22%ほどが台詞用に塗りつぶされた黒帯になっているが、
+   セリフが無い場面(ニックネーム入力・選択肢)でもその黒帯だけが素通しで見えてしまい
+   不自然だった(ユーザー指摘、2026-08)。background-size/positionでその黒帯を
+   常に画面外へ追いやり、通常の会話ビートと同じ.dialogue-textbox側のグラデーションだけで
+   暗さを作る(=セリフ表示時の見た目もQuestの会話フェーズと統一される)。
+   エピローグ/Fin.の背景は黒帯を焼き込んでいない(素の絵)ので、このクロップは適用しない
+   — .story-stageの高さ調整だけで足りる。 */
+.prologue-stage {
+  background-size: auto 122%;
+  background-position: top center;
+}
+
+/* プロローグ/エピローグは.learn-panelの外側(story-stageの下)に置かれる画面なので、
+   .learn-panel .btn.quest(暗い舞台演出用の金の紋章風ボタン)がスコープの都合で効かない。
+   エピローグ「Fin.」カード下の「ホームへ戻る」など、舞台を締めくくる主導線用に
+   同じ見た目を.learn-panel非依存で複製したもの(game-ui-ux-reviewer指摘、2026-08-27)。 */
+.story-cta {
+  display: inline-flex;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  padding: 0 1.25rem;
+  background: linear-gradient(180deg, #f6d688, #c98f34);
+  border: 1.5px solid #8b6914;
+  color: #2a1a0a;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.35);
+}
+.story-cta:hover {
+  background: linear-gradient(180deg, #f8e0a0, #d69f42);
+}
+
 .dialogue-textbox {
   all: unset;
   box-sizing: border-box;
@@ -2338,6 +2644,13 @@
   font-size: 1.02rem;
   line-height: 1.6;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+/* 特定の台詞だけ話者を視覚的に対比させたいとき用(例: プロローグで先輩技師の
+   呼びかけをアスピアの独白と書体で区別する、ユーザー指摘2026-08-27)。
+   見出し用のserif(--font-display)に切り替えるだけの軽量な修飾クラス。 */
+.dialogue-textbox-text--display {
+  font-family: var(--font-display);
 }
 
 .dialogue-textbox-hint {

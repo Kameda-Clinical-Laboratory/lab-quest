@@ -434,7 +434,7 @@ export default {
               feedback: '何の確認もせずに報告するのは避けます。',
             },
             {
-              label: 'QCが届くまで検査室の作業をすべて止める',
+              label: 'QCが届くまで臨床検査室の作業をすべて止める',
               correct: false,
               feedback: '患者データを用いる方法で代替できる場面では、作業を止める前に検討します。',
             },
@@ -505,7 +505,7 @@ export default {
               choices: [
                 { label: '患者データを用いる方法で異常な結果がないか確認する', correct: true },
                 { label: '確認せずにいつも通り報告する', correct: false },
-                { label: '検査室の作業をすべて止める', correct: false },
+                { label: '臨床検査室の作業をすべて止める', correct: false },
                 { label: '過去の任意の日の結果をそのまま流用する', correct: false },
               ],
               explanation: '患者データを用いる方法で代替の異常検知を試みるのが初動です。',

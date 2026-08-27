@@ -91,7 +91,7 @@ export default {
           id: 'q21-u1-d0',
           type: 'dialogue',
           xp: 5,
-          title: '検査室での疑問',
+          title: '臨床検査室での疑問',
           backgroundId: 'labhall',
           lines: [
             { speaker: '実習生', text: 'この患者さん、コレステロールは基準範囲内なのに、なんで薬が出てるんですか?' },

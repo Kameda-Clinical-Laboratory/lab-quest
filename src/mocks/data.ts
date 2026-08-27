@@ -27,7 +27,7 @@ export const STAGES: Stage[] = [
     chapters: [
       {
         id: 'bio-basics-c1',
-        title: '検査室の一日',
+        title: '臨床検査室の一日',
         lecture:
           '生化学検査は、血液や尿に含まれる成分を測定し、臓器の働きや代謝の状態を評価します。午前は受付・遠心・分析装置への投入、午後は精度管理と異常値対応が中心になります。\n\n実習では「なぜその順番か」を意識すると、現場の動きが理解しやすくなります。',
         quiz: {
@@ -490,6 +490,7 @@ export const INITIAL_STUDENTS: Student[] = [
       stamps: 0,
     },
     consentAt: null,
+    nickname: null,
     stampDates: [],
   },
   {
@@ -532,6 +533,7 @@ export const INITIAL_STUDENTS: Student[] = [
       stamps: 4,
     },
     consentAt: null,
+    nickname: null,
     stampDates: [],
   },
 ]

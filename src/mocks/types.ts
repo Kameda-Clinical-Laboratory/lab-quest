@@ -101,6 +101,13 @@ export interface Student {
    * モックモードは同意ゲート対象外のため常にnullのまま。
    */
   consentAt: string | null
+  /**
+   * プロローグ(§1.1)でプレイヤー自身が入力する呼び名。マスタのフルネーム(name)とは別枠。
+   * Supabaseモードのみ意味を持つ(fn_get_student_stateから同期)。nullなら未実施 =
+   * /prologue へゲートされる(src/components/Shells.tsx StudentShell)。
+   * モックモードはプロローグ対象外のため常にnullのまま。
+   */
+  nickname: string | null
   /** 所属学校名(任意)。ヘッダーのネームプレートに表示する。 */
   schoolName: string | null
   /**

@@ -311,6 +311,7 @@ function UnitLearn({ stageId, unitId }: { stageId: string; unitId: string }) {
                   canAdvance={activeGroup.beats
                     .filter((b) => b.required)
                     .every((b) => clearedBeatIds.includes(b.id))}
+                  flagWord={unit.flagWord}
                   onCompleteItem={(b, clueId) => finishInvestigateItem(b, clueId)}
                   onAdvance={() => goToGroup(activeGroupIndex + 1)}
                 />

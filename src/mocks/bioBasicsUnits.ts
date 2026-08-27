@@ -16,7 +16,7 @@ export const BIO_BASICS_CLUES: ClueDef[] = [
 export const BIO_BASICS_UNITS: LearningUnit[] = [
   {
     id: 'bio-basics-u1',
-    title: '検査室の一日',
+    title: '臨床検査室の一日',
     requestLine: '朝の受付が溜まっている。何から手を付けるべきかを決める',
     beats: [
       {

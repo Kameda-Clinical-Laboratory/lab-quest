@@ -106,6 +106,15 @@ export function UnitEditor() {
       .map((b) => b.clueId)
       .filter(Boolean),
   )
+  // flagWord(§3)入力欄のヒント表示用: このユニット内のcipher型カードが今どんな
+  // 文字の欠片を持っているか(順不同)。answerはこれらの文字を並べ替えた語になる。
+  const cipherFragments = draft.beats
+    .filter(
+      (b): b is Extract<Beat, { type: 'investigate'; puzzleType: 'cipher' }> =>
+        b.type === 'investigate' && b.puzzleType === 'cipher',
+    )
+    .map((b) => b.fragmentChar)
+    .filter(Boolean)
 
   function updateBeat(next: Beat) {
     setDraft((d) => (d ? { ...d, beats: d.beats.map((b) => (b.id === next.id ? next : b)) } : d))
@@ -132,6 +141,7 @@ export function UnitEditor() {
         title: draft.title,
         requestLine: draft.requestLine,
         beats: draft.beats,
+        flagWord: draft.flagWord,
       })
       savedSnapshotRef.current = JSON.stringify(draft)
       queryClient.invalidateQueries({ queryKey: ['curriculum', 'admin'] })
@@ -234,6 +244,23 @@ export function UnitEditor() {
             disabled={!canEdit}
             onChange={(e) => setDraft((d) => (d ? { ...d, requestLine: e.target.value } : d))}
           />
+        </div>
+        <div className="field">
+          <Label>{JP.flagWordAnswer}</Label>
+          <Input
+            value={draft.flagWord?.answer ?? ''}
+            disabled={!canEdit}
+            placeholder={JP.flagWordPlaceholder}
+            onChange={(e) => {
+              const answer = e.target.value
+              setDraft((d) => (d ? { ...d, flagWord: answer ? { answer } : undefined } : d))
+            }}
+          />
+          <p className="muted" style={{ fontSize: '0.8rem', marginTop: 4 }}>
+            {cipherFragments.length > 0
+              ? `${JP.flagWordHintPrefix}${cipherFragments.join('、')}`
+              : JP.flagWordHintNone}
+          </p>
         </div>
       </div>
 

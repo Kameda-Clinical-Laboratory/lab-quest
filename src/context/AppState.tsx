@@ -47,6 +47,7 @@ import {
   getStudentState,
   recordConsentApi,
   recordLoginStampApi,
+  setNicknameApi,
   setUnitCursorApi,
   startCbtApi,
   submitCbtApi,
@@ -104,6 +105,7 @@ interface AppStateValue {
   getActiveCbtQuestions: () => CbtQuestion[]
   submitCbt: (answers: Record<string, number>) => Promise<number>
   recordConsent: (consentVersion: string) => Promise<void>
+  setNickname: (nickname: string) => Promise<void>
   allowCbtRetake: (studentId: string) => void
   resetStudentPassword: (studentId: string, password: string) => Promise<void>
   upsertStudent: (input: {
@@ -188,6 +190,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         ...s,
         name: server.name,
         code: server.code,
+        nickname: server.nickname,
         schoolName: server.schoolName,
         consentAt: server.consentAt,
         visitDates: server.visitDates,
@@ -616,6 +619,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [studentSession, syncServerStudent],
   )
 
+  // プロローグ(§1.1)でのニックネーム登録。同意記録と同じ形(supabaseモードのみ意味を持つ)。
+  const setNickname = useCallback(
+    async (nickname: string): Promise<void> => {
+      if (backendMode !== 'supabase' || !studentSession) return
+      const { student } = await setNicknameApi(studentSession.token, nickname)
+      syncServerStudent(student)
+    },
+    [studentSession, syncServerStudent],
+  )
+
   // 以下はスタッフ側の学生管理操作。Phase 3のスコープは「学生自身の進捗」の書き込み経路のみで、
   // スタッフ管理画面(実習生名簿・日割り計画・CBT再受験許可等)の実データ化は別フェーズで扱うため、
   // supabaseモードでもここは引き続きモック配列のみを操作する(既知の制限)。
@@ -726,6 +739,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             dayPlans,
             progress: emptyProgress(),
             consentAt: null,
+            nickname: null,
             stampDates: [],
           },
         ])
@@ -756,6 +770,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           dayPlans,
           progress: emptyProgress(),
           consentAt: null,
+          nickname: null,
           stampDates: [],
         },
       ])
@@ -819,6 +834,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       getActiveCbtQuestions,
       submitCbt,
       recordConsent,
+      setNickname,
       allowCbtRetake,
       resetStudentPassword,
       upsertStudent,
@@ -853,6 +869,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       getActiveCbtQuestions,
       submitCbt,
       recordConsent,
+      setNickname,
       allowCbtRetake,
       resetStudentPassword,
       upsertStudent,
