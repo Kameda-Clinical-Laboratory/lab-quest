@@ -140,7 +140,12 @@ export function StudentAdmin() {
       const ok = confirm(
         `${JP.missingRequiredPrefix}${missing.map((id) => getStage(stages, id)?.title).join(JP.comma)}\n${JP.saveConfirm}`,
       )
-      if (!ok) return
+      if (!ok) {
+        // confirm()をキャンセルすると従来は何も起きず、押しても保存されない原因が
+        // 画面上から一切わからなかった(ユーザー報告、2026-08-28)。理由を明示する。
+        setError(JP.saveCancelledMissingRequired)
+        return
+      }
     }
     setError(null)
     setSaving(true)

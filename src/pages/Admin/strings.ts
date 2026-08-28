@@ -24,6 +24,8 @@ export const JP = {
   saveNeedNameDates: '氏名と実習日（1日以上）が必須です',
   missingRequiredPrefix: '必須シリーズ未割当: ',
   saveConfirm: 'このまま保存しますか？',
+  saveCancelledMissingRequired:
+    '保存をキャンセルしました。必須シリーズを割り当てるか、そのまま保存する場合はもう一度「保存」を押して確認ダイアログで「OK」を選んでください。',
   savedMock: '保存しました（モック）',
   studentAdminTitle: '実習生登録・カレンダー割当',
   newRegister: '新規登録',
