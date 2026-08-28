@@ -55,6 +55,7 @@ import {
   type ServerStudentState,
 } from '../lib/studentProgressApi'
 import {
+  deleteStudentApi,
   listStudentConsentApi,
   resetStudentPasswordApi,
   upsertStudentApi,
@@ -108,6 +109,8 @@ interface AppStateValue {
   setNickname: (nickname: string) => Promise<void>
   allowCbtRetake: (studentId: string) => void
   resetStudentPassword: (studentId: string, password: string) => Promise<void>
+  /** 実習生を完全に削除する(進捗・実習日程・同意記録等も連鎖削除、取り消せない)。 */
+  deleteStudent: (studentId: string) => Promise<void>
   upsertStudent: (input: {
     id?: string
     name: string
@@ -681,6 +684,21 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [patchStudent, students, resolveRealStudentId],
   )
 
+  const deleteStudent = useCallback(
+    async (studentId: string) => {
+      if (backendMode === 'supabase') {
+        const session = loadStaffSession()
+        const mock = students.find((s) => s.id === studentId)
+        if (!session || !mock) throw new Error('スタッフとしてログインし直してください')
+        const realId = await resolveRealStudentId(mock.code)
+        if (!realId) throw new Error('対応する実データが見つかりません')
+        await deleteStudentApi(session.token, realId)
+      }
+      setStudents((prev) => prev.filter((s) => s.id !== studentId))
+    },
+    [students, resolveRealStudentId],
+  )
+
   const upsertStudent = useCallback(
     async (input: {
       id?: string
@@ -837,6 +855,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setNickname,
       allowCbtRetake,
       resetStudentPassword,
+      deleteStudent,
       upsertStudent,
       updateDayPlan,
       setVisitDates,
@@ -872,6 +891,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setNickname,
       allowCbtRetake,
       resetStudentPassword,
+      deleteStudent,
       upsertStudent,
       updateDayPlan,
       setVisitDates,

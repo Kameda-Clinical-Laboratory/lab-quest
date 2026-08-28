@@ -29,6 +29,7 @@ export function StudentAdmin() {
     stages,
     upsertStudent,
     resetStudentPassword,
+    deleteStudent,
     allowCbtRetake,
     mockToday,
     setMockToday,
@@ -340,6 +341,28 @@ export function StudentAdmin() {
                   }}
                 >
                   {JP.cbtRetakeAllow}
+                </button>
+                <button
+                  type="button"
+                  className="btn warn"
+                  disabled={saving}
+                  onClick={() => {
+                    const ok = confirm(`${JP.deleteConfirmPrefix}${selected.name}${JP.deleteConfirmSuffix}`)
+                    if (!ok) return
+                    setSaving(true)
+                    setError(null)
+                    deleteStudent(selected.id)
+                      .then(() => {
+                        alert(JP.deletedMock)
+                        const remaining = students.filter((s) => s.id !== selected.id)
+                        if (remaining[0]) loadStudent(remaining[0].id)
+                        else startNew()
+                      })
+                      .catch((err) => setError(err instanceof Error ? err.message : '削除に失敗しました'))
+                      .finally(() => setSaving(false))
+                  }}
+                >
+                  {JP.deleteStudent}
                 </button>
               </>
             )}

@@ -138,3 +138,8 @@ export function listStudentConsentApi(token: string) {
 export function resetConsentApi(token: string, studentId: string) {
   return callAdminContent<{ ok: true }>(token, 'reset_consent', { studentId })
 }
+
+/** 実習生を完全に削除する(進捗・実習日程・同意記録等も連鎖削除、取り消せない)。 */
+export function deleteStudentApi(token: string, studentId: string) {
+  return callAdminContent<{ ok: true }>(token, 'delete_student', { studentId })
+}

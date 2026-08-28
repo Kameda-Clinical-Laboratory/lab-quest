@@ -48,6 +48,11 @@ export const JP = {
   pwReissue: 'パスワード再発行',
   cbtRetakeAllowed: 'CBT再受験を許可',
   cbtRetakeAllow: 'CBT再受験許可',
+  deleteStudent: '実習生を削除',
+  deleteConfirmPrefix: '実習生「',
+  deleteConfirmSuffix:
+    '」を削除します。進捗・実習日程・同意記録もすべて削除され、元に戻せません。よろしいですか？',
+  deletedMock: '削除しました（モック）',
   carryPreviewPrefix: 'モック今日の繰り越し見込み: ',
   dayAssignTitle: '日付ごとのシリーズ割当',
   pickVisitDay: '左のカレンダーで実習日を選んでください。',
