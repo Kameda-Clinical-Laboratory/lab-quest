@@ -205,10 +205,10 @@
 - **このセッション自身の変更(cloze、ニックネーム機能、プロローグ/エピローグ画面一式)はまだどこにもコミットされていない**(ローカルの作業ツリーにあるだけ)。次セッション開始時は、まず`git fetch origin`して新しいCursor側の変更が無いか確認し、あれば同じ手順(stash→pull→stash pop)で取り込んでから作業を続けること。
 - 次に区切りの良いところで、このセッションの変更をコミット・ブランチ作成・PR化することを検討する(Cursor側もPRベースで動いているため、同じ流儀に合わせた方が事故が少ない)。
 
-### 7.4 後片付け(未対応)
+### 7.4 後片付け(2026-08-28解決済み)
 
-- 動作確認のために作成した使い捨て実習生アカウントが多数残っている(TRAIN46〜58あたり、正確な一覧は`/staff/progress`で確認できる)。管理画面に削除機能が無いため、放置か別手段での削除が必要(要ユーザー判断)。
-- `scripts/_bio-tubes-dump.json`・`scripts/_youki_full.txt`という見覚えのないuntrackedファイルがワーキングツリーにある(このセッションが作ったものではない。Cursor側の作業の残骸である可能性)。中身を確認して要否を判断すること。
+- ~~動作確認のために作成した使い捨て実習生アカウントが多数残っている~~ → **解決済み**。§7.7参照(実習生削除機能を新設し、TRAIN37/TRAIN43〜60の19件を一括削除。TRAIN01/02とその進捗データは無傷であることを確認済み)。
+- `scripts/_bio-tubes-dump.json`・`scripts/_youki_full.txt`という見覚えのないuntrackedファイルがワーキングツリーにある(このセッションが作ったものではない。Cursor側の作業の残骸である可能性)。中身を確認して要否を判断すること。(未対応のまま)
 
 ### 7.5 2026-08-27追記(ユーザーレビューによる3件の修正)
 
@@ -236,3 +236,11 @@
   - 対処: (a) q23の孤立した重複clue`clue-ict-ast`は、`student_progress.owned_clue_ids`にも他beatの`clue_id`/`required_clue_ids`にも一切参照されていないことを確認したうえで削除(Supabase REST APIをservice_role keyで直接操作。読み取り専用の調査目的での使用は許容範囲と判断したが、書き込み操作は毎回this確認を徹底した)。(b) q20-poct分の`clue-poct-4`は事前に`name`をpatchしてから publish することで重複作成を回避。(c) `summary`のみに検査室が残っていた3件(`clue-2018`/`clue-poct-4`/`clue-clue-42`)はpush-series.mjs経由では直せないため、Supabase REST APIで直接`summary`をpatch(ローカルの最新文面ではなく、本番の現行文面に対して検査室→臨床検査室の最小差分だけを当てた——ローカル側が別件で言い回し自体を変えている箇所があり、無関係な文面変更を巻き込まないため)。
   - **今後の教訓**: push-series.mjsで既存clueの`summary`だけを更新したい場合、このスクリプトでは反映されない。直接DBパッチが必要(または将来的にスクリプト側に「既存clueのsummaryも上書きする」オプションを足す価値がある)。clueの`name`文言を変更する既存コンテンツ改訂は、常にこの重複作成リスクを伴うことを覚えておくこと。
 - **最終確認**: `clues`/`beats`/`units`の3テーブル全件を本番から取得し「検査室」(「臨床検査室」を除く)の残存ゼロを確認済み。TRAIN01/TRAIN02を含むどの実習生の`owned_clue_ids`にも孤立clueへの参照が無いことも確認済み(実害なし)。
+
+### 7.7 2026-08-28追記(コミット/PR化、実習生登録の無反応バグ修正、実習生削除機能の新設)
+
+- **§7.5・§7.6を含むこのセッションの一連の変更をコミット・PR化した**: ブランチ`feature/prologue-epilogue-cloze-and-lab-wording`を作成し、`docs/adventure-book/`配下(このHANDOFFを含む執筆記録一式、初コミット)ごとpush。[PR #26](https://github.com/Kameda-Clinical-Laboratory/lab-quest/pull/26)。私的参考資料(`docs/materials/`・`docs/national exam/`、あわせて1GB近い教科書PDF・国試過去問)と発表用個人原稿(`docs/発表原稿-*.md`・`docs/LABQUEST_発表スライド.pptx`)は`.gitignore`に追加してリポジトリから除外(著作権・容量・アプリ本体と無関係、の3点が理由)。コミット直前に`git fetch`したら新規PR(#21「冒険の書のA4表紙デザイン」)がマージ済みだったため、通例通りstash→pull→stash popで追従してからコミット。
+- **ユーザー報告「新しい実習生を手動で追加しようとしても保存が押せません」を実機再現・原因特定・修正**: 実際には保存ボタン自体は無効化されておらず、原因は「必須シリーズ未割当のまま保存すると出るブラウザ標準confirm()ダイアログで『キャンセル』を選ぶと、画面上に一切フィードバックが無いまま保存処理が無音で中断する」という既存挙動だった(`src/pages/Admin/StudentAdmin.tsx`の`onSave`)。キャンセル時に理由と次の一手を示すバナー(`JP.saveCancelledMissingRequired`、既存の`.banner.warn`を再利用)を表示するよう修正。`game-ui-ux-reviewer`(Browser pane非表示のためDOM検証中心)でPASS。
+- **実習生削除機能を新設**(「削除機能を作るのは別フェーズでやりますか?やる予定がなければ今やってください」というユーザー指示を受けて即着手): `fn_admin_delete_student` RPC新設(migration `20260828100000_admin_delete_student.sql`、本番適用済み)。関連テーブル(day_plans/student_progress/student_stage_clears/consent_records/student_login_stamps)は元々`students(id)`を`on delete cascade`で参照しているため、students行の削除だけで付随データも一括消去される。`admin-content` Edge Functionに`delete_student`アクション追加(フル権限のみ、デプロイ済み)、`StudentAdmin.tsx`に確認ダイアログ付きの「実習生を削除」ボタンを追加。実機で作成→削除→DB上から消滅→`admin_audit_log`への記録、まで確認済み。
+- **この新機能で、積み上がっていた使い捨てテスト実習生を一括片付け**(ユーザー許可済み): TRAIN37・TRAIN43〜60の計19件を`fn_admin_delete_student`経由で削除(全件HTTP 204)。TRAIN01/TRAIN02とその進捗データ(XP・スタンプ等)は無傷であることを削除後に確認済み。§7.4の後片付け課題はこれで解消。
+- **まだ残っている後片付け**: `scripts/_bio-tubes-dump.json`・`scripts/_youki_full.txt`(見覚えのないuntrackedファイル、内容未確認)。§7.5④で保留した「検査室」表記の遡及適用範囲(docs/adventure-book配下の過去HANDOFF・草稿・発表原稿は対象外とした判断)は、全23シリーズの会話文改訂(§5)に着手する際に改めて確認するとよい。
