@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
-import { ASPIA_SPRITES, CONTENT_FIGURES, type ContentArtItem } from '@/lib/contentArt'
+import { ASPIA_SPRITES, ASPIA_WORK_SPRITES, CONTENT_FIGURES, type ContentArtItem } from '@/lib/contentArt'
 import { sanitizeLectureHtml } from '@/lib/lectureHtml'
 
 /**
@@ -93,9 +93,25 @@ export function RichTextEditor({
       </div>
       <details className="art-insert">
         <summary>画像を挿入（アスピア / 教材図）</summary>
-        <p className="art-insert-label">アスピア</p>
+        <p className="art-insert-label">アスピア（表情）</p>
         <div className="art-insert-grid sprites">
           {ASPIA_SPRITES.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className="art-insert-item"
+              title={item.label}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => insertArt(item)}
+            >
+              <img src={item.src} alt="" />
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
+        <p className="art-insert-label">アスピア（検査作業）</p>
+        <div className="art-insert-grid sprites work">
+          {ASPIA_WORK_SPRITES.map((item) => (
             <button
               key={item.id}
               type="button"
