@@ -1215,6 +1215,72 @@
   @apply px-3 py-2 text-sm leading-relaxed outline-none;
   white-space: pre-wrap;
 }
+.surface-light .rich-text-body img.lecture-sprite {
+  float: right;
+  height: 5.5rem;
+  width: auto;
+  margin: 0 0 0.3rem 0.5rem;
+}
+.surface-light .rich-text-body img.lecture-figure {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.5rem 0;
+}
+.surface-light .art-insert {
+  border-bottom: 1px solid var(--border);
+  background: #faf7ef;
+  padding: 0.4rem 0.65rem 0.65rem;
+}
+.surface-light .art-insert summary {
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: #0f4f46;
+  font-weight: 600;
+}
+.surface-light .art-insert-label {
+  margin: 0.45rem 0 0.25rem;
+  font-size: 0.7rem;
+  color: #5c6b68;
+}
+.surface-light .art-insert-grid {
+  display: grid;
+  gap: 0.35rem;
+}
+.surface-light .art-insert-grid.sprites {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.surface-light .art-insert-grid.figures {
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+}
+.surface-light .art-insert-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  border: 1px solid #d8c9a0;
+  border-radius: 0.4rem;
+  background: #fff;
+  padding: 0.25rem;
+  cursor: pointer;
+  font-size: 0.62rem;
+  color: #143532;
+}
+.surface-light .art-insert-item:hover {
+  border-color: #1a7a6d;
+}
+.surface-light .art-insert-item img {
+  display: block;
+  height: 52px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+.surface-light .art-insert-grid.figures .art-insert-item img {
+  width: 100%;
+  height: 40px;
+  object-fit: cover;
+}
 .surface-light .inline {
   @apply flex flex-wrap items-center gap-2;
 }
@@ -1428,6 +1494,25 @@
 }
 .learn-panel .lecture-rich {
   white-space: normal;
+}
+.learn-panel .lecture-rich::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+.learn-panel .lecture-rich img.lecture-sprite {
+  float: right;
+  height: 8.75rem;
+  width: auto;
+  margin: 0 0 0.45rem 0.85rem;
+}
+.learn-panel .lecture-rich img.lecture-figure {
+  display: block;
+  max-width: min(100%, 38rem);
+  height: auto;
+  margin: 0.9rem auto;
+  border-radius: 0.45rem;
+  background: #f7f0de;
 }
 .learn-panel .lecture-pdf {
   /* 本文は全幅に伸ばした一方、PDF/動画まで全幅にすると横長になりすぎて見づらいため

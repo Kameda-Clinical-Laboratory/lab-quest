@@ -23,6 +23,8 @@ export const BIO_BASICS_UNITS: LearningUnit[] = [
         type: 'dialogue',
         id: 'bio-basics-u1-d0',
         xp: 5,
+        title: '朝の受付',
+        backgroundId: 'reception',
         lines: [
           { speaker: 'Ns.', text: 'すみません、朝から検体が留まってて…急ぎの依頼もあるんですが、何から手を付けるべきか分からなくて。' },
           { speaker: '実習生', text: '受付と急ぎ度の整理が先ですね。' },
@@ -39,7 +41,9 @@ export const BIO_BASICS_UNITS: LearningUnit[] = [
         type: 'lecture',
         id: 'bio-basics-u1-lec',
         xp: 10,
-        body: '生化学検査は、血液や尿に含まれる成分を測定し、臓器の働きや代謝の状態を評価します。\n\n午前は受付・適正・分析装置への投入が中心です。緊急度の高い依頼は優先度を上げて処理します。',
+        // モック講義: 立ち絵(lecture-sprite)と教材図(lecture-figure)の差し込み例。
+        // 本番シリーズへ入れるときはスタッフ編集の「画像を挿入」を使う。
+        body: '<p>生化学検査は、血液や尿に含まれる成分を測定し、臓器の働きや代謝の状態を評価します。</p><img src="/art/aspia/chibi-explain.png" alt="説明するアスピア" class="lecture-sprite"><p>午前は受付・適正・分析装置への投入が中心です。緊急度の高い依頼は優先度を上げて処理します。原因不明の異常値は、装置・試薬・検体・患者の順で切り分けます。</p><img src="/art/figures/analysis-flow.png" alt="装置から患者までの切り分け" class="lecture-figure">',
         bridge: '次に教科書で基本流れを確認し、キーワードを入力してください。',
       },
       {

@@ -1,24 +1,18 @@
 import { useEffect, useRef } from 'react'
-import DOMPurify from 'dompurify'
 import { Button } from '@/components/ui/button'
+import { ASPIA_SPRITES, CONTENT_FIGURES, type ContentArtItem } from '@/lib/contentArt'
+import { sanitizeLectureHtml } from '@/lib/lectureHtml'
 
 /**
  * 講義本文用の簡易リッチテキストエディタ(2026-08)。
  *
- * WordPressのような本格エディタではなく、太字・下線・文字色の3操作だけに絞った
- * 最小構成。実装は contentEditable + document.execCommand ベース(非推奨APIだが
- * この3操作程度であれば主要ブラウザで今も動作し、依存も増やさずに済む)。
+ * WordPressのような本格エディタではなく、太字・下線・文字色と、
+ * /art/ 配下の立ち絵・教材図の挿入に絞った最小構成。
+ * 実装は contentEditable + document.execCommand ベース。
  *
- * 保存するHTMLは常にDOMPurifyで許可タグ/属性だけに絞る。加えて貼り付け(paste)は
- * プレーンテキストとして扱う(外部からのHTML持ち込みで想定外のスタイルや
- * タグが紛れ込むのを防ぐ)。ツールバー操作で生成される範囲のHTMLだけを許可する
- * 想定なので、これで実用上は十分な安全マージンになる。
+ * 保存するHTMLは常に sanitizeLectureHtml で許可タグ/属性だけに絞る。
+ * 貼り付け(paste)はプレーンテキストとして扱う。
  */
-
-const PURIFY_CONFIG = {
-  ALLOWED_TAGS: ['b', 'strong', 'i', 'em', 'u', 'span', 'br', 'div', 'p'],
-  ALLOWED_ATTR: ['style'],
-}
 
 const COLORS: { label: string; value: string }[] = [
   { label: '既定', value: 'inherit' },
@@ -27,26 +21,6 @@ const COLORS: { label: string; value: string }[] = [
   { label: '緑', value: '#1e7a4a' },
   { label: '金', value: '#8b6914' },
 ]
-
-/** contentEditableのinnerHTMLを許可タグ/属性だけに絞る。
- * style属性はcolor/text-decoration/font-weightの3つだけ残す(styleWithCSS有効時、
- * execCommandはfont色を<font color>ではなく<span style="color:...">で出すため、
- * ここでcolorを消してしまうと文字色が丸ごと消える)。 */
-function sanitize(html: string): string {
-  const clean = DOMPurify.sanitize(html, PURIFY_CONFIG)
-  const doc = new DOMParser().parseFromString(clean, 'text/html')
-  doc.querySelectorAll<HTMLElement>('[style]').forEach((el) => {
-    const { color, fontWeight } = el.style
-    // ブラウザは`text-decoration-line`だけ設定すると、ショートハンド`textDecoration`
-    // getterが空文字を返すことがあるため、longhandも見る。
-    const textDecoration = el.style.textDecoration || el.style.textDecorationLine
-    el.removeAttribute('style')
-    if (color) el.style.color = color
-    if (textDecoration) el.style.textDecoration = textDecoration
-    if (fontWeight) el.style.fontWeight = fontWeight
-  })
-  return doc.body.innerHTML
-}
 
 export function RichTextEditor({
   value,
@@ -71,7 +45,7 @@ export function RichTextEditor({
 
   function emitChange() {
     if (!ref.current) return
-    const clean = sanitize(ref.current.innerHTML)
+    const clean = sanitizeLectureHtml(ref.current.innerHTML)
     lastValue.current = clean
     onChange(clean)
   }
@@ -82,6 +56,14 @@ export function RichTextEditor({
     // (許可タグに無いため後段のsanitizeで消えてしまう)。CSSスタイル出力に固定する。
     document.execCommand('styleWithCSS', false, 'true')
     document.execCommand(command, false, arg)
+    emitChange()
+  }
+
+  function insertArt(item: ContentArtItem) {
+    ref.current?.focus()
+    const cls = item.kind === 'sprite' ? 'lecture-sprite' : 'lecture-figure'
+    const html = `<img src="${item.src}" alt="${item.alt}" class="${cls}">`
+    document.execCommand('insertHTML', false, html)
     emitChange()
   }
 
@@ -109,6 +91,41 @@ export function RichTextEditor({
           </button>
         ))}
       </div>
+      <details className="art-insert">
+        <summary>画像を挿入（アスピア / 教材図）</summary>
+        <p className="art-insert-label">アスピア</p>
+        <div className="art-insert-grid sprites">
+          {ASPIA_SPRITES.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className="art-insert-item"
+              title={item.label}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => insertArt(item)}
+            >
+              <img src={item.src} alt="" />
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
+        <p className="art-insert-label">教材図</p>
+        <div className="art-insert-grid figures">
+          {CONTENT_FIGURES.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className="art-insert-item"
+              title={item.label}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => insertArt(item)}
+            >
+              <img src={item.src} alt="" />
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </details>
       <div
         ref={ref}
         className="rich-text-body"

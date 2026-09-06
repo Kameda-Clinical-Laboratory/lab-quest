@@ -48,7 +48,7 @@ export default {
           type: 'dialogue',
           xp: 5,
           title: 'TODO: 幕タイトル(例:「看護室での立ち話」)',
-          backgroundId: 'labhall', // labhall / ward / conference / corridor / prologue / epilogue / fin
+          backgroundId: 'labhall', // labhall / ward / conference / corridor / nightlab / phlebotomy / centrifuge / nursestation / reception / courtyard / prologue / epilogue / fin
           lines: [
             { speaker: 'TODO', text: 'TODO: 違和感の提示' },
             { speaker: 'TODO', text: 'TODO: 反応' },

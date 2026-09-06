@@ -20,7 +20,7 @@
 
 - **分量**: 3〜5行
 - **型**: ①技師が違和感/依頼を提示 → ②実習生が反応 → ③技師が「まず何を確認すべきか」を示唆(講義・調査へのブリッジ) → ④(任意)今回決めることを一言で締める
-- **背景(backgroundId)**: `labhall`(臨床検査室ホール)/`ward`(病棟)/`conference`(カンファレンス室)/`corridor`(廊下)/`prologue`(プロローグ・アスピア)/`epilogue`(エピローグ・アスピア)/`fin`(Fin.)から場面に合うものを選ぶ
+- **背景(backgroundId)**: `labhall`(臨床検査室ホール)/`ward`(病棟)/`conference`(カンファレンス室)/`corridor`(廊下)/`nightlab`(夜間の臨床検査室)/`phlebotomy`(採血ブース)/`centrifuge`(遠心・前処理)/`nursestation`(ナースステーション)/`reception`(受付)/`courtyard`(中庭)/`prologue`(プロローグ・アスピア)/`epilogue`(エピローグ・アスピア)/`fin`(Fin.)。増減は `src/lib/dialogueBackgrounds.ts`。教材図・アスピア立ち絵は `docs/content-art.md`
 
 ```
 話者A: (違和感の提示)

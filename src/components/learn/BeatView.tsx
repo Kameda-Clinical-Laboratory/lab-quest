@@ -1,19 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import DOMPurify from 'dompurify'
 import { CLOZE_BLANK_MARKER, type Beat } from '@/mocks/learning'
+import { sanitizeLectureHtml } from '@/lib/lectureHtml'
 import { getDialogueBackground } from '@/lib/dialogueBackgrounds'
 
 // src/pages/ChapterLearn.tsx から移動(Phase 4)。学生ランタイム(UnitLearn)と
 // スタッフ用コンテンツエディタのプレビューペインの両方から使う共有コンポーネント。
 // ロジックは移動時点から一切変更していない。
-
-/** RichTextEditorが出力するタグだけを許可(RichTextEditor.tsxのPURIFY_CONFIGと揃える)。
- * 学生側の描画でも再度サニタイズし、DBを直接編集された場合等に備える(多重防御)。 */
-const LECTURE_BODY_HTML_CONFIG = {
-  ALLOWED_TAGS: ['b', 'strong', 'i', 'em', 'u', 'span', 'br', 'div', 'p'],
-  ALLOWED_ATTR: ['style'],
-}
 
 /** 講義本文がリッチテキスト(HTML)か、従来どおりのプレーンテキストかを判定する。
  * 旧データ(タグを含まない普通の文章)はこれまでどおりpre-wrapのプレーンテキストとして
@@ -74,7 +67,7 @@ export function BeatView({
             <div
               className="lecture-rich"
               dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(beat.body, LECTURE_BODY_HTML_CONFIG),
+                __html: sanitizeLectureHtml(beat.body),
               }}
             />
           ) : (
