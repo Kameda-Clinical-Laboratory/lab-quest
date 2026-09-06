@@ -29,6 +29,10 @@ SPRITES = {
     "aspia-chibi-worry.png": "chibi-worry.png",
     "aspia-chibi-explain.png": "chibi-explain.png",
     "aspia-chibi-determined.png": "chibi-determined.png",
+    "aspia-chibi-scope.png": "chibi-scope.png",
+    "aspia-chibi-pipette.png": "chibi-pipette.png",
+    "aspia-chibi-tubes.png": "chibi-tubes.png",
+    "aspia-chibi-analyzer.png": "chibi-analyzer.png",
 }
 
 
@@ -81,6 +85,22 @@ def knock_out_flat_bg(im: Image.Image, tol: int = 28) -> Image.Image:
     return rgba
 
 
+def chroma_remaining_bg(im: Image.Image, bg_rgb: tuple[int, int, int], limit: int = 50) -> Image.Image:
+    """Remove leftover flat-bg pockets that flood-fill could not reach (e.g. between arm and torso)."""
+    rgba = im.convert("RGBA")
+    px = rgba.load()
+    w, h = rgba.size
+    br, bg, bb = bg_rgb
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = px[x, y]
+            if a == 0:
+                continue
+            if abs(r - br) + abs(g - bg) + abs(b - bb) <= limit:
+                px[x, y] = (r, g, b, 0)
+    return rgba
+
+
 def crop_to_alpha(im: Image.Image, pad: int = 24) -> Image.Image:
     alpha = im.getchannel("A")
     bbox = alpha.getbbox()
@@ -108,7 +128,16 @@ def main() -> None:
         src = SRC / src_name
         if not src.exists():
             raise SystemExit(f"missing {src}")
-        out = knock_out_flat_bg(Image.open(src))
+        src_im = Image.open(src).convert("RGBA")
+        sw, sh = src_im.size
+        corners = [src_im.getpixel((0, 0)), src_im.getpixel((sw - 1, 0)), src_im.getpixel((0, sh - 1)), src_im.getpixel((sw - 1, sh - 1))]
+        bg_rgb = (
+            sum(c[0] for c in corners) // 4,
+            sum(c[1] for c in corners) // 4,
+            sum(c[2] for c in corners) // 4,
+        )
+        out = knock_out_flat_bg(src_im)
+        out = chroma_remaining_bg(out, bg_rgb)
         out = crop_to_alpha(out)
         dst = ASPIA / dst_name
         out.save(dst, "PNG", optimize=True)

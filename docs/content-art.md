@@ -47,7 +47,9 @@
 
 デフォルメ全身。講義本文の右に浮かべる想定。背景は透過PNG。
 
-`public/art/aspia/chibi-{neutral,think,happy,worry,explain,determined}.png`
+表情: `public/art/aspia/chibi-{neutral,think,happy,worry,explain,determined}.png`
+
+検査作業: `public/art/aspia/chibi-{scope,pipette,tubes,analyzer}.png`（顕微鏡・ピペット・採血管・分析装置）
 
 ## 会話背景（追加分）
 

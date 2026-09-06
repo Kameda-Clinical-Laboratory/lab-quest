@@ -20,6 +20,14 @@ export const ASPIA_SPRITES: ContentArtItem[] = [
   { id: 'determined', label: 'やる気', src: '/art/aspia/chibi-determined.png', alt: 'やる気のアスピア', kind: 'sprite' },
 ]
 
+/** 検査作業ポーズ。表情立ち絵と同じく講義本文の右に浮かべる。 */
+export const ASPIA_WORK_SPRITES: ContentArtItem[] = [
+  { id: 'scope', label: '顕微鏡', src: '/art/aspia/chibi-scope.png', alt: '顕微鏡をのぞくアスピア', kind: 'sprite' },
+  { id: 'pipette', label: 'ピペット', src: '/art/aspia/chibi-pipette.png', alt: 'ピペット操作のアスピア', kind: 'sprite' },
+  { id: 'tubes', label: '採血管', src: '/art/aspia/chibi-tubes.png', alt: '採血管を確認するアスピア', kind: 'sprite' },
+  { id: 'analyzer', label: '分析装置', src: '/art/aspia/chibi-analyzer.png', alt: '分析装置を扱うアスピア', kind: 'sprite' },
+]
+
 export const CONTENT_FIGURES: ContentArtItem[] = [
   { id: 'accuracy-precision', label: '正確さ・精密さ', src: '/art/figures/accuracy-precision.png', alt: '正確さと精密さの的当て図', kind: 'figure' },
   { id: 'levy-jennings', label: '管理図3パターン', src: '/art/figures/levy-jennings.png', alt: 'Levey-Jennings管理図の安定・シフト・トレンド', kind: 'figure' },

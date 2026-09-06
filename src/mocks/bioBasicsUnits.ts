@@ -43,7 +43,7 @@ export const BIO_BASICS_UNITS: LearningUnit[] = [
         xp: 10,
         // モック講義: 立ち絵(lecture-sprite)と教材図(lecture-figure)の差し込み例。
         // 本番シリーズへ入れるときはスタッフ編集の「画像を挿入」を使う。
-        body: '<p>生化学検査は、血液や尿に含まれる成分を測定し、臓器の働きや代謝の状態を評価します。</p><img src="/art/aspia/chibi-explain.png" alt="説明するアスピア" class="lecture-sprite"><p>午前は受付・適正・分析装置への投入が中心です。緊急度の高い依頼は優先度を上げて処理します。原因不明の異常値は、装置・試薬・検体・患者の順で切り分けます。</p><img src="/art/figures/analysis-flow.png" alt="装置から患者までの切り分け" class="lecture-figure">',
+        body: '<p>生化学検査は、血液や尿に含まれる成分を測定し、臓器の働きや代謝の状態を評価します。</p><img src="/art/aspia/chibi-explain.png" alt="説明するアスピア" class="lecture-sprite"><p>午前は受付・適正・分析装置への投入が中心です。緊急度の高い依頼は優先度を上げて処理します。原因不明の異常値は、装置・試薬・検体・患者の順で切り分けます。</p><img src="/art/aspia/chibi-analyzer.png" alt="分析装置を扱うアスピア" class="lecture-sprite"><img src="/art/figures/analysis-flow.png" alt="装置から患者までの切り分け" class="lecture-figure">',
         bridge: '次に教科書で基本流れを確認し、キーワードを入力してください。',
       },
       {
